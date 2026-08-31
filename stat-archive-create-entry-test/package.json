@@ -13,9 +13,10 @@
     "@capacitor/camera": "^8.1.0",
     "@capacitor/cli": "^8.0.0",
     "@capacitor/core": "^8.0.0",
+    "@capacitor/file-viewer": "^2.0.2",
     "@capacitor/filesystem": "^8.0.0",
 "@capacitor/share": "^8.0.0",
-    "@capacitor/file-viewer": "^8.0.0",
+    
     "pdf-lib": "^1.17.1",
     "sortablejs": "^1.15.6"
   },

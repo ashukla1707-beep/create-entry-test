@@ -14,6 +14,7 @@ const STORE = "entries";
 
 const EDITOR_MAX_EDGE = 1200;
 const FINAL_MAX_EDGE = 2000;
+const THUMB_MAX_EDGE = 360;
 
 const state = {
   pages: [],
@@ -43,110 +44,52 @@ const DEMO_SUBJECTS = [
 
 function openDb() {
   return new Promise((resolve, reject) => {
-    const req =
-      indexedDB.open(
-        DB_NAME,
-        DB_VERSION
-      );
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
 
-    req.onupgradeneeded =
-      () => {
-        const db =
-          req.result;
+    req.onupgradeneeded = () => {
+      const db = req.result;
 
-        if (
-          !db.objectStoreNames.contains(
-            STORE
-          )
-        ) {
-          db.createObjectStore(
-            STORE,
-            {
-              keyPath: "id",
-            }
-          );
-        }
-      };
+      if (!db.objectStoreNames.contains(STORE)) {
+        db.createObjectStore(STORE, {
+          keyPath: "id",
+        });
+      }
+    };
 
-    req.onsuccess =
-      () =>
-        resolve(
-          req.result
-        );
-
-    req.onerror =
-      () =>
-        reject(
-          req.error
-        );
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
   });
 }
 
-async function withStore(
-  mode,
-  fn
-) {
-  const db =
-    await openDb();
+async function withStore(mode, fn) {
+  const db = await openDb();
 
   try {
-    return await new Promise(
-      (
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE, mode);
+
+      fn(
+        tx.objectStore(STORE),
         resolve,
-        reject
-      ) => {
-        const tx =
-          db.transaction(
-            STORE,
-            mode
-          );
+        reject,
+        tx
+      );
 
-        fn(
-          tx.objectStore(
-            STORE
-          ),
-          resolve,
-          reject,
-          tx
-        );
-
-        tx.onerror =
-          () =>
-            reject(
-              tx.error
-            );
-      }
-    );
-
+      tx.onerror = () => reject(tx.error);
+    });
   } finally {
     db.close();
   }
 }
 
-async function dbPut(
-  record
-) {
+async function dbPut(record) {
   return withStore(
     "readwrite",
-    (
-      store,
-      resolve,
-      reject,
-      tx
-    ) => {
-      store.put(
-        record
-      );
+    (store, resolve, reject, tx) => {
+      store.put(record);
 
-      tx.oncomplete =
-        () =>
-          resolve();
-
-      tx.onabort =
-        () =>
-          reject(
-            tx.error
-          );
+      tx.oncomplete = () => resolve();
+      tx.onabort = () => reject(tx.error);
     }
   );
 }
@@ -154,26 +97,14 @@ async function dbPut(
 async function dbGetAll() {
   return withStore(
     "readonly",
-    (
-      store,
-      resolve,
-      reject
-    ) => {
-      const req =
-        store.getAll();
+    (store, resolve, reject) => {
+      const req = store.getAll();
 
-      req.onsuccess =
-        () =>
-          resolve(
-            req.result ||
-              []
-          );
+      req.onsuccess = () =>
+        resolve(req.result || []);
 
-      req.onerror =
-        () =>
-          reject(
-            req.error
-          );
+      req.onerror = () =>
+        reject(req.error);
     }
   );
 }
@@ -181,26 +112,14 @@ async function dbGetAll() {
 async function dbGet(id) {
   return withStore(
     "readonly",
-    (
-      store,
-      resolve,
-      reject
-    ) => {
-      const req =
-        store.get(id);
+    (store, resolve, reject) => {
+      const req = store.get(id);
 
-      req.onsuccess =
-        () =>
-          resolve(
-            req.result ||
-              null
-          );
+      req.onsuccess = () =>
+        resolve(req.result || null);
 
-      req.onerror =
-        () =>
-          reject(
-            req.error
-          );
+      req.onerror = () =>
+        reject(req.error);
     }
   );
 }
@@ -208,23 +127,11 @@ async function dbGet(id) {
 async function dbDelete(id) {
   return withStore(
     "readwrite",
-    (
-      store,
-      resolve,
-      reject,
-      tx
-    ) => {
+    (store, resolve, reject, tx) => {
       store.delete(id);
 
-      tx.oncomplete =
-        () =>
-          resolve();
-
-      tx.onabort =
-        () =>
-          reject(
-            tx.error
-          );
+      tx.oncomplete = () => resolve();
+      tx.onabort = () => reject(tx.error);
     }
   );
 }
@@ -232,23 +139,11 @@ async function dbDelete(id) {
 async function dbClear() {
   return withStore(
     "readwrite",
-    (
-      store,
-      resolve,
-      reject,
-      tx
-    ) => {
+    (store, resolve, reject, tx) => {
       store.clear();
 
-      tx.oncomplete =
-        () =>
-          resolve();
-
-      tx.onabort =
-        () =>
-          reject(
-            tx.error
-          );
+      tx.oncomplete = () => resolve();
+      tx.onabort = () => reject(tx.error);
     }
   );
 }
@@ -257,41 +152,46 @@ async function dbClear() {
    GENERAL HELPERS
    ============================================================ */
 
-function setError(
-  msg = ""
-) {
-  $("errorBox")
-    .textContent =
-      msg;
+function setError(message = "") {
+  const box = $("errorBox");
 
-  $("errorBox")
-    .hidden =
-      !msg;
+  if (!box) {
+    return;
+  }
+
+  box.textContent = message;
+  box.hidden = !message;
 }
 
-function setProgress(
-  percent,
-  msg
-) {
-  $("progressWrap")
-    .hidden =
-      false;
+function setProgress(percent, message) {
+  $("progressWrap").hidden = false;
 
-  $("progressBar")
-    .style.width =
-      `${
-        Math.max(
-          0,
-          Math.min(
-            100,
-            percent
-          )
+  $("progressBar").style.width =
+    `${
+      Math.max(
+        0,
+        Math.min(
+          100,
+          percent
         )
-      }%`;
+      )
+    }%`;
 
-  $("progressText")
-    .textContent =
-      msg;
+  $("progressText").textContent =
+    message;
+}
+
+function nextPaint() {
+  return new Promise(
+    (resolve) => {
+      requestAnimationFrame(
+        () =>
+          requestAnimationFrame(
+            resolve
+          )
+      );
+    }
+  );
 }
 
 function newId() {
@@ -302,16 +202,26 @@ function newId() {
         .slice(2)}`;
 }
 
-function slug(
-  value
-) {
-  return String(
-    value || ""
-  )
-    .trim()
-    .normalize(
-      "NFKD"
+function clone(value) {
+  return JSON.parse(
+    JSON.stringify(value)
+  );
+}
+
+function clampByte(value) {
+  return Math.max(
+    0,
+    Math.min(
+      255,
+      value
     )
+  );
+}
+
+function slug(value) {
+  return String(value || "")
+    .trim()
+    .normalize("NFKD")
     .replace(
       /[^\w\s-]/g,
       ""
@@ -384,18 +294,23 @@ function validateForm() {
   const subject =
     String(
       $("subjectInput")
-        .value ||
+        ?.value ||
       ""
     ).trim();
 
   const type =
-    $("typeInput")
-      .value;
+    String(
+      $("typeInput")
+        ?.value ||
+      ""
+    ).trim();
 
   const year =
-    $("yearInput")
-      .value
-      .trim();
+    String(
+      $("yearInput")
+        ?.value ||
+      ""
+    ).trim();
 
   if (!subject) {
     throw new Error(
@@ -433,19 +348,6 @@ function validateForm() {
   };
 }
 
-function nextPaint() {
-  return new Promise(
-    (resolve) => {
-      requestAnimationFrame(
-        () =>
-          requestAnimationFrame(
-            resolve
-          )
-      );
-    }
-  );
-}
-
 /* ============================================================
    SUBJECT SELECTOR
    ============================================================ */
@@ -458,24 +360,19 @@ function ensureSubjectSelector() {
     return;
   }
 
-  const existingNames =
+  const liveNames =
     Array.isArray(
-      window
-        .statArchiveSubjects
+      window.statArchiveSubjects
     )
-      ? window
-          .statArchiveSubjects
+      ? window.statArchiveSubjects
           .map(
-            (s) =>
+            (subject) =>
               String(
-                s?.name ||
+                subject?.name ||
                 ""
-              )
-                .trim()
+              ).trim()
           )
-          .filter(
-            Boolean
-          )
+          .filter(Boolean)
       : DEMO_SUBJECTS;
 
   if (
@@ -496,49 +393,43 @@ function ensureSubjectSelector() {
   select.id =
     "subjectInput";
 
-  select.dataset
-    .scannerReady =
-      "true";
+  select.dataset.scannerReady =
+    "true";
 
   const names =
     [
       ...new Set(
-        existingNames
+        liveNames
       ),
-    ]
-      .sort(
-        (a, b) =>
-          a.localeCompare(
-            b
-          )
-      );
+    ].sort(
+      (a, b) =>
+        a.localeCompare(b)
+    );
 
-  names.forEach(
-    (name) => {
-      const option =
-        document
-          .createElement(
-            "option"
-          );
-
-      option.value =
-        name;
-
-      option.textContent =
-        name;
-
-      select
-        .appendChild(
-          option
-        );
-    }
-  );
-
-  const custom =
-    document
-      .createElement(
+  for (
+    const name
+    of names
+  ) {
+    const option =
+      document.createElement(
         "option"
       );
+
+    option.value =
+      name;
+
+    option.textContent =
+      name;
+
+    select.appendChild(
+      option
+    );
+  }
+
+  const custom =
+    document.createElement(
+      "option"
+    );
 
   custom.value =
     "__custom__";
@@ -599,10 +490,9 @@ function ensureSubjectSelector() {
         name.trim();
 
       const option =
-        document
-          .createElement(
-            "option"
-          );
+        document.createElement(
+          "option"
+        );
 
       option.value =
         clean;
@@ -619,6 +509,61 @@ function ensureSubjectSelector() {
         clean;
     }
   );
+}
+
+/* ============================================================
+   PAGE MODEL
+   ============================================================ */
+
+function defaultEdit() {
+  return {
+    rotation:
+      0,
+
+    /*
+     * MAGIC IS DEFAULT
+     */
+    filter:
+      "magic",
+
+    brightness:
+      0,
+
+    contrast:
+      0,
+
+    crop: {
+      x:
+        0.02,
+
+      y:
+        0.02,
+
+      w:
+        0.96,
+
+      h:
+        0.96,
+    },
+  };
+}
+
+function makePage(blob) {
+  return {
+    id:
+      newId(),
+
+    originalBlob:
+      blob,
+
+    thumbUrl:
+      URL.createObjectURL(
+        blob
+      ),
+
+    edit:
+      defaultEdit(),
+  };
 }
 
 /* ============================================================
@@ -652,50 +597,6 @@ async function mediaResultToBlob(
   return response.blob();
 }
 
-function defaultEdit() {
-  return {
-    rotation:
-      0,
-
-    filter:
-      "magic",
-
-    crop: {
-      x:
-        0.02,
-
-      y:
-        0.02,
-
-      w:
-        0.96,
-
-      h:
-        0.96,
-    },
-  };
-}
-
-function makePage(
-  blob
-) {
-  return {
-    id:
-      newId(),
-
-    originalBlob:
-      blob,
-
-    thumbUrl:
-      URL.createObjectURL(
-        blob
-      ),
-
-    edit:
-      defaultEdit(),
-  };
-}
-
 async function capturePhoto() {
   setError("");
 
@@ -703,7 +604,7 @@ async function capturePhoto() {
     await Camera.takePhoto(
       {
         quality:
-          90,
+          95,
 
         targetWidth:
           2600,
@@ -763,7 +664,7 @@ async function chooseMultiplePhotos() {
             30,
 
           quality:
-            90,
+            95,
 
           targetWidth:
             2600,
@@ -823,44 +724,47 @@ async function chooseMultiplePhotos() {
 }
 
 /* ============================================================
-   IMAGE RENDERING
+   ROTATION
    ============================================================ */
 
 function drawRotated(
   ctx,
   bitmap,
   rotation,
-  w,
-  h
+  width,
+  height
 ) {
   ctx.save();
 
   if (
-    rotation === 90
+    rotation ===
+    90
   ) {
     ctx.translate(
-      w,
+      width,
       0
     );
 
     ctx.rotate(
-      Math.PI / 2
+      Math.PI /
+      2
     );
 
     ctx.drawImage(
       bitmap,
       0,
       0,
-      h,
-      w
+      height,
+      width
     );
 
   } else if (
-    rotation === 180
+    rotation ===
+    180
   ) {
     ctx.translate(
-      w,
-      h
+      width,
+      height
     );
 
     ctx.rotate(
@@ -871,28 +775,30 @@ function drawRotated(
       bitmap,
       0,
       0,
-      w,
-      h
+      width,
+      height
     );
 
   } else if (
-    rotation === 270
+    rotation ===
+    270
   ) {
     ctx.translate(
       0,
-      h
+      height
     );
 
     ctx.rotate(
-      -Math.PI / 2
+      -Math.PI /
+      2
     );
 
     ctx.drawImage(
       bitmap,
       0,
       0,
-      h,
-      w
+      height,
+      width
     );
 
   } else {
@@ -900,54 +806,107 @@ function drawRotated(
       bitmap,
       0,
       0,
-      w,
-      h
+      width,
+      height
     );
   }
 
   ctx.restore();
 }
 
-function clampByte(
-  value
+/* ============================================================
+   BRIGHTNESS + CONTRAST
+   ============================================================ */
+
+function applyBrightnessContrast(
+  r,
+  g,
+  b,
+  brightness,
+  contrast
 ) {
-  return Math.max(
-    0,
-    Math.min(
-      255,
-      value
-    )
-  );
+  r += brightness;
+  g += brightness;
+  b += brightness;
+
+  if (
+    contrast !== 0
+  ) {
+    const c =
+      Math.max(
+        -100,
+        Math.min(
+          100,
+          contrast
+        )
+      );
+
+    const factor =
+      (
+        259 *
+        (
+          c +
+          255
+        )
+      ) /
+      (
+        255 *
+        (
+          259 -
+          c
+        )
+      );
+
+    r =
+      factor *
+      (
+        r -
+        128
+      ) +
+      128;
+
+    g =
+      factor *
+      (
+        g -
+        128
+      ) +
+      128;
+
+    b =
+      factor *
+      (
+        b -
+        128
+      ) +
+      128;
+  }
+
+  return [
+    clampByte(r),
+    clampByte(g),
+    clampByte(b),
+  ];
 }
 
 /* ============================================================
    MAGIC FILTER
 
-   Only two modes:
-   ORIGINAL
-   MAGIC
+   Our own scanner-style filter.
 
-   Magic is default.
+   Main goals:
+   - remove grey / green paper cast
+   - reduce shadows
+   - suppress backside/show-through writing
+   - keep black writing dark
+   - retain blue pen
+   - retain yellow highlighter
    ============================================================ */
 
-function applyAdjustments(
+function applyMagicFilter(
   canvas,
   edit
 ) {
-  const filter =
-    edit.filter ||
-    "magic";
-
-  /*
-   * Original means truly original.
-   */
-  if (
-    filter ===
-    "original"
-  ) {
-    return;
-  }
-
   const ctx =
     canvas.getContext(
       "2d",
@@ -957,349 +916,570 @@ function applyAdjustments(
       }
     );
 
+  const width =
+    canvas.width;
+
+  const height =
+    canvas.height;
+
   const image =
     ctx.getImageData(
       0,
       0,
-      canvas.width,
-      canvas.height
+      width,
+      height
     );
 
-  const d =
+  const data =
     image.data;
 
+  const pixels =
+    width *
+    height;
+
   /*
-   * Build histogram.
+   * LUMINANCE MAP
    */
 
-  const histogram =
-    new Uint32Array(
-      256
+  const luminance =
+    new Uint8Array(
+      pixels
     );
 
-  let samples =
-    0;
-
   for (
-    let i = 0;
-    i < d.length;
-    i += 16
+    let p = 0,
+      i = 0;
+
+    p < pixels;
+
+    p++,
+      i += 4
   ) {
-    const lum =
-      Math.round(
-        0.299 *
-          d[i] +
-
-        0.587 *
-          d[i + 1] +
-
-        0.114 *
-          d[i + 2]
-      );
-
-    histogram[
+    luminance[p] =
       clampByte(
-        lum
-      )
-    ]++;
+        Math.round(
+          0.299 *
+            data[i] +
 
-    samples++;
+          0.587 *
+            data[
+              i + 1
+            ] +
+
+          0.114 *
+            data[
+              i + 2
+            ]
+        )
+      );
   }
 
   /*
-   * Ignore very dark shadows
-   * and very bright glare.
+   * INTEGRAL IMAGE
+   *
+   * Allows fast local paper
+   * background estimation.
    */
 
-  const lowTarget =
-    samples *
-    0.025;
+  const integralWidth =
+    width +
+    1;
 
-  const highTarget =
-    samples *
-    0.965;
-
-  let low =
-    0;
-
-  let high =
-    255;
-
-  let running =
-    0;
+  const integral =
+    new Float64Array(
+      (
+        width +
+        1
+      ) *
+      (
+        height +
+        1
+      )
+    );
 
   for (
-    let i = 0;
-    i < 256;
-    i++
+    let y = 1;
+    y <= height;
+    y++
   ) {
-    running +=
-      histogram[i];
+    let rowSum =
+      0;
 
-    if (
-      running >=
-      lowTarget
+    const sourceRow =
+      (
+        y -
+        1
+      ) *
+      width;
+
+    const integralRow =
+      y *
+      integralWidth;
+
+    const previousRow =
+      (
+        y -
+        1
+      ) *
+      integralWidth;
+
+    for (
+      let x = 1;
+      x <= width;
+      x++
     ) {
-      low = i;
-      break;
+      rowSum +=
+        luminance[
+          sourceRow +
+          x -
+          1
+        ];
+
+      integral[
+        integralRow +
+        x
+      ] =
+        integral[
+          previousRow +
+          x
+        ] +
+        rowSum;
     }
   }
 
-  running =
-    0;
+  /*
+   * Local background window.
+   */
+
+  const radius =
+    Math.max(
+      18,
+      Math.round(
+        Math.min(
+          width,
+          height
+        ) *
+        0.035
+      )
+    );
+
+  const brightness =
+    Number(
+      edit.brightness ||
+      0
+    );
+
+  const contrast =
+    Number(
+      edit.contrast ||
+      0
+    );
+
+  /*
+   * MAIN PIXEL PROCESSING
+   */
 
   for (
-    let i = 0;
-    i < 256;
-    i++
+    let y = 0;
+    y < height;
+    y++
   ) {
-    running +=
-      histogram[i];
-
-    if (
-      running >=
-      highTarget
-    ) {
-      high = i;
-      break;
-    }
-  }
-
-  if (
-    high - low <
-    55
-  ) {
-    low =
+    const y1 =
       Math.max(
         0,
-        low - 30
+        y -
+        radius
       );
 
-    high =
+    const y2 =
       Math.min(
-        255,
-        high + 30
-      );
-  }
-
-  const range =
-    Math.max(
-      1,
-      high - low
-    );
-
-  /*
-   * Scanner-style enhancement.
-   */
-
-  for (
-    let i = 0;
-    i < d.length;
-    i += 4
-  ) {
-    const originalR =
-      d[i];
-
-    const originalG =
-      d[i + 1];
-
-    const originalB =
-      d[i + 2];
-
-    const lum =
-      Math.max(
+        height -
         1,
-
-        0.299 *
-          originalR +
-
-        0.587 *
-          originalG +
-
-        0.114 *
-          originalB
+        y +
+        radius
       );
 
-    let mapped =
-      (
-        (
-          lum -
-          low
-        ) *
-        255
-      ) /
-      range;
-
-    mapped =
-      clampByte(
-        mapped
-      );
-
-    /*
-     * Whiten paper.
-     */
-
-    if (
-      mapped >
-      170
+    for (
+      let x = 0;
+      x < width;
+      x++
     ) {
-      const t =
-        (
-          mapped -
-          170
-        ) /
-        85;
-
-      mapped +=
-        (
-          255 -
-          mapped
-        ) *
-        Math.min(
-          1,
-          t * 1.8
+      const x1 =
+        Math.max(
+          0,
+          x -
+          radius
         );
 
-    } else if (
-      mapped >
-      125
-    ) {
-      /*
-       * Lift mid-light areas.
-       * Helps remove grey shadows.
-       */
-      mapped +=
+      const x2 =
+        Math.min(
+          width -
+          1,
+          x +
+          radius
+        );
+
+      const ia =
+        y1 *
+        integralWidth +
+        x1;
+
+      const ib =
+        y1 *
+        integralWidth +
         (
-          mapped -
-          125
+          x2 +
+          1
+        );
+
+      const ic =
+        (
+          y2 +
+          1
         ) *
-        0.34;
+        integralWidth +
+        x1;
+
+      const id =
+        (
+          y2 +
+          1
+        ) *
+        integralWidth +
+        (
+          x2 +
+          1
+        );
+
+      const area =
+        (
+          x2 -
+          x1 +
+          1
+        ) *
+        (
+          y2 -
+          y1 +
+          1
+        );
+
+      const localMean =
+        (
+          integral[id] -
+          integral[ib] -
+          integral[ic] +
+          integral[ia]
+        ) /
+        Math.max(
+          1,
+          area
+        );
+
+      const pixel =
+        y *
+        width +
+        x;
+
+      const i =
+        pixel *
+        4;
+
+      const originalR =
+        data[i];
+
+      const originalG =
+        data[
+          i +
+          1
+        ];
+
+      const originalB =
+        data[
+          i +
+          2
+        ];
+
+      const lum =
+        luminance[
+          pixel
+        ];
+
+      /*
+       * COLOR STRENGTH
+       */
+
+      const maxRGB =
+        Math.max(
+          originalR,
+          originalG,
+          originalB
+        );
+
+      const minRGB =
+        Math.min(
+          originalR,
+          originalG,
+          originalB
+        );
+
+      const chroma =
+        maxRGB -
+        minRGB;
+
+      /*
+       * DETAIL VALUE
+       *
+       * Big detail = real dark writing.
+       * Small detail = paper / pale
+       * backside writing.
+       */
+
+      const detail =
+        localMean -
+        lum;
+
+      /*
+       * CORRECT UNEVEN LIGHTING
+       */
+
+      let normalized =
+        lum +
+        (
+          244 -
+          localMean
+        ) *
+        0.92;
+
+      /*
+       * SUPPRESS PALE BACKSIDE WRITING
+       */
+
+      if (
+        chroma <
+          24 &&
+        lum >
+          105
+      ) {
+        if (
+          detail <
+          10
+        ) {
+          normalized =
+            255;
+
+        } else if (
+          detail <
+          18
+        ) {
+          normalized +=
+            (
+              18 -
+              detail
+            ) *
+            3.2;
+
+        } else if (
+          detail <
+          27
+        ) {
+          normalized +=
+            (
+              27 -
+              detail
+            ) *
+            1.15;
+        }
+      }
+
+      /*
+       * CLEAN WHITE PAPER
+       */
+
+      if (
+        normalized >
+        205
+      ) {
+        normalized +=
+          (
+            255 -
+            normalized
+          ) *
+          0.82;
+
+      } else if (
+        normalized >
+        175
+      ) {
+        normalized +=
+          (
+            normalized -
+            175
+          ) *
+          0.22;
+      }
+
+      /*
+       * DARKEN TRUE TEXT
+       */
+
+      if (
+        detail >
+          24 ||
+        lum <
+          125
+      ) {
+        const strokeStrength =
+          Math.min(
+            1,
+            Math.max(
+              0,
+              (
+                detail -
+                16
+              ) /
+              55
+            )
+          );
+
+        normalized *=
+          1 -
+          0.26 *
+          strokeStrength;
+
+        if (
+          lum <
+          85
+        ) {
+          normalized *=
+            0.88;
+        }
+      }
+
+      normalized =
+        clampByte(
+          normalized
+        );
+
+      /*
+       * PRESERVE COLOR
+       */
+
+      const originalLum =
+        Math.max(
+          1,
+          lum
+        );
+
+      const scale =
+        normalized /
+        originalLum;
+
+      let r =
+        originalR *
+        scale;
+
+      let g =
+        originalG *
+        scale;
+
+      let b =
+        originalB *
+        scale;
+
+      const gray =
+        (
+          r +
+          g +
+          b
+        ) /
+        3;
+
+      let saturationKeep;
+
+      if (
+        chroma >=
+        55
+      ) {
+        saturationKeep =
+          0.92;
+
+      } else if (
+        chroma >=
+        30
+      ) {
+        saturationKeep =
+          0.76;
+
+      } else if (
+        chroma >=
+        18
+      ) {
+        saturationKeep =
+          0.55;
+
+      } else {
+        saturationKeep =
+          0.18;
+      }
+
+      r =
+        gray +
+        (
+          r -
+          gray
+        ) *
+        saturationKeep;
+
+      g =
+        gray +
+        (
+          g -
+          gray
+        ) *
+        saturationKeep;
+
+      b =
+        gray +
+        (
+          b -
+          gray
+        ) *
+        saturationKeep;
+
+      [
+        r,
+        g,
+        b,
+      ] =
+        applyBrightnessContrast(
+          r,
+          g,
+          b,
+          brightness,
+          contrast
+        );
+
+      data[i] =
+        r;
+
+      data[
+        i +
+        1
+      ] =
+        g;
+
+      data[
+        i +
+        2
+      ] =
+        b;
+
+      data[
+        i +
+        3
+      ] =
+        255;
     }
-
-    /*
-     * Darken text.
-     */
-
-    if (
-      mapped <
-      125
-    ) {
-      mapped *=
-        0.70;
-    }
-
-    if (
-      mapped <
-      70
-    ) {
-      mapped *=
-        0.78;
-    }
-
-    mapped =
-      clampByte(
-        mapped
-      );
-
-    /*
-     * Preserve some pen colour.
-     */
-
-    const scale =
-      mapped /
-      lum;
-
-    let r =
-      originalR *
-      scale;
-
-    let g =
-      originalG *
-      scale;
-
-    let b =
-      originalB *
-      scale;
-
-    /*
-     * Remove paper colour cast,
-     * but retain blue/red pen.
-     */
-
-    const gray =
-      (
-        r +
-        g +
-        b
-      ) /
-      3;
-
-    const saturation =
-      0.48;
-
-    r =
-      gray +
-      (
-        r -
-        gray
-      ) *
-      saturation;
-
-    g =
-      gray +
-      (
-        g -
-        gray
-      ) *
-      saturation;
-
-    b =
-      gray +
-      (
-        b -
-        gray
-      ) *
-      saturation;
-
-    /*
-     * Final document contrast.
-     */
-
-    const contrast =
-      1.20;
-
-    r =
-      (
-        r -
-        128
-      ) *
-      contrast +
-      128;
-
-    g =
-      (
-        g -
-        128
-      ) *
-      contrast +
-      128;
-
-    b =
-      (
-        b -
-        128
-      ) *
-      contrast +
-      128;
-
-    d[i] =
-      clampByte(r);
-
-    d[i + 1] =
-      clampByte(g);
-
-    d[i + 2] =
-      clampByte(b);
   }
 
   ctx.putImageData(
@@ -1309,15 +1489,15 @@ function applyAdjustments(
   );
 
   /*
-   * Mild sharpening.
+   * MILD SHARPENING
    */
 
   const source =
     ctx.getImageData(
       0,
       0,
-      canvas.width,
-      canvas.height
+      width,
+      height
     );
 
   const src =
@@ -1325,23 +1505,12 @@ function applyAdjustments(
 
   const sharpened =
     ctx.createImageData(
-      canvas.width,
-      canvas.height
+      width,
+      height
     );
 
   const dst =
     sharpened.data;
-
-  const width =
-    canvas.width;
-
-  const height =
-    canvas.height;
-
-  /*
-   * Copy original processed pixels first.
-   * This preserves border pixels.
-   */
 
   dst.set(src);
 
@@ -1364,10 +1533,12 @@ function applyAdjustments(
         4;
 
       const left =
-        p - 4;
+        p -
+        4;
 
       const right =
-        p + 4;
+        p +
+        4;
 
       const up =
         p -
@@ -1380,8 +1551,12 @@ function applyAdjustments(
         4;
 
       for (
-        let channel = 0;
-        channel < 3;
+        let channel =
+          0;
+
+        channel <
+          3;
+
         channel++
       ) {
         const center =
@@ -1424,12 +1599,13 @@ function applyAdjustments(
               center -
               neighbours
             ) *
-            0.28
+            0.18
           );
       }
 
       dst[
-        p + 3
+        p +
+        3
       ] =
         255;
     }
@@ -1440,6 +1616,126 @@ function applyAdjustments(
     0,
     0
   );
+}
+
+/* ============================================================
+   ORIGINAL + BRIGHTNESS/CONTRAST
+   ============================================================ */
+
+function applyOriginalAdjustments(
+  canvas,
+  edit
+) {
+  const brightness =
+    Number(
+      edit.brightness ||
+      0
+    );
+
+  const contrast =
+    Number(
+      edit.contrast ||
+      0
+    );
+
+  if (
+    brightness ===
+      0 &&
+    contrast ===
+      0
+  ) {
+    return;
+  }
+
+  const ctx =
+    canvas.getContext(
+      "2d",
+      {
+        willReadFrequently:
+          true,
+      }
+    );
+
+  const image =
+    ctx.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+  const data =
+    image.data;
+
+  for (
+    let i = 0;
+    i < data.length;
+    i += 4
+  ) {
+    const [
+      r,
+      g,
+      b,
+    ] =
+      applyBrightnessContrast(
+        data[i],
+        data[
+          i +
+          1
+        ],
+        data[
+          i +
+          2
+        ],
+        brightness,
+        contrast
+      );
+
+    data[i] =
+      r;
+
+    data[
+      i +
+      1
+    ] =
+      g;
+
+    data[
+      i +
+      2
+    ] =
+      b;
+  }
+
+  ctx.putImageData(
+    image,
+    0,
+    0
+  );
+}
+
+function applyAdjustments(
+  canvas,
+  edit
+) {
+  if (
+    (
+      edit.filter ||
+      "magic"
+    ) ===
+    "magic"
+  ) {
+    applyMagicFilter(
+      canvas,
+      edit
+    );
+
+  } else {
+    applyOriginalAdjustments(
+      canvas,
+      edit
+    );
+  }
 }
 
 /* ============================================================
@@ -1464,15 +1760,17 @@ async function renderEditedCanvas(
       );
 
     const rotated =
-      rotation === 90 ||
-      rotation === 270;
+      rotation ===
+        90 ||
+      rotation ===
+        270;
 
-    const naturalW =
+    const naturalWidth =
       rotated
         ? bitmap.height
         : bitmap.width;
 
-    const naturalH =
+    const naturalHeight =
       rotated
         ? bitmap.width
         : bitmap.height;
@@ -1482,25 +1780,25 @@ async function renderEditedCanvas(
         1,
         maxEdge /
         Math.max(
-          naturalW,
-          naturalH
+          naturalWidth,
+          naturalHeight
         )
       );
 
-    const w =
+    const width =
       Math.max(
         1,
         Math.round(
-          naturalW *
+          naturalWidth *
           scale
         )
       );
 
-    const h =
+    const height =
       Math.max(
         1,
         Math.round(
-          naturalH *
+          naturalHeight *
           scale
         )
       );
@@ -1511,10 +1809,10 @@ async function renderEditedCanvas(
       );
 
     canvas.width =
-      w;
+      width;
 
     canvas.height =
-      h;
+      height;
 
     const ctx =
       canvas.getContext(
@@ -1534,16 +1832,16 @@ async function renderEditedCanvas(
     ctx.fillRect(
       0,
       0,
-      w,
-      h
+      width,
+      height
     );
 
     drawRotated(
       ctx,
       bitmap,
       rotation,
-      w,
-      h
+      width,
+      height
     );
 
     applyAdjustments(
@@ -1557,8 +1855,9 @@ async function renderEditedCanvas(
       return canvas;
     }
 
-    const c =
-      page.edit.crop || {
+    const crop =
+      page.edit.crop ||
+      {
         x: 0,
         y: 0,
         w: 1,
@@ -1569,8 +1868,8 @@ async function renderEditedCanvas(
       Math.max(
         0,
         Math.round(
-          c.x *
-          canvas.width
+          crop.x *
+          width
         )
       );
 
@@ -1578,8 +1877,8 @@ async function renderEditedCanvas(
       Math.max(
         0,
         Math.round(
-          c.y *
-          canvas.height
+          crop.y *
+          height
         )
       );
 
@@ -1587,12 +1886,12 @@ async function renderEditedCanvas(
       Math.max(
         1,
         Math.min(
-          canvas.width -
+          width -
           sx,
 
           Math.round(
-            c.w *
-            canvas.width
+            crop.w *
+            width
           )
         )
       );
@@ -1601,12 +1900,12 @@ async function renderEditedCanvas(
       Math.max(
         1,
         Math.min(
-          canvas.height -
+          height -
           sy,
 
           Math.round(
-            c.h *
-            canvas.height
+            crop.h *
+            height
           )
         )
       );
@@ -1664,7 +1963,7 @@ async function renderEditedCanvas(
 
 function canvasToJpeg(
   canvas,
-  quality = 0.8
+  quality = 0.84
 ) {
   return new Promise(
     (
@@ -1672,16 +1971,22 @@ function canvasToJpeg(
       reject
     ) => {
       canvas.toBlob(
-        (blob) =>
-          blob
-            ? resolve(
-                blob
+        (blob) => {
+          if (
+            blob
+          ) {
+            resolve(
+              blob
+            );
+
+          } else {
+            reject(
+              new Error(
+                "Could not save image."
               )
-            : reject(
-                new Error(
-                  "Could not save image."
-                )
-              ),
+            );
+          }
+        },
 
         "image/jpeg",
 
@@ -1689,6 +1994,561 @@ function canvasToJpeg(
       );
     }
   );
+}
+
+/* ============================================================
+   AUTO CROP
+   ============================================================ */
+
+function smoothScores(
+  values,
+  radius = 4
+) {
+  const output =
+    new Float64Array(
+      values.length
+    );
+
+  for (
+    let i = 0;
+    i < values.length;
+    i++
+  ) {
+    let sum =
+      0;
+
+    let count =
+      0;
+
+    for (
+      let j =
+        Math.max(
+          0,
+          i -
+          radius
+        );
+
+      j <=
+        Math.min(
+          values.length -
+          1,
+          i +
+          radius
+        );
+
+      j++
+    ) {
+      sum +=
+        values[j];
+
+      count++;
+    }
+
+    output[i] =
+      sum /
+      Math.max(
+        1,
+        count
+      );
+  }
+
+  return output;
+}
+
+function strongestIndex(
+  scores,
+  startFraction,
+  endFraction
+) {
+  const start =
+    Math.max(
+      1,
+      Math.floor(
+        scores.length *
+        startFraction
+      )
+    );
+
+  const end =
+    Math.min(
+      scores.length -
+      2,
+
+      Math.ceil(
+        scores.length *
+        endFraction
+      )
+    );
+
+  let bestIndex =
+    start;
+
+  let bestScore =
+    -Infinity;
+
+  for (
+    let i = start;
+    i <= end;
+    i++
+  ) {
+    if (
+      scores[i] >
+      bestScore
+    ) {
+      bestScore =
+        scores[i];
+
+      bestIndex =
+        i;
+    }
+  }
+
+  return {
+    index:
+      bestIndex,
+
+    score:
+      bestScore,
+  };
+}
+
+function detectAutoCropFromCanvas(
+  canvas
+) {
+  const maxEdge =
+    420;
+
+  const scale =
+    Math.min(
+      1,
+      maxEdge /
+      Math.max(
+        canvas.width,
+        canvas.height
+      )
+    );
+
+  const width =
+    Math.max(
+      40,
+      Math.round(
+        canvas.width *
+        scale
+      )
+    );
+
+  const height =
+    Math.max(
+      40,
+      Math.round(
+        canvas.height *
+        scale
+      )
+    );
+
+  const small =
+    document.createElement(
+      "canvas"
+    );
+
+  small.width =
+    width;
+
+  small.height =
+    height;
+
+  const ctx =
+    small.getContext(
+      "2d",
+      {
+        willReadFrequently:
+          true,
+      }
+    );
+
+  ctx.drawImage(
+    canvas,
+    0,
+    0,
+    width,
+    height
+  );
+
+  const image =
+    ctx.getImageData(
+      0,
+      0,
+      width,
+      height
+    ).data;
+
+  const gray =
+    new Uint8Array(
+      width *
+      height
+    );
+
+  for (
+    let p = 0,
+      i = 0;
+
+    p < gray.length;
+
+    p++,
+      i += 4
+  ) {
+    gray[p] =
+      clampByte(
+        Math.round(
+          0.299 *
+            image[i] +
+
+          0.587 *
+            image[
+              i + 1
+            ] +
+
+          0.114 *
+            image[
+              i + 2
+            ]
+        )
+      );
+  }
+
+  const colScores =
+    new Float64Array(
+      width
+    );
+
+  const rowScores =
+    new Float64Array(
+      height
+    );
+
+  for (
+    let y = 1;
+    y < height - 1;
+    y++
+  ) {
+    for (
+      let x = 1;
+      x < width - 1;
+      x++
+    ) {
+      const p =
+        y *
+        width +
+        x;
+
+      const gx =
+        Math.abs(
+          gray[
+            p +
+            1
+          ] -
+          gray[
+            p -
+            1
+          ]
+        );
+
+      const gy =
+        Math.abs(
+          gray[
+            p +
+            width
+          ] -
+          gray[
+            p -
+            width
+          ]
+        );
+
+      const gradient =
+        gx +
+        gy;
+
+      colScores[x] +=
+        gradient;
+
+      rowScores[y] +=
+        gradient;
+    }
+  }
+
+  const columns =
+    smoothScores(
+      colScores,
+      3
+    );
+
+  const rows =
+    smoothScores(
+      rowScores,
+      3
+    );
+
+  const left =
+    strongestIndex(
+      columns,
+      0.01,
+      0.34
+    );
+
+  const right =
+    strongestIndex(
+      columns,
+      0.66,
+      0.99
+    );
+
+  const top =
+    strongestIndex(
+      rows,
+      0.01,
+      0.34
+    );
+
+  const bottom =
+    strongestIndex(
+      rows,
+      0.66,
+      0.99
+    );
+
+  const detectedWidth =
+    right.index -
+    left.index;
+
+  const detectedHeight =
+    bottom.index -
+    top.index;
+
+  /*
+   * Conservative fallback.
+   *
+   * Better to leave a little border
+   * than accidentally cut notes.
+   */
+
+  if (
+    detectedWidth <
+      width *
+      0.48 ||
+
+    detectedHeight <
+      height *
+      0.48
+  ) {
+    return {
+      x:
+        0.02,
+
+      y:
+        0.02,
+
+      w:
+        0.96,
+
+      h:
+        0.96,
+    };
+  }
+
+  const insetX =
+    Math.max(
+      0,
+      Math.round(
+        width *
+        0.003
+      )
+    );
+
+  const insetY =
+    Math.max(
+      0,
+      Math.round(
+        height *
+        0.003
+      )
+    );
+
+  const x1 =
+    Math.min(
+      width -
+      2,
+
+      Math.max(
+        0,
+        left.index +
+        insetX
+      )
+    );
+
+  const y1 =
+    Math.min(
+      height -
+      2,
+
+      Math.max(
+        0,
+        top.index +
+        insetY
+      )
+    );
+
+  const x2 =
+    Math.max(
+      x1 +
+      1,
+
+      Math.min(
+        width -
+        1,
+
+        right.index -
+        insetX
+      )
+    );
+
+  const y2 =
+    Math.max(
+      y1 +
+      1,
+
+      Math.min(
+        height -
+        1,
+
+        bottom.index -
+        insetY
+      )
+    );
+
+  return {
+    x:
+      x1 /
+      width,
+
+    y:
+      y1 /
+      height,
+
+    w:
+      (
+        x2 -
+        x1
+      ) /
+      width,
+
+    h:
+      (
+        y2 -
+        y1
+      ) /
+      height,
+  };
+}
+
+async function autoCropEditor() {
+  if (
+    !state.editor
+  ) {
+    return;
+  }
+
+  const page =
+    state.pages.find(
+      (page) =>
+        page.id ===
+        state.editor.pageId
+    );
+
+  if (!page) {
+    return;
+  }
+
+  const button =
+    $("peAutoCrop");
+
+  const oldText =
+    button.textContent;
+
+  button.disabled =
+    true;
+
+  button.textContent =
+    "Detecting…";
+
+  try {
+    /*
+     * Detect using original image,
+     * not Magic.
+     */
+
+    const temp = {
+      ...page,
+
+      edit: {
+        ...state.editor.edit,
+
+        filter:
+          "original",
+
+        brightness:
+          0,
+
+        contrast:
+          0,
+
+        crop: {
+          x:
+            0,
+
+          y:
+            0,
+
+          w:
+            1,
+
+          h:
+            1,
+        },
+      },
+    };
+
+    const canvas =
+      await renderEditedCanvas(
+        temp,
+        900,
+        false
+      );
+
+    state.editor.edit.crop =
+      detectAutoCropFromCanvas(
+        canvas
+      );
+
+    positionCropBox();
+
+  } catch (error) {
+    console.warn(
+      "Auto crop failed:",
+      error
+    );
+
+    setError(
+      "Auto crop could not detect the page. Adjust the corners manually."
+    );
+
+  } finally {
+    button.disabled =
+      false;
+
+    button.textContent =
+      oldText;
+  }
 }
 
 /* ============================================================
@@ -1740,10 +2600,34 @@ function installEditor() {
     }
 
     .pe-head{
+      border-bottom:1px solid #263343
+    }
+
+    .pe-title-row,
+    .pe-nav-row,
+    .pe-row{
       display:flex;
       align-items:center;
+      gap:8px
+    }
+
+    .pe-title-row{
+      justify-content:space-between
+    }
+
+    .pe-nav-row{
       justify-content:space-between;
-      border-bottom:1px solid #263343
+      margin-top:8px
+    }
+
+    .pe-nav-row button{
+      min-width:96px
+    }
+
+    #pePagePosition{
+      color:#aebdca;
+      font-size:12px;
+      font-weight:700
     }
 
     .pe-stage{
@@ -1763,6 +2647,7 @@ function installEditor() {
       display:block;
       max-width:100%;
       max-height:100%;
+      image-rendering:auto;
       box-shadow:0 10px 30px #0008
     }
 
@@ -1831,16 +2716,13 @@ function installEditor() {
 
     .pe-controls{
       border-top:1px solid #263343;
-      max-height:44dvh;
+      max-height:47dvh;
       overflow:auto
     }
 
     .pe-row{
-      display:flex;
-      gap:8px;
       overflow-x:auto;
-      margin-bottom:8px;
-      align-items:center
+      margin-bottom:8px
     }
 
     .pe-row:last-child{
@@ -1853,11 +2735,36 @@ function installEditor() {
     }
 
     .pe-filter.active,
-    .pe-apply{
+    .pe-primary{
       background:#7de3f5!important;
       color:#041015!important;
       border-color:transparent!important;
       font-weight:800
+    }
+
+    .pe-slider{
+      display:grid;
+      grid-template-columns:78px 1fr 42px;
+      gap:8px;
+      align-items:center;
+      margin:9px 0;
+      font-size:12px;
+      color:#aebdca
+    }
+
+    .pe-slider input{
+      width:100%;
+      padding:0
+    }
+
+    .pe-slider output{
+      text-align:right;
+      color:#edf4fb
+    }
+
+    .pe-all{
+      width:100%;
+      justify-content:center
     }
 
     .thumb-actions{
@@ -1896,32 +2803,66 @@ function installEditor() {
       aria-modal="true"
     >
 
-      <div class="pe-head">
+      <div
+        class="pe-head"
+      >
 
-        <div>
-          <strong
-            id="peTitle"
-          >
-            Edit page
-          </strong>
+        <div
+          class="pe-title-row"
+        >
 
-          <div
-            style="
-              font-size:11px;
-              color:#9aabba;
-              margin-top:2px
-            "
-          >
-            Crop · rotate · enhance
+          <div>
+            <strong
+              id="peTitle"
+            >
+              Edit page
+            </strong>
+
+            <div
+              style="
+                font-size:11px;
+                color:#9aabba;
+                margin-top:2px
+              "
+            >
+              Crop · rotate · Magic
+            </div>
           </div>
+
+          <button
+            id="peCancel"
+            type="button"
+          >
+            Done
+          </button>
+
         </div>
 
-        <button
-          id="peCancel"
-          type="button"
+        <div
+          class="pe-nav-row"
         >
-          Cancel
-        </button>
+
+          <button
+            id="pePrev"
+            type="button"
+          >
+            ← Previous
+          </button>
+
+          <span
+            id="pePagePosition"
+          >
+            Page 1 / 1
+          </span>
+
+          <button
+            id="peNext"
+            type="button"
+          >
+            Next →
+          </button>
+
+        </div>
 
       </div>
 
@@ -1959,6 +2900,7 @@ function installEditor() {
           ></span>
 
         </div>
+
       </div>
 
       <div
@@ -1968,6 +2910,13 @@ function installEditor() {
         <div
           class="pe-row"
         >
+
+          <button
+            id="peAutoCrop"
+            type="button"
+          >
+            ✨ Auto crop
+          </button>
 
           <button
             id="rotL"
@@ -1994,7 +2943,7 @@ function installEditor() {
             id="peReset"
             type="button"
           >
-            Reset all
+            Reset
           </button>
 
         </div>
@@ -2022,12 +2971,74 @@ function installEditor() {
 
         </div>
 
+        <label
+          class="pe-slider"
+        >
+
+          <span>
+            Brightness
+          </span>
+
+          <input
+            id="brightnessSlider"
+            type="range"
+            min="-40"
+            max="40"
+            step="1"
+          >
+
+          <output
+            id="brightnessOut"
+          >
+            0
+          </output>
+
+        </label>
+
+        <label
+          class="pe-slider"
+        >
+
+          <span>
+            Contrast
+          </span>
+
+          <input
+            id="contrastSlider"
+            type="range"
+            min="-30"
+            max="60"
+            step="1"
+          >
+
+          <output
+            id="contrastOut"
+          >
+            0
+          </output>
+
+        </label>
+
         <div
           class="pe-row"
         >
 
           <button
-            class="pe-apply"
+            id="peApplyAll"
+            class="pe-primary pe-all"
+            type="button"
+          >
+            Apply filter + crop to all pages
+          </button>
+
+        </div>
+
+        <div
+          class="pe-row"
+        >
+
+          <button
+            class="pe-primary"
             id="peApply"
             type="button"
           >
@@ -2035,7 +3046,7 @@ function installEditor() {
           </button>
 
           <button
-            class="pe-apply"
+            class="pe-primary"
             id="peApplyNext"
             type="button"
           >
@@ -2045,6 +3056,7 @@ function installEditor() {
         </div>
 
       </div>
+
     </div>
   `;
 
@@ -2054,7 +3066,31 @@ function installEditor() {
 
   $("peCancel")
     .onclick =
-      closeEditor;
+      async () => {
+        await saveCurrentEditorPage(
+          false
+        );
+
+        closeEditor();
+      };
+
+  $("pePrev")
+    .onclick =
+      () =>
+        navigateEditor(
+          -1
+        );
+
+  $("peNext")
+    .onclick =
+      () =>
+        navigateEditor(
+          1
+        );
+
+  $("peAutoCrop")
+    .onclick =
+      autoCropEditor;
 
   $("rotL")
     .onclick =
@@ -2072,7 +3108,10 @@ function installEditor() {
 
   $("peResetCrop")
     .onclick =
-      resetCrop;
+      () =>
+        resetCrop(
+          true
+        );
 
   $("peReset")
     .onclick =
@@ -2092,31 +3131,80 @@ function installEditor() {
           true
         );
 
+  $("peApplyAll")
+    .onclick =
+      applyEditorToAll;
+
   $("filterRow")
     .addEventListener(
       "click",
       (event) => {
-        const btn =
+        const button =
           event.target
             .closest(
               "[data-filter]"
             );
 
         if (
-          !btn ||
+          !button ||
           !state.editor
         ) {
           return;
         }
 
-        state.editor
-          .edit
-          .filter =
-            btn.dataset
-              .filter ||
-            "original";
+        state.editor.edit.filter =
+          button.dataset.filter ||
+          "magic";
 
         syncEditorControls();
+
+        scheduleEditorRedraw();
+      }
+    );
+
+  $("brightnessSlider")
+    .addEventListener(
+      "input",
+      () => {
+        if (
+          !state.editor
+        ) {
+          return;
+        }
+
+        state.editor.edit.brightness =
+          Number(
+            $("brightnessSlider")
+              .value
+          );
+
+        syncEditorControls(
+          false
+        );
+
+        scheduleEditorRedraw();
+      }
+    );
+
+  $("contrastSlider")
+    .addEventListener(
+      "input",
+      () => {
+        if (
+          !state.editor
+        ) {
+          return;
+        }
+
+        state.editor.edit.contrast =
+          Number(
+            $("contrastSlider")
+              .value
+          );
+
+        syncEditorControls(
+          false
+        );
 
         scheduleEditorRedraw();
       }
@@ -2147,7 +3235,7 @@ function scheduleEditorRedraw() {
   state.editorRedrawTimer =
     setTimeout(
       redrawEditor,
-      55
+      70
     );
 }
 
@@ -2158,8 +3246,9 @@ async function openEditor(
 
   const page =
     state.pages.find(
-      (p) =>
-        p.id === pageId
+      (page) =>
+        page.id ===
+        pageId
     );
 
   if (!page) {
@@ -2170,44 +3259,20 @@ async function openEditor(
     pageId,
 
     edit:
-      JSON.parse(
-        JSON.stringify(
-          page.edit ||
-          defaultEdit()
-        )
+      clone(
+        page.edit ||
+        defaultEdit()
       ),
   };
-
-  const index =
-    state.pages
-      .findIndex(
-        (p) =>
-          p.id ===
-          pageId
-      );
-
-  $("peTitle")
-    .textContent =
-      `Edit page ${
-        index + 1
-      }`;
-
-  $("peApplyNext")
-    .style.display =
-      index <
-      state.pages.length -
-        1
-        ? "inline-flex"
-        : "none";
 
   $("pageEditorOverlay")
     .hidden =
       false;
 
-  document.body
-    .style
-    .overflow =
-      "hidden";
+  document.body.style.overflow =
+    "hidden";
+
+  updateEditorNavigation();
 
   syncEditorControls();
 
@@ -2226,13 +3291,79 @@ function closeEditor() {
     .hidden =
       true;
 
-  document.body
-    .style
-    .overflow =
-      "";
+  document.body.style.overflow =
+    "";
 }
 
-function syncEditorControls() {
+function currentEditorIndex() {
+  if (
+    !state.editor
+  ) {
+    return -1;
+  }
+
+  return state.pages
+    .findIndex(
+      (page) =>
+        page.id ===
+        state.editor.pageId
+    );
+}
+
+function updateEditorNavigation() {
+  if (
+    !state.editor
+  ) {
+    return;
+  }
+
+  const index =
+    currentEditorIndex();
+
+  const total =
+    state.pages.length;
+
+  $("peTitle")
+    .textContent =
+      `Edit page ${
+        index +
+        1
+      }`;
+
+  $("pePagePosition")
+    .textContent =
+      `Page ${
+        index +
+        1
+      } / ${total}`;
+
+  $("pePrev")
+    .disabled =
+      index <=
+      0;
+
+  $("peNext")
+    .disabled =
+      index <
+        0 ||
+      index >=
+        total -
+        1;
+
+  $("peApplyNext")
+    .style.display =
+      index >=
+        0 &&
+      index <
+        total -
+        1
+        ? "inline-flex"
+        : "none";
+}
+
+function syncEditorControls(
+  updateInputs = true
+) {
   if (
     !state.editor
   ) {
@@ -2247,16 +3378,64 @@ function syncEditorControls() {
       ".pe-filter"
     )
     .forEach(
-      (btn) => {
-        btn.classList
+      (button) => {
+        button.classList
           .toggle(
             "active",
-            btn.dataset
+            button.dataset
               .filter ===
               edit.filter
           );
       }
     );
+
+  if (
+    updateInputs
+  ) {
+    $("brightnessSlider")
+      .value =
+        String(
+          edit.brightness ||
+          0
+        );
+
+    $("contrastSlider")
+      .value =
+        String(
+          edit.contrast ||
+          0
+        );
+  }
+
+  const brightness =
+    Number(
+      edit.brightness ||
+      0
+    );
+
+  const contrast =
+    Number(
+      edit.contrast ||
+      0
+    );
+
+  $("brightnessOut")
+    .textContent =
+      `${
+        brightness >
+        0
+          ? "+"
+          : ""
+      }${brightness}`;
+
+  $("contrastOut")
+    .textContent =
+      `${
+        contrast >
+        0
+          ? "+"
+          : ""
+      }${contrast}`;
 }
 
 function rotateEditor(
@@ -2268,20 +3447,16 @@ function rotateEditor(
     return;
   }
 
-  state.editor
-    .edit
-    .rotation =
-      (
-        Number(
-          state.editor
-            .edit
-            .rotation ||
-          0
-        ) +
-        delta +
-        360
-      ) %
-      360;
+  state.editor.edit.rotation =
+    (
+      Number(
+        state.editor.edit.rotation ||
+        0
+      ) +
+      delta +
+      360
+    ) %
+    360;
 
   resetCrop(
     false
@@ -2299,21 +3474,19 @@ function resetCrop(
     return;
   }
 
-  state.editor
-    .edit
-    .crop = {
-      x:
-        0.02,
+  state.editor.edit.crop = {
+    x:
+      0.02,
 
-      y:
-        0.02,
+    y:
+      0.02,
 
-      w:
-        0.96,
+    w:
+      0.96,
 
-      h:
-        0.96,
-    };
+    h:
+      0.96,
+  };
 
   if (
     redraw
@@ -2344,12 +3517,14 @@ async function redrawEditor() {
     return;
   }
 
+  const editorPageId =
+    state.editor.pageId;
+
   const page =
     state.pages.find(
-      (p) =>
-        p.id ===
-        state.editor
-          .pageId
+      (page) =>
+        page.id ===
+        editorPageId
     );
 
   if (!page) {
@@ -2360,7 +3535,9 @@ async function redrawEditor() {
     ...page,
 
     edit:
-      state.editor.edit,
+      clone(
+        state.editor.edit
+      ),
   };
 
   const rendered =
@@ -2373,7 +3550,7 @@ async function redrawEditor() {
   if (
     !state.editor ||
     state.editor.pageId !==
-      page.id
+      editorPageId
   ) {
     return;
   }
@@ -2421,10 +3598,8 @@ function positionCropBox() {
     $("peCanvas")
       .getBoundingClientRect();
 
-  const c =
-    state.editor
-      .edit
-      .crop;
+  const crop =
+    state.editor.edit.crop;
 
   const box =
     $("cropBox");
@@ -2433,7 +3608,7 @@ function positionCropBox() {
     `${
       canvasRect.left -
       stageRect.left +
-      c.x *
+      crop.x *
       canvasRect.width
     }px`;
 
@@ -2441,19 +3616,19 @@ function positionCropBox() {
     `${
       canvasRect.top -
       stageRect.top +
-      c.y *
+      crop.y *
       canvasRect.height
     }px`;
 
   box.style.width =
     `${
-      c.w *
+      crop.w *
       canvasRect.width
     }px`;
 
   box.style.height =
     `${
-      c.h *
+      crop.h *
       canvasRect.height
     }px`;
 }
@@ -2500,9 +3675,7 @@ function setupCropGestures() {
           event.clientY,
 
         crop: {
-          ...state.editor
-            .edit
-            .crop,
+          ...state.editor.edit.crop,
         },
 
         canvasW:
@@ -2552,7 +3725,7 @@ function setupCropGestures() {
           drag.canvasH
         );
 
-      const s =
+      const start =
         drag.crop;
 
       const min =
@@ -2563,7 +3736,8 @@ function setupCropGestures() {
         y,
         w,
         h,
-      } = s;
+      } =
+        start;
 
       if (
         drag.handle ===
@@ -2573,8 +3747,11 @@ function setupCropGestures() {
           Math.max(
             0,
             Math.min(
-              1 - w,
-              s.x + dx
+              1 -
+              w,
+
+              start.x +
+              dx
             )
           );
 
@@ -2582,8 +3759,11 @@ function setupCropGestures() {
           Math.max(
             0,
             Math.min(
-              1 - h,
-              s.y + dy
+              1 -
+              h,
+
+              start.y +
+              dy
             )
           );
 
@@ -2599,18 +3779,18 @@ function setupCropGestures() {
             Math.max(
               0,
               Math.min(
-                s.x +
-                s.w -
+                start.x +
+                start.w -
                 min,
 
-                s.x +
+                start.x +
                 dx
               )
             );
 
           w =
-            s.x +
-            s.w -
+            start.x +
+            start.w -
             nx;
 
           x =
@@ -2628,9 +3808,9 @@ function setupCropGestures() {
               min,
               Math.min(
                 1 -
-                s.x,
+                start.x,
 
-                s.w +
+                start.w +
                 dx
               )
             );
@@ -2646,18 +3826,18 @@ function setupCropGestures() {
             Math.max(
               0,
               Math.min(
-                s.y +
-                s.h -
+                start.y +
+                start.h -
                 min,
 
-                s.y +
+                start.y +
                 dy
               )
             );
 
           h =
-            s.y +
-            s.h -
+            start.y +
+            start.h -
             ny;
 
           y =
@@ -2675,23 +3855,21 @@ function setupCropGestures() {
               min,
               Math.min(
                 1 -
-                s.y,
+                start.y,
 
-                s.h +
+                start.h +
                 dy
               )
             );
         }
       }
 
-      state.editor
-        .edit
-        .crop = {
-          x,
-          y,
-          w,
-          h,
-        };
+      state.editor.edit.crop = {
+        x,
+        y,
+        w,
+        h,
+      };
 
       positionCropBox();
     }
@@ -2720,20 +3898,24 @@ function setupCropGestures() {
   );
 }
 
+/* ============================================================
+   THUMBNAIL REFRESH
+   ============================================================ */
+
 async function refreshThumbnail(
   page
 ) {
   const canvas =
     await renderEditedCanvas(
       page,
-      360,
+      THUMB_MAX_EDGE,
       true
     );
 
   const blob =
     await canvasToJpeg(
       canvas,
-      0.72
+      0.78
     );
 
   URL.revokeObjectURL(
@@ -2746,6 +3928,107 @@ async function refreshThumbnail(
     );
 }
 
+/* ============================================================
+   SAVE CURRENT EDIT
+   ============================================================ */
+
+async function saveCurrentEditorPage(
+  refresh = true
+) {
+  if (
+    !state.editor
+  ) {
+    return null;
+  }
+
+  const index =
+    currentEditorIndex();
+
+  if (
+    index <
+    0
+  ) {
+    return null;
+  }
+
+  const page =
+    state.pages[
+      index
+    ];
+
+  page.edit =
+    clone(
+      state.editor.edit
+    );
+
+  if (
+    refresh
+  ) {
+    refreshThumbnail(
+      page
+    )
+      .then(
+        renderPages
+      )
+      .catch(
+        console.warn
+      );
+  }
+
+  return page;
+}
+
+/* ============================================================
+   PREVIOUS / NEXT
+   ============================================================ */
+
+async function navigateEditor(
+  delta
+) {
+  if (
+    !state.editor
+  ) {
+    return;
+  }
+
+  const index =
+    currentEditorIndex();
+
+  const target =
+    index +
+    delta;
+
+  if (
+    index <
+      0 ||
+    target <
+      0 ||
+    target >=
+      state.pages.length
+  ) {
+    return;
+  }
+
+  await saveCurrentEditorPage(
+    true
+  );
+
+  const targetId =
+    state.pages[
+      target
+    ].id;
+
+  await nextPaint();
+
+  await openEditor(
+    targetId
+  );
+}
+
+/* ============================================================
+   APPLY / APPLY NEXT
+   ============================================================ */
+
 async function applyEditor(
   openNext
 ) {
@@ -2756,61 +4039,29 @@ async function applyEditor(
   }
 
   const index =
-    state.pages
-      .findIndex(
-        (p) =>
-          p.id ===
-          state.editor
-            .pageId
-      );
+    currentEditorIndex();
 
   if (
-    index < 0
+    index <
+    0
   ) {
     return;
   }
-
-  const page =
-    state.pages[
-      index
-    ];
-
-  page.edit =
-    JSON.parse(
-      JSON.stringify(
-        state.editor
-          .edit
-      )
-    );
 
   const nextId =
     openNext &&
     index <
       state.pages.length -
-        1
+      1
       ? state.pages[
-          index + 1
+          index +
+          1
         ].id
       : null;
 
-  closeEditor();
-
-  renderPages();
-
-  /*
-   * Small thumbnail only.
-   * Heavy high-resolution work
-   * waits until Generate PDF.
-   */
-  refreshThumbnail(
-    page
-  )
-    .then(
-      renderPages
-    )
-    .catch(
-      console.warn
-    );
+  await saveCurrentEditorPage(
+    true
+  );
 
   if (
     nextId
@@ -2820,6 +4071,118 @@ async function applyEditor(
     await openEditor(
       nextId
     );
+
+  } else {
+    closeEditor();
+
+    renderPages();
+  }
+}
+
+/* ============================================================
+   APPLY FILTER + CROP TO ALL
+   ============================================================ */
+
+async function applyEditorToAll() {
+  if (
+    !state.editor ||
+    !state.pages.length
+  ) {
+    return;
+  }
+
+  const confirmed =
+    confirm(
+      "Apply this page's filter, brightness, contrast, rotation and crop to ALL pages?"
+    );
+
+  if (
+    !confirmed
+  ) {
+    return;
+  }
+
+  const template =
+    clone(
+      state.editor.edit
+    );
+
+  for (
+    const page
+    of state.pages
+  ) {
+    page.edit =
+      clone(
+        template
+      );
+  }
+
+  const button =
+    $("peApplyAll");
+
+  const originalText =
+    button.textContent;
+
+  button.disabled =
+    true;
+
+  button.textContent =
+    "Applying to all…";
+
+  try {
+    for (
+      let i = 0;
+      i <
+      state.pages.length;
+      i++
+    ) {
+      await refreshThumbnail(
+        state.pages[i]
+      );
+
+      if (
+        i %
+        2 ===
+        1
+      ) {
+        await nextPaint();
+      }
+    }
+
+    renderPages();
+
+    button.textContent =
+      "Applied to all ✓";
+
+    setTimeout(
+      () => {
+        if (
+          $("peApplyAll")
+        ) {
+          $("peApplyAll")
+            .textContent =
+              originalText;
+        }
+      },
+      1300
+    );
+
+  } catch (error) {
+    console.warn(
+      "Apply to all failed:",
+      error
+    );
+
+    setError(
+      "Some thumbnails could not be refreshed, but the settings were saved."
+    );
+
+    button.textContent =
+      originalText;
+
+  } finally {
+    button.disabled =
+      false;
   }
 }
 
@@ -2831,11 +4194,9 @@ function renderPages() {
   $("pageCount")
     .textContent =
       `${
-        state.pages
-          .length
+        state.pages.length
       } ${
-        state.pages
-          .length ===
+        state.pages.length ===
         1
           ? "page"
           : "pages"
@@ -2844,8 +4205,7 @@ function renderPages() {
   $("generateBtn")
     .disabled =
       state.busy ||
-      !state.pages
-        .length;
+      !state.pages.length;
 
   $("thumbStrip")
     .innerHTML =
@@ -2956,12 +4316,10 @@ function renderPages() {
           event
         ) {
           const from =
-            event
-              .oldDraggableIndex;
+            event.oldDraggableIndex;
 
           const to =
-            event
-              .newDraggableIndex;
+            event.newDraggableIndex;
 
           if (
             from == null ||
@@ -2974,18 +4332,16 @@ function renderPages() {
           const [
             moved,
           ] =
-            state.pages
-              .splice(
-                from,
-                1
-              );
-
-          state.pages
-            .splice(
-              to,
-              0,
-              moved
+            state.pages.splice(
+              from,
+              1
             );
+
+          state.pages.splice(
+            to,
+            0,
+            moved
+          );
 
           renderPages();
         },
@@ -2993,18 +4349,23 @@ function renderPages() {
     );
 }
 
+/* ============================================================
+   RETAKE
+   ============================================================ */
+
 async function retake(
   id
 ) {
   const index =
-    state.pages
-      .findIndex(
-        (p) =>
-          p.id === id
-      );
+    state.pages.findIndex(
+      (page) =>
+        page.id ===
+        id
+    );
 
   if (
-    index < 0
+    index <
+    0
   ) {
     return;
   }
@@ -3013,7 +4374,7 @@ async function retake(
     await Camera.takePhoto(
       {
         quality:
-          90,
+          95,
 
         targetWidth:
           2600,
@@ -3067,13 +4428,18 @@ async function retake(
   );
 }
 
+/* ============================================================
+   RESET COMPOSER
+   ============================================================ */
+
 function resetComposer() {
   state.pages
     .forEach(
-      (page) =>
+      (page) => {
         URL.revokeObjectURL(
           page.thumbUrl
-        )
+        );
+      }
     );
 
   state.pages =
@@ -3129,8 +4495,7 @@ async function generatePdf() {
         true;
 
     const pdf =
-      await PDFDocument
-        .create();
+      await PDFDocument.create();
 
     const filename =
       filenameFor(
@@ -3172,13 +4537,13 @@ async function generatePdf() {
         5 +
         (
           i /
-          state.pages
-            .length
+          state.pages.length
         ) *
         66,
 
         `Processing page ${
-          i + 1
+          i +
+          1
         } of ${
           state.pages.length
         }…`
@@ -3194,27 +4559,26 @@ async function generatePdf() {
       const jpg =
         await canvasToJpeg(
           canvas,
-          0.72
+          0.82
         );
 
       const image =
         await pdf.embedJpg(
-          await jpg
-            .arrayBuffer()
+          await jpg.arrayBuffer()
         );
 
-      const pageW =
+      const pageWidth =
         595;
 
-      const pageH =
-        pageW *
+      const pageHeight =
+        pageWidth *
         image.height /
         image.width;
 
       const pdfPage =
         pdf.addPage([
-          pageW,
-          pageH,
+          pageWidth,
+          pageHeight,
         ]);
 
       pdfPage.drawImage(
@@ -3227,10 +4591,10 @@ async function generatePdf() {
             0,
 
           width:
-            pageW,
+            pageWidth,
 
           height:
-            pageH,
+            pageHeight,
         }
       );
 
@@ -3318,13 +4682,13 @@ async function generatePdf() {
 
     await renderLibrary();
 
-  } catch (err) {
+  } catch (error) {
     console.error(
-      err
+      error
     );
 
     setError(
-      err?.message ||
+      error?.message ||
       "Could not generate PDF."
     );
 
@@ -3339,7 +4703,7 @@ async function generatePdf() {
 }
 
 /* ============================================================
-   PDF VIEW / DOWNLOAD
+   PDF HELPERS
    ============================================================ */
 
 function blobToBase64(
@@ -3366,7 +4730,9 @@ function blobToBase64(
               ","
             )
               ? value
-                  .split(",")[1]
+                  .split(
+                    ","
+                  )[1]
               : value
           );
         };
@@ -3409,6 +4775,10 @@ async function savePdfTemporarily(
 
   return result.uri;
 }
+
+/* ============================================================
+   VIEW PDF
+   ============================================================ */
 
 async function viewRecord(
   id
@@ -3462,13 +4832,17 @@ async function viewRecord(
       });
     }
 
-  } catch (err) {
+  } catch (error) {
     alert(
-      err?.message ||
+      error?.message ||
       "Could not open this PDF."
     );
   }
 }
+
+/* ============================================================
+   DOWNLOAD PDF
+   ============================================================ */
 
 async function downloadRecord(
   id
@@ -3506,7 +4880,7 @@ async function downloadRecord(
       `PDF saved successfully.\n\n${record.filename}`
     );
 
-  } catch (err) {
+  } catch (error) {
     try {
       const record =
         await dbGet(id);
@@ -3550,7 +4924,7 @@ async function downloadRecord(
 }
 
 /* ============================================================
-   LOCAL TEST LIBRARY UI
+   LOCAL LIBRARY
    ============================================================ */
 
 async function renderLibrary() {
@@ -3712,10 +5086,10 @@ $("cameraBtn")
       try {
         await capturePhoto();
 
-      } catch (err) {
+      } catch (error) {
         if (
           !String(
-            err?.message ||
+            error?.message ||
             ""
           )
             .toLowerCase()
@@ -3724,7 +5098,7 @@ $("cameraBtn")
             )
         ) {
           setError(
-            err?.message ||
+            error?.message ||
             "Camera failed."
           );
         }
@@ -3743,10 +5117,10 @@ $("galleryBtn")
       try {
         await chooseMultiplePhotos();
 
-      } catch (err) {
+      } catch (error) {
         if (
           !String(
-            err?.message ||
+            error?.message ||
             ""
           )
             .toLowerCase()
@@ -3755,7 +5129,7 @@ $("galleryBtn")
             )
         ) {
           setError(
-            err?.message ||
+            error?.message ||
             "Gallery selection failed."
           );
         }
@@ -3763,7 +5137,7 @@ $("galleryBtn")
     };
 
 /* ============================================================
-   THUMBNAIL ACTIONS
+   PAGE ACTIONS
    ============================================================ */
 
 $("thumbStrip")
@@ -3830,11 +5204,10 @@ $("thumbStrip")
             ].thumbUrl
           );
 
-          state.pages
-            .splice(
-              index,
-              1
-            );
+          state.pages.splice(
+            index,
+            1
+          );
 
           renderPages();
         }
@@ -3857,10 +5230,10 @@ $("thumbStrip")
             id
           );
 
-        } catch (err) {
+        } catch (error) {
           if (
             !String(
-              err?.message ||
+              error?.message ||
               ""
             )
               .toLowerCase()
@@ -3869,7 +5242,7 @@ $("thumbStrip")
               )
           ) {
             setError(
-              err?.message ||
+              error?.message ||
               "Retake failed."
             );
           }
@@ -3879,7 +5252,7 @@ $("thumbStrip")
   );
 
 /* ============================================================
-   GENERATE
+   GENERATE PDF
    ============================================================ */
 
 $("generateBtn")
@@ -3900,7 +5273,7 @@ $("addAnotherBtn")
 
 $("viewLibraryBtn")
   .onclick =
-    () =>
+    () => {
       $("libraryPanel")
         .scrollIntoView(
           {
@@ -3911,6 +5284,7 @@ $("viewLibraryBtn")
               "start",
           }
         );
+    };
 
 /* ============================================================
    DOWNLOAD LATEST
@@ -3918,11 +5292,15 @@ $("viewLibraryBtn")
 
 $("downloadLatestBtn")
   .onclick =
-    () =>
-      state.latestId &&
-      downloadRecord(
+    () => {
+      if (
         state.latestId
-      );
+      ) {
+        downloadRecord(
+          state.latestId
+        );
+      }
+    };
 
 /* ============================================================
    LIBRARY ACTIONS
@@ -3947,10 +5325,6 @@ $("libraryGrid")
       const id =
         card.dataset.id;
 
-      /*
-       * VIEW
-       */
-
       if (
         event.target
           .closest(
@@ -3964,10 +5338,6 @@ $("libraryGrid")
         return;
       }
 
-      /*
-       * DOWNLOAD
-       */
-
       if (
         event.target
           .closest(
@@ -3980,10 +5350,6 @@ $("libraryGrid")
 
         return;
       }
-
-      /*
-       * DELETE
-       */
 
       if (
         event.target
@@ -4001,7 +5367,7 @@ $("libraryGrid")
   );
 
 /* ============================================================
-   CLEAR TEST LIBRARY
+   CLEAR LIBRARY
    ============================================================ */
 
 $("clearLibraryBtn")

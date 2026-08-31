@@ -7,12 +7,19 @@ import { PDFDocument } from "pdf-lib";
 import Sortable from "sortablejs";
 
 const $ = (id) => document.getElementById(id);
+
 const DB_NAME = "statArchiveCreateEntryTest";
 const DB_VERSION = 1;
 const STORE = "entries";
+
 const EDITOR_MAX_EDGE = 1200;
-const FINAL_MAX_EDGE = 2000;
+const PREPARED_MAX_EDGE = 1800;
+const PREPARED_JPEG_QUALITY = 0.86;
 const THUMB_MAX_EDGE = 360;
+
+const ONE_MB_LIMIT_BYTES = 1024 * 1024;
+const LIMITED_PDF_TARGET_BYTES = 950 * 1024;
+const PDF_OVERHEAD_RESERVE_BYTES = 28 * 1024;
 
 const state = {
   pages: [],
@@ -36,9 +43,9 @@ const DEMO_SUBJECTS = [
   "Econometrics",
 ];
 
-/* =========================
+/* ============================================================
    LOCAL TEST LIBRARY
-   ========================= */
+   ============================================================ */
 
 function openDb() {
   return new Promise((resolve, reject) => {
@@ -146,9 +153,9 @@ async function dbClear() {
   );
 }
 
-/* =========================
-   HELPERS
-   ========================= */
+/* ============================================================
+   GENERAL HELPERS
+   ============================================================ */
 
 function setError(message = "") {
   const box = $("errorBox");
@@ -302,9 +309,61 @@ function validateForm() {
   };
 }
 
-/* =========================
+function isOneMbLimitedType(type) {
+  const value =
+    String(type || "")
+      .toLowerCase()
+      .replace(
+        /[_-]+/g,
+        " "
+      )
+      .replace(
+        /\s+/g,
+        " "
+      )
+      .trim();
+
+  return [
+    "pyq",
+    "previous year question",
+    "previous year questions",
+    "mtq",
+    "mid term",
+    "mid term question",
+    "mid term questions",
+  ].includes(value);
+}
+
+function editSignature(edit) {
+  return JSON.stringify({
+    rotation:
+      Number(
+        edit?.rotation || 0
+      ),
+
+    filter:
+      edit?.filter ||
+      "magic",
+
+    magicStrength:
+      Number(
+        edit?.magicStrength ??
+        65
+      ),
+
+    crop:
+      edit?.crop || {
+        x: 0.02,
+        y: 0.02,
+        w: 0.96,
+        h: 0.96,
+      },
+  });
+}
+
+/* ============================================================
    SUBJECT SELECTOR
-   ========================= */
+   ============================================================ */
 
 function ensureSubjectSelector() {
   const current =
@@ -318,7 +377,8 @@ function ensureSubjectSelector() {
     Array.isArray(
       window.statArchiveSubjects
     )
-      ? window.statArchiveSubjects
+      ? window
+          .statArchiveSubjects
           .map((subject) =>
             String(
               subject?.name || ""
@@ -328,27 +388,35 @@ function ensureSubjectSelector() {
       : DEMO_SUBJECTS;
 
   if (
-    current.tagName === "SELECT" &&
-    current.dataset.scannerReady ===
+    current.tagName ===
+      "SELECT" &&
+    current.dataset
+      .scannerReady ===
       "true"
   ) {
     return;
   }
 
   const select =
-    document.createElement("select");
+    document.createElement(
+      "select"
+    );
 
   select.id =
     "subjectInput";
 
-  select.dataset.scannerReady =
-    "true";
+  select.dataset
+    .scannerReady =
+      "true";
 
   const names =
     [
-      ...new Set(liveNames),
-    ].sort((a, b) =>
-      a.localeCompare(b)
+      ...new Set(
+        liveNames
+      ),
+    ].sort(
+      (a, b) =>
+        a.localeCompare(b)
     );
 
   for (
@@ -360,10 +428,15 @@ function ensureSubjectSelector() {
         "option"
       );
 
-    option.value = name;
-    option.textContent = name;
+    option.value =
+      name;
 
-    select.appendChild(option);
+    option.textContent =
+      name;
+
+    select.appendChild(
+      option
+    );
   }
 
   const custom =
@@ -377,20 +450,27 @@ function ensureSubjectSelector() {
   custom.textContent =
     "Other / custom subject…";
 
-  select.appendChild(custom);
+  select.appendChild(
+    custom
+  );
 
   const oldValue =
     String(
       current.value || ""
     ).trim();
 
-  current.replaceWith(select);
+  current.replaceWith(
+    select
+  );
 
   if (
     oldValue &&
-    names.includes(oldValue)
+    names.includes(
+      oldValue
+    )
   ) {
-    select.value = oldValue;
+    select.value =
+      oldValue;
   }
 
   select.addEventListener(
@@ -410,7 +490,9 @@ function ensureSubjectSelector() {
         );
 
       if (!name?.trim()) {
-        select.selectedIndex = 0;
+        select.selectedIndex =
+          0;
+
         return;
       }
 
@@ -422,34 +504,37 @@ function ensureSubjectSelector() {
           "option"
         );
 
-      option.value = clean;
-      option.textContent = clean;
+      option.value =
+        clean;
+
+      option.textContent =
+        clean;
 
       select.insertBefore(
         option,
         custom
       );
 
-      select.value = clean;
+      select.value =
+        clean;
     }
   );
 }
 
-/* =========================
+/* ============================================================
    PAGE MODEL
-   ========================= */
+   ============================================================ */
 
 function defaultEdit() {
   return {
-    rotation: 0,
+    rotation:
+      0,
 
-    filter: "magic",
+    filter:
+      "magic",
 
-    /*
-     * 0 = original
-     * 100 = strongest Magic
-     */
-    magicStrength: 65,
+    magicStrength:
+      65,
 
     crop: {
       x: 0.02,
@@ -462,22 +547,55 @@ function defaultEdit() {
 
 function makePage(blob) {
   return {
-    id: newId(),
+    id:
+      newId(),
 
     originalBlob:
       blob,
 
     thumbUrl:
-      URL.createObjectURL(blob),
+      URL.createObjectURL(
+        blob
+      ),
 
     edit:
       defaultEdit(),
+
+    /*
+     * Cached high-quality processed
+     * page.
+     */
+    preparedBlob:
+      null,
+
+    preparedKey:
+      "",
+
+    preparePromise:
+      null,
+
+    preparePromiseKey:
+      "",
   };
 }
 
-/* =========================
+function invalidatePrepared(page) {
+  page.preparedBlob =
+    null;
+
+  page.preparedKey =
+    "";
+
+  page.preparePromise =
+    null;
+
+  page.preparePromiseKey =
+    "";
+}
+
+/* ============================================================
    CAMERA / GALLERY
-   ========================= */
+   ============================================================ */
 
 async function mediaResultToBlob(
   result
@@ -507,18 +625,26 @@ async function capturePhoto() {
 
   const result =
     await Camera.takePhoto({
-      quality: 95,
+      quality:
+        95,
 
-      targetWidth: 2600,
-      targetHeight: 2600,
+      targetWidth:
+        2600,
 
-      correctOrientation: true,
+      targetHeight:
+        2600,
 
-      saveToGallery: false,
+      correctOrientation:
+        true,
 
-      includeMetadata: true,
+      saveToGallery:
+        false,
 
-      editable: "no",
+      includeMetadata:
+        true,
+
+      editable:
+        "no",
     });
 
   const page =
@@ -528,7 +654,9 @@ async function capturePhoto() {
       )
     );
 
-  state.pages.push(page);
+  state.pages.push(
+    page
+  );
 
   renderPages();
 
@@ -543,26 +671,36 @@ async function chooseMultiplePhotos() {
   const {
     results,
   } =
-    await Camera.chooseFromGallery({
-      mediaType:
-        MediaTypeSelection.Photo,
+    await Camera
+      .chooseFromGallery({
+        mediaType:
+          MediaTypeSelection
+            .Photo,
 
-      allowMultipleSelection:
-        true,
+        allowMultipleSelection:
+          true,
 
-      limit: 30,
+        limit:
+          30,
 
-      quality: 95,
+        quality:
+          95,
 
-      targetWidth: 2600,
-      targetHeight: 2600,
+        targetWidth:
+          2600,
 
-      correctOrientation: true,
+        targetHeight:
+          2600,
 
-      includeMetadata: true,
+        correctOrientation:
+          true,
 
-      editable: "no",
-    });
+        includeMetadata:
+          true,
+
+        editable:
+          "no",
+      });
 
   if (!results?.length) {
     return;
@@ -581,7 +719,9 @@ async function chooseMultiplePhotos() {
         )
       );
 
-    state.pages.push(page);
+    state.pages.push(
+      page
+    );
 
     added.push(
       page.id
@@ -597,9 +737,9 @@ async function chooseMultiplePhotos() {
   }
 }
 
-/* =========================
+/* ============================================================
    ROTATION
-   ========================= */
+   ============================================================ */
 
 function drawRotated(
   ctx,
@@ -610,7 +750,9 @@ function drawRotated(
 ) {
   ctx.save();
 
-  if (rotation === 90) {
+  if (
+    rotation === 90
+  ) {
     ctx.translate(
       width,
       0
@@ -681,9 +823,9 @@ function drawRotated(
   ctx.restore();
 }
 
-/* =========================
+/* ============================================================
    MAGIC FILTER
-   ========================= */
+   ============================================================ */
 
 function applyMagicFilter(
   canvas,
@@ -742,10 +884,6 @@ function applyMagicFilter(
     width *
     height;
 
-  /*
-   * Luminance map
-   */
-
   const luminance =
     new Uint8Array(
       pixels
@@ -779,21 +917,19 @@ function applyMagicFilter(
       );
   }
 
-  /*
-   * Integral image for fast
-   * local background estimation
-   */
-
   const integralWidth =
-    width + 1;
+    width +
+    1;
 
   const integral =
     new Float64Array(
       (
-        width + 1
+        width +
+        1
       ) *
       (
-        height + 1
+        height +
+        1
       )
     );
 
@@ -802,11 +938,13 @@ function applyMagicFilter(
     y <= height;
     y++
   ) {
-    let rowSum = 0;
+    let rowSum =
+      0;
 
     const sourceRow =
       (
-        y - 1
+        y -
+        1
       ) *
       width;
 
@@ -816,7 +954,8 @@ function applyMagicFilter(
 
     const previousRow =
       (
-        y - 1
+        y -
+        1
       ) *
       integralWidth;
 
@@ -856,10 +995,6 @@ function applyMagicFilter(
       )
     );
 
-  /*
-   * Pixel processing
-   */
-
   for (
     let y = 0;
     y < height;
@@ -868,13 +1003,16 @@ function applyMagicFilter(
     const y1 =
       Math.max(
         0,
-        y - radius
+        y -
+        radius
       );
 
     const y2 =
       Math.min(
-        height - 1,
-        y + radius
+        height -
+        1,
+        y +
+        radius
       );
 
     for (
@@ -885,13 +1023,16 @@ function applyMagicFilter(
       const x1 =
         Math.max(
           0,
-          x - radius
+          x -
+          radius
         );
 
       const x2 =
         Math.min(
-          width - 1,
-          x + radius
+          width -
+          1,
+          x +
+          radius
         );
 
       const ia =
@@ -902,25 +1043,25 @@ function applyMagicFilter(
       const ib =
         y1 *
         integralWidth +
-        (
-          x2 + 1
-        );
+        x2 +
+        1;
 
       const ic =
         (
-          y2 + 1
+          y2 +
+          1
         ) *
         integralWidth +
         x1;
 
       const id =
         (
-          y2 + 1
+          y2 +
+          1
         ) *
         integralWidth +
-        (
-          x2 + 1
-        );
+        x2 +
+        1;
 
       const area =
         (
@@ -969,7 +1110,9 @@ function applyMagicFilter(
         ];
 
       const lum =
-        luminance[pixel];
+        luminance[
+          pixel
+        ];
 
       const maxRGB =
         Math.max(
@@ -995,9 +1138,6 @@ function applyMagicFilter(
 
       /*
        * Correct uneven lighting.
-       * Softer than the previous
-       * version so faint writing
-       * stays readable.
        */
 
       let normalized =
@@ -1009,21 +1149,26 @@ function applyMagicFilter(
         0.78;
 
       /*
-       * Suppress faint show-through
+       * Suppress faint backside
+       * / show-through writing.
        */
 
       if (
-        chroma < 26 &&
-        lum > 105
+        chroma <
+          26 &&
+        lum >
+          105
       ) {
         if (
-          detail < 8
+          detail <
+          8
         ) {
           normalized =
             255;
 
         } else if (
-          detail < 16
+          detail <
+          16
         ) {
           normalized +=
             (
@@ -1033,7 +1178,8 @@ function applyMagicFilter(
             2.2;
 
         } else if (
-          detail < 24
+          detail <
+          24
         ) {
           normalized +=
             (
@@ -1045,11 +1191,12 @@ function applyMagicFilter(
       }
 
       /*
-       * Clean paper
+       * Whiten paper.
        */
 
       if (
-        normalized > 210
+        normalized >
+        210
       ) {
         normalized +=
           (
@@ -1059,7 +1206,8 @@ function applyMagicFilter(
           0.72;
 
       } else if (
-        normalized > 180
+        normalized >
+        180
       ) {
         normalized +=
           (
@@ -1070,14 +1218,14 @@ function applyMagicFilter(
       }
 
       /*
-       * Strengthen true text,
-       * but less aggressively
-       * than before.
+       * Strengthen foreground text.
        */
 
       if (
-        detail > 22 ||
-        lum < 120
+        detail >
+          22 ||
+        lum <
+          120
       ) {
         const strokeStrength =
           Math.min(
@@ -1098,7 +1246,8 @@ function applyMagicFilter(
           strokeStrength;
 
         if (
-          lum < 80
+          lum <
+          80
         ) {
           normalized *=
             0.92;
@@ -1111,8 +1260,8 @@ function applyMagicFilter(
         );
 
       /*
-       * Preserve pen/highlighter
-       * color
+       * Preserve blue ink,
+       * highlighters etc.
        */
 
       const scale =
@@ -1145,19 +1294,22 @@ function applyMagicFilter(
       let saturationKeep;
 
       if (
-        chroma >= 55
+        chroma >=
+        55
       ) {
         saturationKeep =
           0.96;
 
       } else if (
-        chroma >= 30
+        chroma >=
+        30
       ) {
         saturationKeep =
           0.82;
 
       } else if (
-        chroma >= 18
+        chroma >=
+        18
       ) {
         saturationKeep =
           0.60;
@@ -1192,9 +1344,8 @@ function applyMagicFilter(
         saturationKeep;
 
       /*
-       * MAGIC STRENGTH CONTROL
-       *
-       * 0% = original
+       * Magic strength:
+       * 0% = Original
        * 100% = full Magic
        */
 
@@ -1246,11 +1397,12 @@ function applyMagicFilter(
   );
 
   /*
-   * Mild sharpening
+   * Mild sharpening.
    */
 
   if (
-    strength > 0.05
+    strength >
+    0.05
   ) {
     const source =
       ctx.getImageData(
@@ -1272,7 +1424,9 @@ function applyMagicFilter(
     const dst =
       sharpened.data;
 
-    dst.set(src);
+    dst.set(
+      src
+    );
 
     const sharpenAmount =
       0.10 +
@@ -1298,10 +1452,12 @@ function applyMagicFilter(
           4;
 
         const left =
-          p - 4;
+          p -
+          4;
 
         const right =
-          p + 4;
+          p +
+          4;
 
         const up =
           p -
@@ -1314,8 +1470,12 @@ function applyMagicFilter(
           4;
 
         for (
-          let channel = 0;
-          channel < 3;
+          let channel =
+            0;
+
+          channel <
+            3;
+
           channel++
         ) {
           const center =
@@ -1363,7 +1523,8 @@ function applyMagicFilter(
         }
 
         dst[
-          p + 3
+          p +
+          3
         ] =
           255;
       }
@@ -1395,9 +1556,9 @@ function applyAdjustments(
   }
 }
 
-/* =========================
+/* ============================================================
    RENDER EDITED IMAGE
-   ========================= */
+   ============================================================ */
 
 async function renderEditedCanvas(
   page,
@@ -1417,8 +1578,10 @@ async function renderEditedCanvas(
       );
 
     const rotated =
-      rotation === 90 ||
-      rotation === 270;
+      rotation ===
+        90 ||
+      rotation ===
+        270;
 
     const naturalWidth =
       rotated
@@ -1473,7 +1636,8 @@ async function renderEditedCanvas(
       canvas.getContext(
         "2d",
         {
-          alpha: false,
+          alpha:
+            false,
 
           willReadFrequently:
             true,
@@ -1579,7 +1743,8 @@ async function renderEditedCanvas(
       out.getContext(
         "2d",
         {
-          alpha: false,
+          alpha:
+            false,
         }
       );
 
@@ -1624,7 +1789,9 @@ function canvasToJpeg(
       canvas.toBlob(
         (blob) =>
           blob
-            ? resolve(blob)
+            ? resolve(
+                blob
+              )
             : reject(
                 new Error(
                   "Could not save image."
@@ -1639,9 +1806,307 @@ function canvasToJpeg(
   );
 }
 
-/* =========================
+async function blobToCanvas(
+  blob,
+  maxEdge = Infinity
+) {
+  const bitmap =
+    await createImageBitmap(
+      blob
+    );
+
+  try {
+    const scale =
+      Math.min(
+        1,
+        maxEdge /
+        Math.max(
+          bitmap.width,
+          bitmap.height
+        )
+      );
+
+    const width =
+      Math.max(
+        1,
+        Math.round(
+          bitmap.width *
+          scale
+        )
+      );
+
+    const height =
+      Math.max(
+        1,
+        Math.round(
+          bitmap.height *
+          scale
+        )
+      );
+
+    const canvas =
+      document.createElement(
+        "canvas"
+      );
+
+    canvas.width =
+      width;
+
+    canvas.height =
+      height;
+
+    const ctx =
+      canvas.getContext(
+        "2d",
+        {
+          alpha:
+            false,
+        }
+      );
+
+    ctx.fillStyle =
+      "#fff";
+
+    ctx.fillRect(
+      0,
+      0,
+      width,
+      height
+    );
+
+    ctx.drawImage(
+      bitmap,
+      0,
+      0,
+      width,
+      height
+    );
+
+    return canvas;
+
+  } finally {
+    bitmap.close?.();
+  }
+}
+
+/* ============================================================
+   PROCESSED PAGE CACHE
+   ============================================================ */
+
+async function preparePageNow(
+  page
+) {
+  const key =
+    editSignature(
+      page.edit
+    );
+
+  if (
+    page.preparedBlob &&
+    page.preparedKey ===
+      key
+  ) {
+    return page.preparedBlob;
+  }
+
+  const canvas =
+    await renderEditedCanvas(
+      page,
+      PREPARED_MAX_EDGE,
+      true
+    );
+
+  const blob =
+    await canvasToJpeg(
+      canvas,
+      PREPARED_JPEG_QUALITY
+    );
+
+  /*
+   * Only cache if the user
+   * didn't change the page
+   * during processing.
+   */
+
+  if (
+    editSignature(
+      page.edit
+    ) ===
+    key
+  ) {
+    page.preparedBlob =
+      blob;
+
+    page.preparedKey =
+      key;
+  }
+
+  return blob;
+}
+
+function queuePreparePage(
+  page
+) {
+  const key =
+    editSignature(
+      page.edit
+    );
+
+  if (
+    page.preparedBlob &&
+    page.preparedKey ===
+      key
+  ) {
+    return Promise.resolve(
+      page.preparedBlob
+    );
+  }
+
+  if (
+    page.preparePromise &&
+    page.preparePromiseKey ===
+      key
+  ) {
+    return page.preparePromise;
+  }
+
+  page.preparePromiseKey =
+    key;
+
+  page.preparePromise =
+    (
+      async () => {
+        /*
+         * Let the UI update first.
+         */
+
+        await nextPaint();
+
+        return preparePageNow(
+          page
+        );
+      }
+    )()
+      .finally(
+        () => {
+          if (
+            page.preparePromiseKey ===
+            key
+          ) {
+            page.preparePromise =
+              null;
+
+            page.preparePromiseKey =
+              "";
+          }
+        }
+      );
+
+  return page.preparePromise;
+}
+
+async function ensurePreparedPages() {
+  for (
+    let i = 0;
+    i <
+    state.pages.length;
+    i++
+  ) {
+    const page =
+      state.pages[i];
+
+    const key =
+      editSignature(
+        page.edit
+      );
+
+    if (
+      !page.preparedBlob ||
+      page.preparedKey !==
+        key
+    ) {
+      setProgress(
+        6 +
+        (
+          i /
+          Math.max(
+            1,
+            state.pages.length
+          )
+        ) *
+        34,
+
+        `Preparing page ${
+          i + 1
+        } of ${
+          state.pages.length
+        }…`
+      );
+
+      await queuePreparePage(
+        page
+      );
+    }
+  }
+}
+
+async function refreshThumbnail(
+  page
+) {
+  const sourceBlob =
+    page.preparedBlob &&
+    page.preparedKey ===
+      editSignature(
+        page.edit
+      )
+      ? page.preparedBlob
+      : null;
+
+  let blob;
+
+  if (
+    sourceBlob
+  ) {
+    const canvas =
+      await blobToCanvas(
+        sourceBlob,
+        THUMB_MAX_EDGE
+      );
+
+    blob =
+      await canvasToJpeg(
+        canvas,
+        0.76
+      );
+
+  } else {
+    const canvas =
+      await renderEditedCanvas(
+        page,
+        THUMB_MAX_EDGE,
+        true
+      );
+
+    blob =
+      await canvasToJpeg(
+        canvas,
+        0.76
+      );
+  }
+
+  URL.revokeObjectURL(
+    page.thumbUrl
+  );
+
+  page.thumbUrl =
+    URL.createObjectURL(
+      blob
+    );
+}
+
+/* ============================================================
    AUTO CROP
-   ========================= */
+   ============================================================ */
 
 function smoothScores(
   values,
@@ -1654,24 +2119,31 @@ function smoothScores(
 
   for (
     let i = 0;
-    i < values.length;
+    i <
+    values.length;
     i++
   ) {
-    let sum = 0;
-    let count = 0;
+    let sum =
+      0;
+
+    let count =
+      0;
 
     for (
       let j =
         Math.max(
           0,
-          i - radius
+          i -
+          radius
         );
 
       j <=
-      Math.min(
-        values.length - 1,
-        i + radius
-      );
+        Math.min(
+          values.length -
+          1,
+          i +
+          radius
+        );
 
       j++
     ) {
@@ -1741,8 +2213,11 @@ function strongestIndex(
   }
 
   return {
-    index: bestIndex,
-    score: bestScore,
+    index:
+      bestIndex,
+
+    score:
+      bestScore,
   };
 }
 
@@ -1836,17 +2311,17 @@ function detectAutoCropFromCanvas(
       clampByte(
         Math.round(
           0.299 *
-          image[i] +
+            image[i] +
 
           0.587 *
-          image[
-            i + 1
-          ] +
+            image[
+              i + 1
+            ] +
 
           0.114 *
-          image[
-            i + 2
-          ]
+            image[
+              i + 2
+            ]
         )
       );
   }
@@ -1864,13 +2339,15 @@ function detectAutoCropFromCanvas(
   for (
     let y = 1;
     y <
-    height - 1;
+    height -
+    1;
     y++
   ) {
     for (
       let x = 1;
       x <
-      width - 1;
+      width -
+      1;
       x++
     ) {
       const p =
@@ -1901,7 +2378,8 @@ function detectAutoCropFromCanvas(
         );
 
       const gradient =
-        gx + gy;
+        gx +
+        gy;
 
       colScores[x] +=
         gradient;
@@ -1961,10 +2439,12 @@ function detectAutoCropFromCanvas(
 
   if (
     detectedWidth <
-      width * 0.48 ||
+      width *
+      0.48 ||
 
     detectedHeight <
-      height * 0.48
+      height *
+      0.48
   ) {
     return {
       x: 0.02,
@@ -1978,7 +2458,8 @@ function detectAutoCropFromCanvas(
     Math.max(
       0,
       Math.min(
-        width - 2,
+        width -
+        2,
         left.index
       )
     );
@@ -1987,45 +2468,56 @@ function detectAutoCropFromCanvas(
     Math.max(
       0,
       Math.min(
-        height - 2,
+        height -
+        2,
         top.index
       )
     );
 
   const x2 =
     Math.max(
-      x1 + 1,
+      x1 +
+      1,
       Math.min(
-        width - 1,
+        width -
+        1,
         right.index
       )
     );
 
   const y2 =
     Math.max(
-      y1 + 1,
+      y1 +
+      1,
       Math.min(
-        height - 1,
+        height -
+        1,
         bottom.index
       )
     );
 
   return {
     x:
-      x1 / width,
+      x1 /
+      width,
 
     y:
-      y1 / height,
+      y1 /
+      height,
 
     w:
       (
-        x2 - x1
-      ) / width,
+        x2 -
+        x1
+      ) /
+      width,
 
     h:
       (
-        y2 - y1
-      ) / height,
+        y2 -
+        y1
+      ) /
+      height,
   };
 }
 
@@ -2036,8 +2528,8 @@ async function autoCropEditor() {
 
   const page =
     state.pages.find(
-      (page) =>
-        page.id ===
+      (p) =>
+        p.id ===
         state.editor.pageId
     );
 
@@ -2064,9 +2556,11 @@ async function autoCropEditor() {
       edit: {
         ...state.editor.edit,
 
-        filter: "original",
+        filter:
+          "original",
 
-        magicStrength: 0,
+        magicStrength:
+          0,
 
         crop: {
           x: 0,
@@ -2110,9 +2604,9 @@ async function autoCropEditor() {
   }
 }
 
-/* =========================
+/* ============================================================
    EDITOR UI
-   ========================= */
+   ============================================================ */
 
 function installEditor() {
   if (
@@ -2321,11 +2815,6 @@ function installEditor() {
       color:#edf4fb
     }
 
-    .pe-all{
-      width:100%;
-      justify-content:center
-    }
-
     .thumb-actions{
       max-width:94px;
       flex-wrap:wrap;
@@ -2362,14 +2851,11 @@ function installEditor() {
       aria-modal="true"
     >
 
-      <div
-        class="pe-head"
-      >
+      <div class="pe-head">
 
         <div
           class="pe-title-row"
         >
-
           <div>
             <strong
               id="peTitle"
@@ -2394,13 +2880,11 @@ function installEditor() {
           >
             Done
           </button>
-
         </div>
 
         <div
           class="pe-nav-row"
         >
-
           <button
             id="pePrev"
             type="button"
@@ -2420,7 +2904,6 @@ function installEditor() {
           >
             Next →
           </button>
-
         </div>
 
       </div>
@@ -2429,14 +2912,11 @@ function installEditor() {
         class="pe-stage"
         id="peStage"
       >
-
         <canvas
           id="peCanvas"
         ></canvas>
 
-        <div
-          id="cropBox"
-        >
+        <div id="cropBox">
 
           <span
             class="crop-handle"
@@ -2459,7 +2939,6 @@ function installEditor() {
           ></span>
 
         </div>
-
       </div>
 
       <div
@@ -2561,20 +3040,6 @@ function installEditor() {
         >
 
           <button
-            id="peApplyAll"
-            class="pe-primary pe-all"
-            type="button"
-          >
-            Apply filter + crop to all pages
-          </button>
-
-        </div>
-
-        <div
-          class="pe-row"
-        >
-
-          <button
             class="pe-primary"
             id="peApply"
             type="button"
@@ -2603,7 +3068,7 @@ function installEditor() {
 
   $("peCancel").onclick =
     async () => {
-      await saveCurrentEditorPage(
+      saveCurrentEditorPage(
         false
       );
 
@@ -2612,49 +3077,61 @@ function installEditor() {
 
   $("pePrev").onclick =
     () =>
-      navigateEditor(-1);
+      navigateEditor(
+        -1
+      );
 
   $("peNext").onclick =
     () =>
-      navigateEditor(1);
+      navigateEditor(
+        1
+      );
 
   $("peAutoCrop").onclick =
     autoCropEditor;
 
   $("rotL").onclick =
     () =>
-      rotateEditor(-90);
+      rotateEditor(
+        -90
+      );
 
   $("rotR").onclick =
     () =>
-      rotateEditor(90);
+      rotateEditor(
+        90
+      );
 
   $("peResetCrop").onclick =
     () =>
-      resetCrop(true);
+      resetCrop(
+        true
+      );
 
   $("peReset").onclick =
     resetEditor;
 
   $("peApply").onclick =
     () =>
-      applyEditor(false);
+      applyEditor(
+        false
+      );
 
   $("peApplyNext").onclick =
     () =>
-      applyEditor(true);
-
-  $("peApplyAll").onclick =
-    applyEditorToAll;
+      applyEditor(
+        true
+      );
 
   $("filterRow")
     .addEventListener(
       "click",
       (event) => {
         const button =
-          event.target.closest(
-            "[data-filter]"
-          );
+          event.target
+            .closest(
+              "[data-filter]"
+            );
 
         if (
           !button ||
@@ -2663,9 +3140,12 @@ function installEditor() {
           return;
         }
 
-        state.editor.edit.filter =
-          button.dataset.filter ||
-          "magic";
+        state.editor
+          .edit
+          .filter =
+            button.dataset
+              .filter ||
+            "magic";
 
         syncEditorControls();
 
@@ -2683,11 +3163,13 @@ function installEditor() {
           return;
         }
 
-        state.editor.edit.magicStrength =
-          Number(
-            $("magicStrengthSlider")
-              .value
-          );
+        state.editor
+          .edit
+          .magicStrength =
+            Number(
+              $("magicStrengthSlider")
+                .value
+            );
 
         syncEditorControls(
           false
@@ -2733,8 +3215,8 @@ async function openEditor(
 
   const page =
     state.pages.find(
-      (page) =>
-        page.id ===
+      (p) =>
+        p.id ===
         pageId
     );
 
@@ -2756,8 +3238,9 @@ async function openEditor(
     .hidden =
       false;
 
-  document.body.style.overflow =
-    "hidden";
+  document.body.style
+    .overflow =
+      "hidden";
 
   updateEditorNavigation();
 
@@ -2778,25 +3261,30 @@ function closeEditor() {
     .hidden =
       true;
 
-  document.body.style.overflow =
-    "";
+  document.body.style
+    .overflow =
+      "";
 }
 
 function currentEditorIndex() {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return -1;
   }
 
   return state.pages
     .findIndex(
-      (page) =>
-        page.id ===
+      (p) =>
+        p.id ===
         state.editor.pageId
     );
 }
 
 function updateEditorNavigation() {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -2806,10 +3294,11 @@ function updateEditorNavigation() {
   const total =
     state.pages.length;
 
-  $("peTitle").textContent =
-    `Edit page ${
-      index + 1
-    }`;
+  $("peTitle")
+    .textContent =
+      `Edit page ${
+        index + 1
+      }`;
 
   $("pePagePosition")
     .textContent =
@@ -2837,7 +3326,9 @@ function updateEditorNavigation() {
 function syncEditorControls(
   updateInputs = true
 ) {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -2850,11 +3341,13 @@ function syncEditorControls(
     )
     .forEach(
       (button) => {
-        button.classList.toggle(
-          "active",
-          button.dataset.filter ===
-            edit.filter
-        );
+        button.classList
+          .toggle(
+            "active",
+            button.dataset
+              .filter ===
+              edit.filter
+          );
       }
     );
 
@@ -2889,22 +3382,30 @@ function syncEditorControls(
 function rotateEditor(
   delta
 ) {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
-  state.editor.edit.rotation =
-    (
-      Number(
-        state.editor.edit.rotation ||
-        0
-      ) +
-      delta +
-      360
-    ) %
-    360;
+  state.editor
+    .edit
+    .rotation =
+      (
+        Number(
+          state.editor
+            .edit
+            .rotation ||
+          0
+        ) +
+        delta +
+        360
+      ) %
+      360;
 
-  resetCrop(false);
+  resetCrop(
+    false
+  );
 
   redrawEditor();
 }
@@ -2912,7 +3413,9 @@ function rotateEditor(
 function resetCrop(
   redraw = true
 ) {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -2923,13 +3426,17 @@ function resetCrop(
     h: 0.96,
   };
 
-  if (redraw) {
+  if (
+    redraw
+  ) {
     positionCropBox();
   }
 }
 
 function resetEditor() {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -2942,7 +3449,9 @@ function resetEditor() {
 }
 
 async function redrawEditor() {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -2951,8 +3460,8 @@ async function redrawEditor() {
 
   const page =
     state.pages.find(
-      (page) =>
-        page.id ===
+      (p) =>
+        p.id ===
         editorPageId
     );
 
@@ -2997,7 +3506,8 @@ async function redrawEditor() {
     .getContext(
       "2d",
       {
-        alpha: false,
+        alpha:
+          false,
       }
     )
     .drawImage(
@@ -3012,7 +3522,9 @@ async function redrawEditor() {
 }
 
 function positionCropBox() {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -3069,7 +3581,9 @@ function setupCropGestures() {
   box.addEventListener(
     "pointerdown",
     (event) => {
-      if (!state.editor) {
+      if (
+        !state.editor
+      ) {
         return;
       }
 
@@ -3099,7 +3613,9 @@ function setupCropGestures() {
           event.clientY,
 
         crop: {
-          ...state.editor.edit.crop,
+          ...state.editor
+            .edit
+            .crop,
         },
 
         canvasW:
@@ -3171,7 +3687,9 @@ function setupCropGestures() {
           Math.max(
             0,
             Math.min(
-              1 - w,
+              1 -
+              w,
+
               start.x +
               dx
             )
@@ -3181,7 +3699,9 @@ function setupCropGestures() {
           Math.max(
             0,
             Math.min(
-              1 - h,
+              1 -
+              h,
+
               start.y +
               dy
             )
@@ -3298,7 +3818,8 @@ function setupCropGestures() {
         event.pointerId ===
           drag.id
       ) {
-        drag = null;
+        drag =
+          null;
       }
     };
 
@@ -3313,25 +3834,53 @@ function setupCropGestures() {
   );
 }
 
-/* =========================
+/* ============================================================
    SAVE / NAVIGATE / APPLY
-   ========================= */
+   ============================================================ */
 
 async function refreshThumbnail(
   page
 ) {
-  const canvas =
-    await renderEditedCanvas(
-      page,
-      THUMB_MAX_EDGE,
-      true
-    );
+  const sourceBlob =
+    page.preparedBlob &&
+    page.preparedKey ===
+      editSignature(
+        page.edit
+      )
+      ? page.preparedBlob
+      : null;
 
-  const blob =
-    await canvasToJpeg(
-      canvas,
-      0.78
-    );
+  let blob;
+
+  if (
+    sourceBlob
+  ) {
+    const canvas =
+      await blobToCanvas(
+        sourceBlob,
+        THUMB_MAX_EDGE
+      );
+
+    blob =
+      await canvasToJpeg(
+        canvas,
+        0.76
+      );
+
+  } else {
+    const canvas =
+      await renderEditedCanvas(
+        page,
+        THUMB_MAX_EDGE,
+        true
+      );
+
+    blob =
+      await canvasToJpeg(
+        canvas,
+        0.76
+      );
+  }
 
   URL.revokeObjectURL(
     page.thumbUrl
@@ -3343,10 +3892,12 @@ async function refreshThumbnail(
     );
 }
 
-async function saveCurrentEditorPage(
+function saveCurrentEditorPage(
   refresh = true
 ) {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return null;
   }
 
@@ -3354,30 +3905,68 @@ async function saveCurrentEditorPage(
     currentEditorIndex();
 
   if (
-    index < 0
+    index <
+    0
   ) {
     return null;
   }
 
   const page =
-    state.pages[index];
+    state.pages[
+      index
+    ];
 
-  page.edit =
+  const oldKey =
+    editSignature(
+      page.edit
+    );
+
+  const newEdit =
     clone(
       state.editor.edit
     );
 
-  if (refresh) {
-    refreshThumbnail(
+  const newKey =
+    editSignature(
+      newEdit
+    );
+
+  page.edit =
+    newEdit;
+
+  if (
+    oldKey !==
+    newKey
+  ) {
+    invalidatePrepared(
       page
-    )
-      .then(
-        renderPages
-      )
-      .catch(
-        console.warn
-      );
+    );
   }
+
+  /*
+   * Process in background.
+   * Navigation stays responsive.
+   */
+
+  queuePreparePage(
+    page
+  )
+    .then(
+      async () => {
+        if (
+          refresh
+        ) {
+          await refreshThumbnail(
+            page
+          );
+
+          renderPages();
+        }
+      }
+    )
+    .catch(
+      console.warn
+    );
 
   return page;
 }
@@ -3385,7 +3974,9 @@ async function saveCurrentEditorPage(
 async function navigateEditor(
   delta
 ) {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -3397,15 +3988,17 @@ async function navigateEditor(
     delta;
 
   if (
-    index < 0 ||
-    target < 0 ||
+    index <
+      0 ||
+    target <
+      0 ||
     target >=
       state.pages.length
   ) {
     return;
   }
 
-  await saveCurrentEditorPage(
+  saveCurrentEditorPage(
     true
   );
 
@@ -3424,7 +4017,9 @@ async function navigateEditor(
 async function applyEditor(
   openNext
 ) {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -3432,7 +4027,8 @@ async function applyEditor(
     currentEditorIndex();
 
   if (
-    index < 0
+    index <
+    0
   ) {
     return;
   }
@@ -3443,15 +4039,18 @@ async function applyEditor(
       state.pages.length -
       1
       ? state.pages[
-          index + 1
+          index +
+          1
         ].id
       : null;
 
-  await saveCurrentEditorPage(
+  saveCurrentEditorPage(
     true
   );
 
-  if (nextId) {
+  if (
+    nextId
+  ) {
     await nextPaint();
 
     await openEditor(
@@ -3465,209 +4064,117 @@ async function applyEditor(
   }
 }
 
-async function applyEditorToAll() {
-  if (
-    !state.editor ||
-    !state.pages.length
-  ) {
-    return;
-  }
-
-  const confirmed =
-    confirm(
-      "Apply this page's filter, Magic strength, rotation and crop to ALL pages?"
-    );
-
-  if (!confirmed) {
-    return;
-  }
-
-  const template =
-    clone(
-      state.editor.edit
-    );
-
-  for (
-    const page
-    of state.pages
-  ) {
-    page.edit =
-      clone(
-        template
-      );
-  }
-
-  const button =
-    $("peApplyAll");
-
-  const originalText =
-    button.textContent;
-
-  button.disabled =
-    true;
-
-  button.textContent =
-    "Applying to all…";
-
-  try {
-    for (
-      let i = 0;
-      i <
-      state.pages.length;
-      i++
-    ) {
-      await refreshThumbnail(
-        state.pages[i]
-      );
-
-      if (
-        i % 2 === 1
-      ) {
-        await nextPaint();
-      }
-    }
-
-    renderPages();
-
-    button.textContent =
-      "Applied to all ✓";
-
-    setTimeout(
-      () => {
-        if (
-          $("peApplyAll")
-        ) {
-          $("peApplyAll")
-            .textContent =
-              originalText;
-        }
-      },
-      1300
-    );
-
-  } catch (error) {
-    console.warn(
-      "Apply to all failed:",
-      error
-    );
-
-    setError(
-      "Some thumbnails could not be refreshed, but the settings were saved."
-    );
-
-    button.textContent =
-      originalText;
-
-  } finally {
-    button.disabled =
-      false;
-  }
-}
-
-/* =========================
+/* ============================================================
    THUMBNAILS
-   ========================= */
+   ============================================================ */
 
 function renderPages() {
-  $("pageCount").textContent =
-    `${state.pages.length} ${
-      state.pages.length === 1
-        ? "page"
-        : "pages"
-    }`;
+  $("pageCount")
+    .textContent =
+      `${state.pages.length} ${
+        state.pages.length ===
+        1
+          ? "page"
+          : "pages"
+      }`;
 
-  $("generateBtn").disabled =
-    state.busy ||
-    !state.pages.length;
+  $("generateBtn")
+    .disabled =
+      state.busy ||
+      !state.pages.length;
 
-  $("thumbStrip").innerHTML =
-    state.pages
-      .map(
-        (
-          page,
-          index
-        ) => `
-          <div
-            class="thumb"
-            data-id="${page.id}"
-          >
-
-            <img
-              src="${page.thumbUrl}"
-              alt="Page ${index + 1}"
-            >
-
+  $("thumbStrip")
+    .innerHTML =
+      state.pages
+        .map(
+          (
+            page,
+            index
+          ) => `
             <div
-              class="page-no"
-            >
-              ${index + 1}
-            </div>
-
-            <div
-              class="thumb-actions"
+              class="thumb"
+              data-id="${page.id}"
             >
 
-              <button
-                type="button"
-                data-act="edit"
-                aria-label="Edit"
+              <img
+                src="${page.thumbUrl}"
+                alt="Page ${index + 1}"
               >
-                ✎
-              </button>
 
-              <button
-                type="button"
-                data-act="retake"
-                aria-label="Retake"
+              <div
+                class="page-no"
               >
-                ↻
-              </button>
+                ${index + 1}
+              </div>
 
-              <button
-                type="button"
-                data-act="delete"
-                aria-label="Delete"
+              <div
+                class="thumb-actions"
               >
-                ✕
-              </button>
+
+                <button
+                  type="button"
+                  data-act="edit"
+                  aria-label="Edit"
+                >
+                  ✎
+                </button>
+
+                <button
+                  type="button"
+                  data-act="retake"
+                  aria-label="Retake"
+                >
+                  ↻
+                </button>
+
+                <button
+                  type="button"
+                  data-act="delete"
+                  aria-label="Delete"
+                >
+                  ✕
+                </button>
+
+              </div>
+
+              <div
+                class="drag"
+                aria-label="Drag to reorder"
+              >
+                ☰
+              </div>
 
             </div>
+          `
+        )
+        .join("") +
 
-            <div
-              class="drag"
-              aria-label="Drag to reorder"
-            >
-              ☰
-            </div>
+      `
+        <button
+          type="button"
+          id="addMoreBtn"
+          class="add-more"
+        >
+          ＋
+          <span>
+            Add page
+          </span>
+        </button>
+      `;
 
-          </div>
-        `
-      )
-      .join("") +
+  $("addMoreBtn")
+    .onclick =
+      showSource;
 
-    `
-      <button
-        type="button"
-        id="addMoreBtn"
-        class="add-more"
-      >
-        ＋
-        <span>
-          Add page
-        </span>
-      </button>
-    `;
-
-  $("addMoreBtn").onclick =
-    showSource;
-
-  state.sortable?.destroy();
+  state.sortable
+    ?.destroy();
 
   state.sortable =
     new Sortable(
       $("thumbStrip"),
       {
-        animation: 150,
+        animation:
+          150,
 
         draggable:
           ".thumb",
@@ -3681,12 +4188,16 @@ function renderPages() {
         chosenClass:
           "chosen",
 
-        onEnd(event) {
+        onEnd(
+          event
+        ) {
           const from =
-            event.oldDraggableIndex;
+            event
+              .oldDraggableIndex;
 
           const to =
-            event.newDraggableIndex;
+            event
+              .newDraggableIndex;
 
           if (
             from == null ||
@@ -3699,16 +4210,18 @@ function renderPages() {
           const [
             moved,
           ] =
-            state.pages.splice(
-              from,
-              1
-            );
+            state.pages
+              .splice(
+                from,
+                1
+              );
 
-          state.pages.splice(
-            to,
-            0,
-            moved
-          );
+          state.pages
+            .splice(
+              to,
+              0,
+              moved
+            );
 
           renderPages();
         },
@@ -3720,32 +4233,42 @@ async function retake(
   id
 ) {
   const index =
-    state.pages.findIndex(
-      (page) =>
-        page.id === id
-    );
+    state.pages
+      .findIndex(
+        (p) =>
+          p.id ===
+          id
+      );
 
   if (
-    index < 0
+    index <
+    0
   ) {
     return;
   }
 
   const result =
     await Camera.takePhoto({
-      quality: 95,
+      quality:
+        95,
 
-      targetWidth: 2600,
+      targetWidth:
+        2600,
 
-      targetHeight: 2600,
+      targetHeight:
+        2600,
 
-      correctOrientation: true,
+      correctOrientation:
+        true,
 
-      saveToGallery: false,
+      saveToGallery:
+        false,
 
-      includeMetadata: true,
+      includeMetadata:
+        true,
 
-      editable: "no",
+      editable:
+        "no",
     });
 
   const blob =
@@ -3754,7 +4277,9 @@ async function retake(
     );
 
   const page =
-    state.pages[index];
+    state.pages[
+      index
+    ];
 
   URL.revokeObjectURL(
     page.thumbUrl
@@ -3771,6 +4296,10 @@ async function retake(
   page.edit =
     defaultEdit();
 
+  invalidatePrepared(
+    page
+  );
+
   renderPages();
 
   await openEditor(
@@ -3786,28 +4315,515 @@ function resetComposer() {
       )
   );
 
-  state.pages = [];
+  state.pages =
+    [];
 
-  $("progressWrap").hidden =
-    true;
+  $("progressWrap")
+    .hidden =
+      true;
 
-  $("progressBar").style.width =
-    "0%";
+  $("progressBar")
+    .style.width =
+      "0%";
 
   setError("");
 
-  $("createPanel").hidden =
-    false;
+  $("createPanel")
+    .hidden =
+      false;
 
-  $("successPanel").hidden =
-    true;
+  $("successPanel")
+    .hidden =
+      true;
 
   renderPages();
 }
 
-/* =========================
+/* ============================================================
+   PDF OPTIMIZATION
+   ============================================================ */
+
+function initialLimitedProfile(
+  pageCount
+) {
+  if (
+    pageCount <=
+    2
+  ) {
+    return {
+      maxEdge:
+        1600,
+
+      quality:
+        0.80,
+    };
+  }
+
+  if (
+    pageCount <=
+    4
+  ) {
+    return {
+      maxEdge:
+        1450,
+
+      quality:
+        0.77,
+    };
+  }
+
+  if (
+    pageCount <=
+    6
+  ) {
+    return {
+      maxEdge:
+        1250,
+
+      quality:
+        0.73,
+    };
+  }
+
+  if (
+    pageCount <=
+    8
+  ) {
+    return {
+      maxEdge:
+        1100,
+
+      quality:
+        0.70,
+    };
+  }
+
+  if (
+    pageCount <=
+    12
+  ) {
+    return {
+      maxEdge:
+        950,
+
+      quality:
+        0.66,
+    };
+  }
+
+  return {
+    maxEdge:
+      820,
+
+    quality:
+      0.62,
+  };
+}
+
+async function compressPreparedBlobToBudget(
+  preparedBlob,
+  budgetBytes,
+  initialProfile
+) {
+  const bitmap =
+    await createImageBitmap(
+      preparedBlob
+    );
+
+  try {
+    let maxEdge =
+      initialProfile.maxEdge;
+
+    let quality =
+      initialProfile.quality;
+
+    let bestBlob =
+      preparedBlob;
+
+    for (
+      let attempt = 0;
+      attempt <
+      8;
+      attempt++
+    ) {
+      const scale =
+        Math.min(
+          1,
+          maxEdge /
+          Math.max(
+            bitmap.width,
+            bitmap.height
+          )
+        );
+
+      const width =
+        Math.max(
+          1,
+          Math.round(
+            bitmap.width *
+            scale
+          )
+        );
+
+      const height =
+        Math.max(
+          1,
+          Math.round(
+            bitmap.height *
+            scale
+          )
+        );
+
+      const canvas =
+        document.createElement(
+          "canvas"
+        );
+
+      canvas.width =
+        width;
+
+      canvas.height =
+        height;
+
+      const ctx =
+        canvas.getContext(
+          "2d",
+          {
+            alpha:
+              false,
+          }
+        );
+
+      ctx.fillStyle =
+        "#fff";
+
+      ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+      );
+
+      ctx.drawImage(
+        bitmap,
+        0,
+        0,
+        width,
+        height
+      );
+
+      const candidate =
+        await canvasToJpeg(
+          canvas,
+          quality
+        );
+
+      bestBlob =
+        candidate;
+
+      if (
+        candidate.size <=
+        budgetBytes
+      ) {
+        return candidate;
+      }
+
+      /*
+       * Reduce JPEG compression
+       * first, then resolution.
+       */
+
+      if (
+        quality >
+        0.56
+      ) {
+        quality =
+          Math.max(
+            0.56,
+            quality -
+            0.07
+          );
+
+      } else {
+        maxEdge =
+          Math.max(
+            620,
+            Math.round(
+              maxEdge *
+              0.88
+            )
+          );
+
+        quality =
+          0.62;
+      }
+    }
+
+    return bestBlob;
+
+  } finally {
+    bitmap.close?.();
+  }
+}
+
+async function buildPdfFromJpegs(
+  jpegBlobs,
+  filename
+) {
+  const pdf =
+    await PDFDocument
+      .create();
+
+  pdf.setTitle(
+    filename.replace(
+      /\.pdf$/i,
+      ""
+    ),
+    {
+      showInWindowTitleBar:
+        true,
+    }
+  );
+
+  pdf.setCreator(
+    "Stat Archive Create Entry Test"
+  );
+
+  pdf.setProducer(
+    "Stat Archive Create Entry Test"
+  );
+
+  pdf.setCreationDate(
+    new Date()
+  );
+
+  for (
+    const blob
+    of jpegBlobs
+  ) {
+    const image =
+      await pdf.embedJpg(
+        await blob
+          .arrayBuffer()
+      );
+
+    const pageWidth =
+      595;
+
+    const pageHeight =
+      (
+        pageWidth *
+        image.height
+      ) /
+      image.width;
+
+    const pdfPage =
+      pdf.addPage([
+        pageWidth,
+        pageHeight,
+      ]);
+
+    pdfPage.drawImage(
+      image,
+      {
+        x: 0,
+        y: 0,
+        width:
+          pageWidth,
+        height:
+          pageHeight,
+      }
+    );
+  }
+
+  return pdf.save({
+    useObjectStreams:
+      true,
+  });
+}
+
+async function buildLimitedPdf(
+  filename
+) {
+  const count =
+    state.pages.length;
+
+  const pageBudget =
+    Math.max(
+      38 *
+      1024,
+
+      Math.floor(
+        (
+          LIMITED_PDF_TARGET_BYTES -
+          PDF_OVERHEAD_RESERVE_BYTES
+        ) /
+        Math.max(
+          1,
+          count
+        )
+      )
+    );
+
+  const profile =
+    initialLimitedProfile(
+      count
+    );
+
+  const jpegBlobs =
+    [];
+
+  for (
+    let i = 0;
+    i < count;
+    i++
+  ) {
+    setProgress(
+      45 +
+      (
+        i /
+        Math.max(
+          1,
+          count
+        )
+      ) *
+      38,
+
+      `Optimizing page ${
+        i + 1
+      } of ${count} for 1 MB…`
+    );
+
+    const page =
+      state.pages[i];
+
+    const compressed =
+      await compressPreparedBlobToBudget(
+        page.preparedBlob,
+        pageBudget,
+        profile
+      );
+
+    jpegBlobs.push(
+      compressed
+    );
+
+    await nextPaint();
+  }
+
+  let bytes =
+    await buildPdfFromJpegs(
+      jpegBlobs,
+      filename
+    );
+
+  /*
+   * Safety pass if PDF overhead
+   * pushes it above our target.
+   */
+
+  if (
+    bytes.length >
+    LIMITED_PDF_TARGET_BYTES
+  ) {
+    const ratio =
+      LIMITED_PDF_TARGET_BYTES /
+      bytes.length;
+
+    const secondBudget =
+      Math.max(
+        32 *
+        1024,
+
+        Math.floor(
+          pageBudget *
+          ratio *
+          0.92
+        )
+      );
+
+    const secondPass =
+      [];
+
+    const tighterProfile = {
+      maxEdge:
+        Math.max(
+          700,
+          Math.round(
+            profile.maxEdge *
+            0.90
+          )
+        ),
+
+      quality:
+        Math.max(
+          0.56,
+          profile.quality -
+          0.06
+        ),
+    };
+
+    for (
+      let i = 0;
+      i < count;
+      i++
+    ) {
+      setProgress(
+        70 +
+        (
+          i /
+          Math.max(
+            1,
+            count
+          )
+        ) *
+        18,
+
+        `Final size pass ${
+          i + 1
+        } of ${count}…`
+      );
+
+      secondPass.push(
+        await compressPreparedBlobToBudget(
+          state.pages[i]
+            .preparedBlob,
+
+          secondBudget,
+
+          tighterProfile
+        )
+      );
+    }
+
+    bytes =
+      await buildPdfFromJpegs(
+        secondPass,
+        filename
+      );
+  }
+
+  return bytes;
+}
+
+async function buildNormalPdf(
+  filename
+) {
+  const jpegBlobs =
+    state.pages.map(
+      (page) =>
+        page.preparedBlob
+    );
+
+  return buildPdfFromJpegs(
+    jpegBlobs,
+    filename
+  );
+}
+
+/* ============================================================
    PDF GENERATION
-   ========================= */
+   ============================================================ */
 
 async function generatePdf() {
   if (
@@ -3829,11 +4845,9 @@ async function generatePdf() {
     state.busy =
       true;
 
-    $("generateBtn").disabled =
-      true;
-
-    const pdf =
-      await PDFDocument.create();
+    $("generateBtn")
+      .disabled =
+        true;
 
     const filename =
       filenameFor(
@@ -3842,110 +4856,66 @@ async function generatePdf() {
         year
       );
 
-    pdf.setTitle(
-      filename.replace(
-        /\.pdf$/i,
-        ""
-      ),
-      {
-        showInWindowTitleBar:
-          true,
-      }
+    setProgress(
+      3,
+      "Checking prepared pages…"
     );
 
-    pdf.setCreator(
-      "Stat Archive Create Entry Test"
-    );
+    /*
+     * Most edited pages should
+     * already be cached.
+     */
 
-    pdf.setProducer(
-      "Stat Archive Create Entry Test"
-    );
+    await ensurePreparedPages();
 
-    pdf.setCreationDate(
-      new Date()
-    );
-
-    for (
-      let i = 0;
-      i <
-      state.pages.length;
-      i++
-    ) {
-      setProgress(
-        5 +
-        (
-          i /
-          state.pages.length
-        ) *
-        66,
-
-        `Processing page ${
-          i + 1
-        } of ${
-          state.pages.length
-        }…`
+    const limited =
+      isOneMbLimitedType(
+        type
       );
-
-      const canvas =
-        await renderEditedCanvas(
-          state.pages[i],
-          FINAL_MAX_EDGE,
-          true
-        );
-
-      const jpg =
-        await canvasToJpeg(
-          canvas,
-          0.82
-        );
-
-      const image =
-        await pdf.embedJpg(
-          await jpg.arrayBuffer()
-        );
-
-      const pageWidth =
-        595;
-
-      const pageHeight =
-        pageWidth *
-        image.height /
-        image.width;
-
-      const pdfPage =
-        pdf.addPage([
-          pageWidth,
-          pageHeight,
-        ]);
-
-      pdfPage.drawImage(
-        image,
-        {
-          x: 0,
-
-          y: 0,
-
-          width:
-            pageWidth,
-
-          height:
-            pageHeight,
-        }
-      );
-
-      await nextPaint();
-    }
 
     setProgress(
-      76,
-      "Finalizing PDF…"
+      42,
+
+      limited
+        ? "Optimizing PDF for 1 MB limit…"
+        : "Building PDF…"
     );
 
     const bytes =
-      await pdf.save({
-        useObjectStreams:
-          true,
-      });
+      limited
+        ? await buildLimitedPdf(
+            filename
+          )
+        : await buildNormalPdf(
+            filename
+          );
+
+    /*
+     * Do not silently destroy
+     * readability if a very long
+     * paper still cannot fit.
+     */
+
+    if (
+      limited &&
+      bytes.length >
+      ONE_MB_LIMIT_BYTES
+    ) {
+      throw new Error(
+        `This ${
+          state.pages.length
+        }-page PDF is still ${
+          bytesLabel(
+            bytes.length
+          )
+        }. It cannot be reduced below 1 MB safely without making the writing too blurry. Remove pages or use the large-file option.`
+      );
+    }
+
+    setProgress(
+      91,
+      "Saving to local test library…"
+    );
 
     const blob =
       new Blob(
@@ -3980,11 +4950,6 @@ async function generatePdf() {
         blob,
     };
 
-    setProgress(
-      92,
-      "Saving to local test library…"
-    );
-
     await dbPut(
       record
     );
@@ -3994,28 +4959,37 @@ async function generatePdf() {
 
     setProgress(
       100,
-      "Saved locally"
-    );
-
-    $("createPanel").hidden =
-      true;
-
-    $("successPanel").hidden =
-      false;
-
-    $("successText").textContent =
-      `${filename} · ${
+      `Saved · ${
         bytesLabel(
           blob.size
         )
-      } · ${
-        state.pages.length
-      } pages`;
+      }`
+    );
+
+    $("createPanel")
+      .hidden =
+        true;
+
+    $("successPanel")
+      .hidden =
+        false;
+
+    $("successText")
+      .textContent =
+        `${filename} · ${
+          bytesLabel(
+            blob.size
+          )
+        } · ${
+          state.pages.length
+        } pages`;
 
     await renderLibrary();
 
   } catch (error) {
-    console.error(error);
+    console.error(
+      error
+    );
 
     setError(
       error?.message ||
@@ -4026,14 +5000,15 @@ async function generatePdf() {
     state.busy =
       false;
 
-    $("generateBtn").disabled =
-      !state.pages.length;
+    $("generateBtn")
+      .disabled =
+        !state.pages.length;
   }
 }
 
-/* =========================
+/* ============================================================
    PDF VIEW / DOWNLOAD
-   ========================= */
+   ============================================================ */
 
 function blobToBase64(
   blob
@@ -4050,12 +5025,18 @@ function blobToBase64(
         () => {
           const value =
             String(
-              reader.result || ""
+              reader.result ||
+              ""
             );
 
           resolve(
-            value.includes(",")
-              ? value.split(",")[1]
+            value.includes(
+              ","
+            )
+              ? value
+                  .split(
+                    ","
+                  )[1]
               : value
           );
         };
@@ -4079,21 +5060,22 @@ async function savePdfTemporarily(
   record
 ) {
   const result =
-    await Filesystem.writeFile({
-      path:
-        `test-pdfs/${record.filename}`,
+    await Filesystem
+      .writeFile({
+        path:
+          `test-pdfs/${record.filename}`,
 
-      data:
-        await blobToBase64(
-          record.pdf
-        ),
+        data:
+          await blobToBase64(
+            record.pdf
+          ),
 
-      directory:
-        Directory.Cache,
+        directory:
+          Directory.Cache,
 
-      recursive:
-        true,
-    });
+        recursive:
+          true,
+      });
 
   return result.uri;
 }
@@ -4103,9 +5085,13 @@ async function viewRecord(
 ) {
   try {
     const record =
-      await dbGet(id);
+      await dbGet(
+        id
+      );
 
-    if (!record) {
+    if (
+      !record
+    ) {
       throw new Error(
         "PDF not found."
       );
@@ -4159,29 +5145,34 @@ async function downloadRecord(
 ) {
   try {
     const record =
-      await dbGet(id);
+      await dbGet(
+        id
+      );
 
-    if (!record) {
+    if (
+      !record
+    ) {
       throw new Error(
         "PDF not found."
       );
     }
 
-    await Filesystem.writeFile({
-      path:
-        record.filename,
+    await Filesystem
+      .writeFile({
+        path:
+          record.filename,
 
-      data:
-        await blobToBase64(
-          record.pdf
-        ),
+        data:
+          await blobToBase64(
+            record.pdf
+          ),
 
-      directory:
-        Directory.Documents,
+        directory:
+          Directory.Documents,
 
-      recursive:
-        true,
-    });
+        recursive:
+          true,
+      });
 
     alert(
       `PDF saved successfully.\n\n${record.filename}`
@@ -4190,9 +5181,13 @@ async function downloadRecord(
   } catch (error) {
     try {
       const record =
-        await dbGet(id);
+        await dbGet(
+          id
+        );
 
-      if (!record) {
+      if (
+        !record
+      ) {
         throw new Error(
           "PDF not found."
         );
@@ -4228,16 +5223,19 @@ async function downloadRecord(
   }
 }
 
-/* =========================
+/* ============================================================
    LOCAL LIBRARY
-   ========================= */
+   ============================================================ */
 
 async function renderLibrary() {
   const rows =
     (
       await dbGetAll()
     ).sort(
-      (a, b) =>
+      (
+        a,
+        b
+      ) =>
         new Date(
           b.uploadedAt
         ) -
@@ -4246,167 +5244,215 @@ async function renderLibrary() {
         )
     );
 
-  if (!rows.length) {
-    $("libraryGrid").innerHTML =
-      `
-        <div
-          class="empty-library"
-        >
-          No test PDFs yet.
-        </div>
-      `;
+  if (
+    !rows.length
+  ) {
+    $("libraryGrid")
+      .innerHTML =
+        `
+          <div
+            class="empty-library"
+          >
+            No test PDFs yet.
+          </div>
+        `;
 
     return;
   }
 
-  $("libraryGrid").innerHTML =
-    rows
-      .map(
-        (record) => `
-          <article
-            class="card"
-            data-id="${record.id}"
-          >
-
-            <div class="subject">
-              ${record.subject}
-            </div>
-
-            <h3>
-              ${record.filename}
-            </h3>
-
-            <div class="meta">
-              ${record.type}
-              ·
-              ${record.year}
-              ·
-              ${bytesLabel(
-                record.size
-              )}
-            </div>
-
-            <div class="meta">
-              Uploaded by
-              ${record.uploadedBy}
-            </div>
-
-            <div
-              class="card-actions"
+  $("libraryGrid")
+    .innerHTML =
+      rows
+        .map(
+          (
+            record
+          ) => `
+            <article
+              class="card"
+              data-id="${record.id}"
             >
 
-              <button
-                type="button"
-                data-act="view"
+              <div
+                class="subject"
               >
-                View PDF
-              </button>
+                ${record.subject}
+              </div>
 
-              <button
-                type="button"
-                data-act="download"
+              <h3>
+                ${record.filename}
+              </h3>
+
+              <div
+                class="meta"
               >
-                Download PDF
-              </button>
+                ${record.type}
+                ·
+                ${record.year}
+                ·
+                ${bytesLabel(
+                  record.size
+                )}
+              </div>
 
-              <button
-                type="button"
-                data-act="delete"
+              <div
+                class="meta"
               >
-                Delete
-              </button>
+                Uploaded by
+                ${record.uploadedBy}
+              </div>
 
-            </div>
+              <div
+                class="card-actions"
+              >
 
-          </article>
-        `
-      )
-      .join("");
+                <button
+                  type="button"
+                  data-act="view"
+                >
+                  View PDF
+                </button>
+
+                <button
+                  type="button"
+                  data-act="download"
+                >
+                  Download PDF
+                </button>
+
+                <button
+                  type="button"
+                  data-act="delete"
+                >
+                  Delete
+                </button>
+
+              </div>
+
+            </article>
+          `
+        )
+        .join("");
 }
 
-/* =========================
-   SOURCE SHEET + EVENTS
-   ========================= */
+/* ============================================================
+   SOURCE SHEET
+   ============================================================ */
 
 function showSource() {
-  $("sourceSheet").hidden =
-    false;
+  $("sourceSheet")
+    .hidden =
+      false;
 }
 
 function hideSource() {
-  $("sourceSheet").hidden =
-    true;
+  $("sourceSheet")
+    .hidden =
+      true;
 }
+
+/* ============================================================
+   INITIALIZE
+   ============================================================ */
 
 ensureSubjectSelector();
 
 installEditor();
 
-$("addPhotosBtn").onclick =
-  showSource;
+/* ============================================================
+   ADD PHOTOS
+   ============================================================ */
 
-$("firstAddBtn").onclick =
-  showSource;
+$("addPhotosBtn")
+  .onclick =
+    showSource;
 
-$("cancelSourceBtn").onclick =
-  hideSource;
+$("firstAddBtn")
+  .onclick =
+    showSource;
 
-$("cameraBtn").onclick =
-  async () => {
-    hideSource();
+$("cancelSourceBtn")
+  .onclick =
+    hideSource;
 
-    try {
-      await capturePhoto();
+/* ============================================================
+   CAMERA
+   ============================================================ */
 
-    } catch (error) {
-      if (
-        !String(
-          error?.message || ""
-        )
-          .toLowerCase()
-          .includes("cancel")
-      ) {
-        setError(
-          error?.message ||
-          "Camera failed."
-        );
+$("cameraBtn")
+  .onclick =
+    async () => {
+      hideSource();
+
+      try {
+        await capturePhoto();
+
+      } catch (error) {
+        if (
+          !String(
+            error?.message ||
+            ""
+          )
+            .toLowerCase()
+            .includes(
+              "cancel"
+            )
+        ) {
+          setError(
+            error?.message ||
+            "Camera failed."
+          );
+        }
       }
-    }
-  };
+    };
 
-$("galleryBtn").onclick =
-  async () => {
-    hideSource();
+/* ============================================================
+   GALLERY
+   ============================================================ */
 
-    try {
-      await chooseMultiplePhotos();
+$("galleryBtn")
+  .onclick =
+    async () => {
+      hideSource();
 
-    } catch (error) {
-      if (
-        !String(
-          error?.message || ""
-        )
-          .toLowerCase()
-          .includes("cancel")
-      ) {
-        setError(
-          error?.message ||
-          "Gallery selection failed."
-        );
+      try {
+        await chooseMultiplePhotos();
+
+      } catch (error) {
+        if (
+          !String(
+            error?.message ||
+            ""
+          )
+            .toLowerCase()
+            .includes(
+              "cancel"
+            )
+        ) {
+          setError(
+            error?.message ||
+            "Gallery selection failed."
+          );
+        }
       }
-    }
-  };
+    };
+
+/* ============================================================
+   THUMBNAIL ACTIONS
+   ============================================================ */
 
 $("thumbStrip")
   .addEventListener(
     "click",
     async (event) => {
       const thumb =
-        event.target.closest(
-          ".thumb"
-        );
+        event.target
+          .closest(
+            ".thumb"
+          );
 
-      if (!thumb) {
+      if (
+        !thumb
+      ) {
         return;
       }
 
@@ -4414,27 +5460,35 @@ $("thumbStrip")
         thumb.dataset.id;
 
       if (
-        event.target.closest(
-          '[data-act="edit"]'
-        )
+        event.target
+          .closest(
+            '[data-act="edit"]'
+          )
       ) {
-        await openEditor(id);
+        await openEditor(
+          id
+        );
+
         return;
       }
 
       if (
-        event.target.closest(
-          '[data-act="delete"]'
-        )
+        event.target
+          .closest(
+            '[data-act="delete"]'
+          )
       ) {
         const index =
-          state.pages.findIndex(
-            (page) =>
-              page.id === id
-          );
+          state.pages
+            .findIndex(
+              (page) =>
+                page.id ===
+                id
+            );
 
         if (
-          index >= 0
+          index >=
+          0
         ) {
           URL.revokeObjectURL(
             state.pages[
@@ -4454,20 +5508,26 @@ $("thumbStrip")
       }
 
       if (
-        event.target.closest(
-          '[data-act="retake"]'
-        )
+        event.target
+          .closest(
+            '[data-act="retake"]'
+          )
       ) {
         try {
-          await retake(id);
+          await retake(
+            id
+          );
 
         } catch (error) {
           if (
             !String(
-              error?.message || ""
+              error?.message ||
+              ""
             )
               .toLowerCase()
-              .includes("cancel")
+              .includes(
+                "cancel"
+              )
           ) {
             setError(
               error?.message ||
@@ -4479,45 +5539,72 @@ $("thumbStrip")
     }
   );
 
-$("generateBtn").onclick =
-  generatePdf;
+/* ============================================================
+   GENERATE
+   ============================================================ */
 
-$("addAnotherBtn").onclick =
-  resetComposer;
+$("generateBtn")
+  .onclick =
+    generatePdf;
 
-$("viewLibraryBtn").onclick =
-  () => {
-    $("libraryPanel")
-      .scrollIntoView({
-        behavior:
-          "smooth",
+/* ============================================================
+   ADD ANOTHER
+   ============================================================ */
 
-        block:
-          "start",
-      });
-  };
+$("addAnotherBtn")
+  .onclick =
+    resetComposer;
 
-$("downloadLatestBtn").onclick =
-  () => {
-    if (
-      state.latestId
-    ) {
-      downloadRecord(
+/* ============================================================
+   VIEW LIBRARY
+   ============================================================ */
+
+$("viewLibraryBtn")
+  .onclick =
+    () => {
+      $("libraryPanel")
+        .scrollIntoView({
+          behavior:
+            "smooth",
+
+          block:
+            "start",
+        });
+    };
+
+/* ============================================================
+   DOWNLOAD LATEST
+   ============================================================ */
+
+$("downloadLatestBtn")
+  .onclick =
+    () => {
+      if (
         state.latestId
-      );
-    }
-  };
+      ) {
+        downloadRecord(
+          state.latestId
+        );
+      }
+    };
+
+/* ============================================================
+   LIBRARY ACTIONS
+   ============================================================ */
 
 $("libraryGrid")
   .addEventListener(
     "click",
     async (event) => {
       const card =
-        event.target.closest(
-          ".card"
-        );
+        event.target
+          .closest(
+            ".card"
+          );
 
-      if (!card) {
+      if (
+        !card
+      ) {
         return;
       }
 
@@ -4525,49 +5612,69 @@ $("libraryGrid")
         card.dataset.id;
 
       if (
-        event.target.closest(
-          '[data-act="view"]'
-        )
+        event.target
+          .closest(
+            '[data-act="view"]'
+          )
       ) {
-        await viewRecord(id);
+        await viewRecord(
+          id
+        );
+
         return;
       }
 
       if (
-        event.target.closest(
-          '[data-act="download"]'
-        )
+        event.target
+          .closest(
+            '[data-act="download"]'
+          )
       ) {
-        await downloadRecord(id);
+        await downloadRecord(
+          id
+        );
+
         return;
       }
 
       if (
-        event.target.closest(
-          '[data-act="delete"]'
-        )
+        event.target
+          .closest(
+            '[data-act="delete"]'
+          )
       ) {
-        await dbDelete(id);
+        await dbDelete(
+          id
+        );
 
         await renderLibrary();
       }
     }
   );
 
-$("clearLibraryBtn").onclick =
-  async () => {
-    if (
-      !confirm(
-        "Delete every PDF from this local TEST library?"
-      )
-    ) {
-      return;
-    }
+/* ============================================================
+   CLEAR LIBRARY
+   ============================================================ */
 
-    await dbClear();
+$("clearLibraryBtn")
+  .onclick =
+    async () => {
+      if (
+        !confirm(
+          "Delete every PDF from this local TEST library?"
+        )
+      ) {
+        return;
+      }
 
-    await renderLibrary();
-  };
+      await dbClear();
+
+      await renderLibrary();
+    };
+
+/* ============================================================
+   INITIAL LOAD
+   ============================================================ */
 
 renderPages();
 

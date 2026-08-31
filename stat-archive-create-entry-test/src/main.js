@@ -3838,59 +3838,6 @@ function setupCropGestures() {
    SAVE / NAVIGATE / APPLY
    ============================================================ */
 
-async function refreshThumbnail(
-  page
-) {
-  const sourceBlob =
-    page.preparedBlob &&
-    page.preparedKey ===
-      editSignature(
-        page.edit
-      )
-      ? page.preparedBlob
-      : null;
-
-  let blob;
-
-  if (
-    sourceBlob
-  ) {
-    const canvas =
-      await blobToCanvas(
-        sourceBlob,
-        THUMB_MAX_EDGE
-      );
-
-    blob =
-      await canvasToJpeg(
-        canvas,
-        0.76
-      );
-
-  } else {
-    const canvas =
-      await renderEditedCanvas(
-        page,
-        THUMB_MAX_EDGE,
-        true
-      );
-
-    blob =
-      await canvasToJpeg(
-        canvas,
-        0.76
-      );
-  }
-
-  URL.revokeObjectURL(
-    page.thumbUrl
-  );
-
-  page.thumbUrl =
-    URL.createObjectURL(
-      blob
-    );
-}
 
 function saveCurrentEditorPage(
   refresh = true

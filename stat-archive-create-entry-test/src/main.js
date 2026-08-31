@@ -42,17 +42,12 @@ const DEMO_SUBJECTS = [
 function openDb() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
-
     req.onupgradeneeded = () => {
       const db = req.result;
-
       if (!db.objectStoreNames.contains(STORE)) {
-        db.createObjectStore(STORE, {
-          keyPath: "id",
-        });
+        db.createObjectStore(STORE, { keyPath: "id" });
       }
     };
-
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
@@ -60,18 +55,10 @@ function openDb() {
 
 async function withStore(mode, fn) {
   const db = await openDb();
-
   try {
     return await new Promise((resolve, reject) => {
       const tx = db.transaction(STORE, mode);
-
-      fn(
-        tx.objectStore(STORE),
-        resolve,
-        reject,
-        tx
-      );
-
+      fn(tx.objectStore(STORE), resolve, reject, tx);
       tx.onerror = () => reject(tx.error);
     });
   } finally {
@@ -80,69 +67,43 @@ async function withStore(mode, fn) {
 }
 
 async function dbPut(record) {
-  return withStore(
-    "readwrite",
-    (store, resolve, reject, tx) => {
-      store.put(record);
-
-      tx.oncomplete = () => resolve();
-      tx.onabort = () => reject(tx.error);
-    }
-  );
+  return withStore("readwrite", (store, resolve, reject, tx) => {
+    store.put(record);
+    tx.oncomplete = () => resolve();
+    tx.onabort = () => reject(tx.error);
+  });
 }
 
 async function dbGetAll() {
-  return withStore(
-    "readonly",
-    (store, resolve, reject) => {
-      const req = store.getAll();
-
-      req.onsuccess = () =>
-        resolve(req.result || []);
-
-      req.onerror = () =>
-        reject(req.error);
-    }
-  );
+  return withStore("readonly", (store, resolve, reject) => {
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
 }
 
 async function dbGet(id) {
-  return withStore(
-    "readonly",
-    (store, resolve, reject) => {
-      const req = store.get(id);
-
-      req.onsuccess = () =>
-        resolve(req.result || null);
-
-      req.onerror = () =>
-        reject(req.error);
-    }
-  );
+  return withStore("readonly", (store, resolve, reject) => {
+    const req = store.get(id);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => reject(req.error);
+  });
 }
 
 async function dbDelete(id) {
-  return withStore(
-    "readwrite",
-    (store, resolve, reject, tx) => {
-      store.delete(id);
-
-      tx.oncomplete = () => resolve();
-      tx.onabort = () => reject(tx.error);
-    }
-  );
+  return withStore("readwrite", (store, resolve, reject, tx) => {
+    store.delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onabort = () => reject(tx.error);
+  });
 }
 
 async function dbClear() {
-  return withStore(
-    "readwrite",
-    (store, resolve, reject, tx) => {
-      store.clear();
-
-      tx.oncomplete = () => resolve();
-      tx.onabort = () => reject(tx.error);
-    }
-  );
+  return withStore("readwrite", (store, resolve, reject, tx) => {
+    store.clear();
+    tx.oncomplete = () => resolve();
+    tx.onabort = () => reject(tx.error);
+  });
 }
 
 /* ============================================================
@@ -156,22 +117,14 @@ function setError(msg = "") {
 
 function setProgress(percent, msg) {
   $("progressWrap").hidden = false;
-
-  $("progressBar").style.width =
-    `${Math.max(
-      0,
-      Math.min(100, percent)
-    )}%`;
-
+  $("progressBar").style.width = `${Math.max(0, Math.min(100, percent))}%`;
   $("progressText").textContent = msg;
 }
 
 function newId() {
   return crypto.randomUUID
     ? crypto.randomUUID()
-    : `${Date.now()}_${Math.random()
-        .toString(36)
-        .slice(2)}`;
+    : `${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
 function slug(value) {
@@ -185,247 +138,113 @@ function slug(value) {
     .replace(/^-|-$/g, "");
 }
 
-function filenameFor(
-  subject,
-  type,
-  year
-) {
-  return [
-    slug(subject) || "Document",
-    slug(type) || "Paper",
-    year,
-  ]
+function filenameFor(subject, type, year) {
+  return [slug(subject) || "Document", slug(type) || "Paper", year]
     .filter(Boolean)
     .join("_") + ".pdf";
 }
 
 function bytesLabel(n) {
-  if (n < 1024) {
-    return `${n} B`;
-  }
-
-  if (n < 1024 * 1024) {
-    return `${Math.round(
-      n / 1024
-    )} KB`;
-  }
-
-  return `${(
-    n /
-    1024 /
-    1024
-  ).toFixed(1)} MB`;
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${Math.round(n / 1024)} KB`;
+  return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
 
 function validateForm() {
-  const subject =
-    String(
-      $("subjectInput").value || ""
-    ).trim();
+  const subject = String($("subjectInput").value || "").trim();
+  const type = $("typeInput").value;
+  const year = $("yearInput").value.trim();
 
-  const type =
-    $("typeInput").value;
+  if (!subject) throw new Error("Choose a subject.");
+  if (!type) throw new Error("Choose a paper type.");
+  if (!/^(19|20)\d{2}$/.test(year)) throw new Error("Enter a valid 4-digit year.");
+  if (!state.pages.length) throw new Error("Add at least one photo.");
 
-  const year =
-    $("yearInput").value.trim();
-
-  if (!subject) {
-    throw new Error(
-      "Choose a subject."
-    );
-  }
-
-  if (!type) {
-    throw new Error(
-      "Choose a paper type."
-    );
-  }
-
-  if (
-    !/^(19|20)\d{2}$/.test(year)
-  ) {
-    throw new Error(
-      "Enter a valid 4-digit year."
-    );
-  }
-
-  if (!state.pages.length) {
-    throw new Error(
-      "Add at least one photo."
-    );
-  }
-
-  return {
-    subject,
-    type,
-    year,
-  };
+  return { subject, type, year };
 }
 
 function nextPaint() {
   return new Promise((resolve) => {
-    requestAnimationFrame(() =>
-      requestAnimationFrame(resolve)
-    );
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
   });
 }
 
 /* ============================================================
    SUBJECT SELECTOR
 
-   Test mode uses demo subjects.
-   During Stat Archive integration,
-   replace DEMO_SUBJECTS with live subjects.
+   Test mode uses demo subjects. During Stat Archive integration,
+   replace DEMO_SUBJECTS with the live subjects array / Worker data.
    ============================================================ */
 
 function ensureSubjectSelector() {
-  const current =
-    $("subjectInput");
+  const current = $("subjectInput");
+  if (!current) return;
 
-  if (!current) {
-    return;
-  }
+  const existingNames = Array.isArray(window.statArchiveSubjects)
+    ? window.statArchiveSubjects.map((s) => String(s?.name || "").trim()).filter(Boolean)
+    : DEMO_SUBJECTS;
 
-  const existingNames =
-    Array.isArray(
-      window.statArchiveSubjects
-    )
-      ? window.statArchiveSubjects
-          .map((s) =>
-            String(
-              s?.name || ""
-            ).trim()
-          )
-          .filter(Boolean)
-      : DEMO_SUBJECTS;
+  if (current.tagName === "SELECT" && current.dataset.scannerReady === "true") return;
 
-  if (
-    current.tagName === "SELECT" &&
-    current.dataset.scannerReady ===
-      "true"
-  ) {
-    return;
-  }
+  const select = document.createElement("select");
+  select.id = "subjectInput";
+  select.dataset.scannerReady = "true";
 
-  const select =
-    document.createElement("select");
-
-  select.id =
-    "subjectInput";
-
-  select.dataset.scannerReady =
-    "true";
-
-  const names =
-    [
-      ...new Set(existingNames),
-    ].sort((a, b) =>
-      a.localeCompare(b)
-    );
+  const names = [...new Set(existingNames)].sort((a, b) => a.localeCompare(b));
 
   names.forEach((name) => {
-    const option =
-      document.createElement(
-        "option"
-      );
-
+    const option = document.createElement("option");
     option.value = name;
     option.textContent = name;
-
     select.appendChild(option);
   });
 
-  const custom =
-    document.createElement(
-      "option"
-    );
-
-  custom.value =
-    "__custom__";
-
-  custom.textContent =
-    "Other / custom subject…";
-
+  const custom = document.createElement("option");
+  custom.value = "__custom__";
+  custom.textContent = "Other / custom subject…";
   select.appendChild(custom);
 
-  const oldValue =
-    String(
-      current.value || ""
-    ).trim();
-
+  const oldValue = String(current.value || "").trim();
   current.replaceWith(select);
 
-  if (
-    oldValue &&
-    names.includes(oldValue)
-  ) {
+  if (oldValue && names.includes(oldValue)) {
     select.value = oldValue;
   }
 
-  select.addEventListener(
-    "change",
-    () => {
-      if (
-        select.value !==
-        "__custom__"
-      ) {
-        return;
-      }
+  select.addEventListener("change", () => {
+    if (select.value !== "__custom__") return;
 
-      const name =
-        prompt(
-          "Enter subject name:",
-          ""
-        );
+    const name = prompt("Enter subject name:", "");
 
-      if (!name?.trim()) {
-        select.selectedIndex = 0;
-        return;
-      }
-
-      const clean =
-        name.trim();
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-      option.value = clean;
-      option.textContent = clean;
-
-      select.insertBefore(
-        option,
-        custom
-      );
-
-      select.value = clean;
+    if (!name?.trim()) {
+      select.selectedIndex = 0;
+      return;
     }
-  );
+
+    const clean = name.trim();
+    const option = document.createElement("option");
+
+    option.value = clean;
+    option.textContent = clean;
+
+    select.insertBefore(option, custom);
+    select.value = clean;
+  });
 }
 
 /* ============================================================
    CAMERA / GALLERY
    ============================================================ */
 
-async function mediaResultToBlob(
-  result
-) {
+async function mediaResultToBlob(result) {
   if (!result?.webPath) {
-    throw new Error(
-      "The selected image could not be read."
-    );
+    throw new Error("The selected image could not be read.");
   }
 
-  const response =
-    await fetch(
-      result.webPath
-    );
+  const response = await fetch(result.webPath);
 
   if (!response.ok) {
-    throw new Error(
-      "Couldn't read the selected photo."
-    );
+    throw new Error("Couldn't read the selected photo.");
   }
 
   return response.blob();
@@ -434,19 +253,10 @@ async function mediaResultToBlob(
 function defaultEdit() {
   return {
     rotation: 0,
-
-    filter:
-      "original",
-
-    magicIntensity:
-      88,
-
-    brightness:
-      0,
-
-    contrast:
-      18,
-
+    filter: "original",
+    magicIntensity: 88,
+    brightness: 0,
+    contrast: 18,
     crop: {
       x: 0.02,
       y: 0.02,
@@ -459,125 +269,64 @@ function defaultEdit() {
 function makePage(blob) {
   return {
     id: newId(),
-
-    originalBlob:
-      blob,
-
-    thumbUrl:
-      URL.createObjectURL(blob),
-
-    edit:
-      defaultEdit(),
+    originalBlob: blob,
+    thumbUrl: URL.createObjectURL(blob),
+    edit: defaultEdit(),
   };
 }
 
 async function capturePhoto() {
   setError("");
 
-  const result =
-    await Camera.takePhoto({
-      quality: 90,
+  const result = await Camera.takePhoto({
+    quality: 90,
+    targetWidth: 1800,
+    targetHeight: 1800,
+    correctOrientation: true,
+    saveToGallery: false,
+    includeMetadata: true,
+    editable: "no",
+  });
 
-      targetWidth:
-        1800,
-
-      targetHeight:
-        1800,
-
-      correctOrientation:
-        true,
-
-      saveToGallery:
-        false,
-
-      includeMetadata:
-        true,
-
-      editable:
-        "no",
-    });
-
-  const page =
-    makePage(
-      await mediaResultToBlob(
-        result
-      )
-    );
+  const page = makePage(await mediaResultToBlob(result));
 
   state.pages.push(page);
 
   renderPages();
 
-  await openEditor(
-    page.id
-  );
+  await openEditor(page.id);
 }
 
 async function chooseMultiplePhotos() {
   setError("");
 
-  const {
-    results,
-  } =
-    await Camera.chooseFromGallery({
-      mediaType:
-        MediaTypeSelection.Photo,
+  const { results } = await Camera.chooseFromGallery({
+    mediaType: MediaTypeSelection.Photo,
+    allowMultipleSelection: true,
+    limit: 30,
+    quality: 90,
+    targetWidth: 1800,
+    targetHeight: 1800,
+    correctOrientation: true,
+    includeMetadata: true,
+    editable: "no",
+  });
 
-      allowMultipleSelection:
-        true,
-
-      limit:
-        30,
-
-      quality:
-        90,
-
-      targetWidth:
-        1800,
-
-      targetHeight:
-        1800,
-
-      correctOrientation:
-        true,
-
-      includeMetadata:
-        true,
-
-      editable:
-        "no",
-    });
-
-  if (!results?.length) {
-    return;
-  }
+  if (!results?.length) return;
 
   const added = [];
 
-  for (
-    const result
-    of results
-  ) {
-    const page =
-      makePage(
-        await mediaResultToBlob(
-          result
-        )
-      );
+  for (const result of results) {
+    const page = makePage(await mediaResultToBlob(result));
 
     state.pages.push(page);
-
-    added.push(
-      page.id
-    );
+    added.push(page.id);
   }
 
   renderPages();
 
   if (added.length) {
-    await openEditor(
-      added[0]
-    );
+    await openEditor(added[0]);
   }
 }
 
@@ -585,125 +334,41 @@ async function chooseMultiplePhotos() {
    IMAGE RENDERING
    ============================================================ */
 
-function drawRotated(
-  ctx,
-  bitmap,
-  rotation,
-  w,
-  h
-) {
+function drawRotated(ctx, bitmap, rotation, w, h) {
   ctx.save();
 
   if (rotation === 90) {
-    ctx.translate(
-      w,
-      0
-    );
-
-    ctx.rotate(
-      Math.PI / 2
-    );
-
-    ctx.drawImage(
-      bitmap,
-      0,
-      0,
-      h,
-      w
-    );
-
-  } else if (
-    rotation === 180
-  ) {
-    ctx.translate(
-      w,
-      h
-    );
-
-    ctx.rotate(
-      Math.PI
-    );
-
-    ctx.drawImage(
-      bitmap,
-      0,
-      0,
-      w,
-      h
-    );
-
-  } else if (
-    rotation === 270
-  ) {
-    ctx.translate(
-      0,
-      h
-    );
-
-    ctx.rotate(
-      -Math.PI / 2
-    );
-
-    ctx.drawImage(
-      bitmap,
-      0,
-      0,
-      h,
-      w
-    );
-
+    ctx.translate(w, 0);
+    ctx.rotate(Math.PI / 2);
+    ctx.drawImage(bitmap, 0, 0, h, w);
+  } else if (rotation === 180) {
+    ctx.translate(w, h);
+    ctx.rotate(Math.PI);
+    ctx.drawImage(bitmap, 0, 0, w, h);
+  } else if (rotation === 270) {
+    ctx.translate(0, h);
+    ctx.rotate(-Math.PI / 2);
+    ctx.drawImage(bitmap, 0, 0, h, w);
   } else {
-    ctx.drawImage(
-      bitmap,
-      0,
-      0,
-      w,
-      h
-    );
+    ctx.drawImage(bitmap, 0, 0, w, h);
   }
 
   ctx.restore();
 }
 
 function clampByte(value) {
-  return Math.max(
-    0,
-    Math.min(
-      255,
-      value
-    )
-  );
+  return Math.max(0, Math.min(255, value));
 }
 
-function applyAdjustments(
-  canvas,
-  edit
-) {
-  const filter =
-    edit.filter ||
-    "original";
+function applyAdjustments(canvas, edit) {
+  const filter = edit.filter || "original";
+  const brightness = Number(edit.brightness || 0);
+  const contrastAmount = Number(edit.contrast || 0);
 
-  const brightness =
-    Number(
-      edit.brightness || 0
-    );
-
-  const contrastAmount =
-    Number(
-      edit.contrast || 0
-    );
-
-  const magicIntensity =
-    Math.max(
-      0,
-      Math.min(
-        100,
-        Number(
-          edit.magicIntensity ??
-          88
-        )
-      )
-    );
+  const magicIntensity = Math.max(
+    0,
+    Math.min(100, Number(edit.magicIntensity ?? 88))
+  );
 
   if (
     filter === "original" &&
@@ -713,97 +378,55 @@ function applyAdjustments(
     return;
   }
 
-  const ctx =
-    canvas.getContext(
-      "2d",
-      {
-        willReadFrequently:
-          true,
-      }
-    );
+  const ctx = canvas.getContext("2d", {
+    willReadFrequently: true,
+  });
 
-  const image =
-    ctx.getImageData(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
+  const image = ctx.getImageData(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
 
-  const d =
-    image.data;
+  const d = image.data;
 
   let low = 0;
   let high = 255;
+  let bwThreshold = 160;
 
-  let bwThreshold =
-    160;
-
-  if (
-    filter ===
-    "magic"
-  ) {
-    const histogram =
-      new Uint32Array(256);
+  if (filter === "magic") {
+    const histogram = new Uint32Array(256);
 
     let samples = 0;
 
-    for (
-      let i = 0;
-      i < d.length;
-      i += 16
-    ) {
-      const lum =
-        clampByte(
-          Math.round(
-            0.299 *
-              d[i] +
-            0.587 *
-              d[i + 1] +
-            0.114 *
-              d[i + 2]
-          )
-        );
+    for (let i = 0; i < d.length; i += 16) {
+      const lum = clampByte(
+        Math.round(
+          0.299 * d[i] +
+          0.587 * d[i + 1] +
+          0.114 * d[i + 2]
+        )
+      );
 
       histogram[lum]++;
-
       samples++;
     }
 
-    const strength =
-      magicIntensity /
-      100;
+    const strength = magicIntensity / 100;
 
     const lowTarget =
-      samples *
-      (
-        0.015 +
-        0.015 *
-        strength
-      );
+      samples * (0.015 + 0.015 * strength);
 
     const highTarget =
-      samples *
-      (
-        0.985 -
-        0.025 *
-        strength
-      );
+      samples * (0.985 - 0.025 * strength);
 
     let count = 0;
 
-    for (
-      let i = 0;
-      i < 256;
-      i++
-    ) {
-      count +=
-        histogram[i];
+    for (let i = 0; i < 256; i++) {
+      count += histogram[i];
 
-      if (
-        count >=
-        lowTarget
-      ) {
+      if (count >= lowTarget) {
         low = i;
         break;
       }
@@ -811,272 +434,132 @@ function applyAdjustments(
 
     count = 0;
 
-    for (
-      let i = 0;
-      i < 256;
-      i++
-    ) {
-      count +=
-        histogram[i];
+    for (let i = 0; i < 256; i++) {
+      count += histogram[i];
 
-      if (
-        count >=
-        highTarget
-      ) {
+      if (count >= highTarget) {
         high = i;
         break;
       }
     }
 
-    if (
-      high - low <
-      40
-    ) {
-      low =
-        Math.max(
-          0,
-          low - 25
-        );
-
-      high =
-        Math.min(
-          255,
-          high + 25
-        );
+    if (high - low < 40) {
+      low = Math.max(0, low - 25);
+      high = Math.min(255, high + 25);
     }
   }
 
-  if (
-    filter ===
-    "bw"
-  ) {
+  if (filter === "bw") {
     let sum = 0;
     let count = 0;
 
-    for (
-      let i = 0;
-      i < d.length;
-      i += 16
-    ) {
+    for (let i = 0; i < d.length; i += 16) {
       sum +=
-        0.299 *
-          d[i] +
-        0.587 *
-          d[i + 1] +
-        0.114 *
-          d[i + 2];
+        0.299 * d[i] +
+        0.587 * d[i + 1] +
+        0.114 * d[i + 2];
 
       count++;
     }
 
-    bwThreshold =
-      Math.max(
-        120,
-        Math.min(
-          205,
-          (
-            sum /
-            Math.max(
-              1,
-              count
-            )
-          ) *
-          0.96
-        )
-      );
+    bwThreshold = Math.max(
+      120,
+      Math.min(
+        205,
+        (sum / Math.max(1, count)) * 0.96
+      )
+    );
   }
 
   const contrastFactor =
-    (
-      259 *
-      (
-        contrastAmount +
-        255
-      )
-    ) /
-    (
-      255 *
-      (
-        259 -
-        contrastAmount
-      )
-    );
+    (259 * (contrastAmount + 255)) /
+    (255 * (259 - contrastAmount));
 
-  const magicStrength =
-    magicIntensity /
-    100;
+  const magicStrength = magicIntensity / 100;
+  const range = Math.max(1, high - low);
 
-  const range =
-    Math.max(
-      1,
-      high - low
-    );
-
-  for (
-    let i = 0;
-    i < d.length;
-    i += 4
-  ) {
+  for (let i = 0; i < d.length; i += 4) {
     let r = d[i];
     let g = d[i + 1];
     let b = d[i + 2];
 
-    const lum =
-      Math.max(
-        1,
-        0.299 * r +
-        0.587 * g +
-        0.114 * b
-      );
+    const lum = Math.max(
+      1,
+      0.299 * r +
+      0.587 * g +
+      0.114 * b
+    );
 
-    if (
-      filter ===
-      "grayscale"
-    ) {
+    if (filter === "grayscale") {
       r = g = b = lum;
-
-    } else if (
-      filter ===
-      "bw"
-    ) {
+    } else if (filter === "bw") {
       const v =
-        lum >=
-        bwThreshold
+        lum >= bwThreshold
           ? 255
           : 0;
 
       r = g = b = v;
-
-    } else if (
-      filter ===
-      "magic"
-    ) {
+    } else if (filter === "magic") {
       let mapped =
-        (
-          (
-            lum - low
-          ) *
-          255
-        ) /
-        range;
+        ((lum - low) * 255) / range;
 
-      mapped =
-        clampByte(mapped);
+      mapped = clampByte(mapped);
 
       const paperStart =
-        200 -
-        30 *
-        magicStrength;
+        200 - 30 * magicStrength;
 
-      if (
-        mapped >
-        paperStart
-      ) {
+      if (mapped > paperStart) {
         mapped =
           paperStart +
-          (
-            mapped -
-            paperStart
-          ) *
-          (
-            1.35 +
-            1.05 *
-            magicStrength
-          );
+          (mapped - paperStart) *
+          (1.35 + 1.05 * magicStrength);
       }
 
       const textLimit =
-        115 +
-        20 *
-        magicStrength;
+        115 + 20 * magicStrength;
 
-      if (
-        mapped <
-        textLimit
-      ) {
+      if (mapped < textLimit) {
         mapped *=
-          1 -
-          0.42 *
-          magicStrength;
+          1 - 0.42 * magicStrength;
       }
 
-      if (
-        mapped <
-        55
-      ) {
+      if (mapped < 55) {
         mapped *=
-          1 -
-          0.18 *
-          magicStrength;
+          1 - 0.18 * magicStrength;
       }
 
-      mapped =
-        clampByte(mapped);
+      mapped = clampByte(mapped);
 
-      const scale =
-        mapped /
-        lum;
+      const scale = mapped / lum;
 
       r *= scale;
       g *= scale;
       b *= scale;
 
-      const gray =
-        (
-          r +
-          g +
-          b
-        ) / 3;
+      const gray = (r + g + b) / 3;
 
       const saturation =
-        1 -
-        0.72 *
-        magicStrength;
+        1 - 0.72 * magicStrength;
 
-      r =
-        gray +
-        (
-          r - gray
-        ) *
-        saturation;
-
-      g =
-        gray +
-        (
-          g - gray
-        ) *
-        saturation;
-
-      b =
-        gray +
-        (
-          b - gray
-        ) *
-        saturation;
+      r = gray + (r - gray) * saturation;
+      g = gray + (g - gray) * saturation;
+      b = gray + (b - gray) * saturation;
 
       const extraContrast =
-        1 +
-        0.42 *
-        magicStrength;
+        1 + 0.42 * magicStrength;
 
       r =
-        (
-          r - 128
-        ) *
+        (r - 128) *
         extraContrast +
         128;
 
       g =
-        (
-          g - 128
-        ) *
+        (g - 128) *
         extraContrast +
         128;
 
       b =
-        (
-          b - 128
-        ) *
+        (b - 128) *
         extraContrast +
         128;
     }
@@ -1085,47 +568,29 @@ function applyAdjustments(
     g += brightness;
     b += brightness;
 
-    if (
-      contrastAmount !==
-      0
-    ) {
+    if (contrastAmount !== 0) {
       r =
         contrastFactor *
-        (
-          r - 128
-        ) +
+        (r - 128) +
         128;
 
       g =
         contrastFactor *
-        (
-          g - 128
-        ) +
+        (g - 128) +
         128;
 
       b =
         contrastFactor *
-        (
-          b - 128
-        ) +
+        (b - 128) +
         128;
     }
 
-    d[i] =
-      clampByte(r);
-
-    d[i + 1] =
-      clampByte(g);
-
-    d[i + 2] =
-      clampByte(b);
+    d[i] = clampByte(r);
+    d[i + 1] = clampByte(g);
+    d[i + 2] = clampByte(b);
   }
 
-  ctx.putImageData(
-    image,
-    0,
-    0
-  );
+  ctx.putImageData(image, 0, 0);
 }
 
 async function renderEditedCanvas(
@@ -1134,16 +599,11 @@ async function renderEditedCanvas(
   includeCrop = true
 ) {
   const bitmap =
-    await createImageBitmap(
-      page.originalBlob
-    );
+    await createImageBitmap(page.originalBlob);
 
   try {
     const rotation =
-      Number(
-        page.edit.rotation ||
-        0
-      );
+      Number(page.edit.rotation || 0);
 
     const rotated =
       rotation === 90 ||
@@ -1163,59 +623,35 @@ async function renderEditedCanvas(
       Math.min(
         1,
         maxEdge /
-        Math.max(
-          naturalW,
-          naturalH
-        )
+        Math.max(naturalW, naturalH)
       );
 
     const w =
       Math.max(
         1,
-        Math.round(
-          naturalW *
-          scale
-        )
+        Math.round(naturalW * scale)
       );
 
     const h =
       Math.max(
         1,
-        Math.round(
-          naturalH *
-          scale
-        )
+        Math.round(naturalH * scale)
       );
 
     const canvas =
-      document.createElement(
-        "canvas"
-      );
+      document.createElement("canvas");
 
     canvas.width = w;
     canvas.height = h;
 
     const ctx =
-      canvas.getContext(
-        "2d",
-        {
-          alpha:
-            false,
+      canvas.getContext("2d", {
+        alpha: false,
+        willReadFrequently: true,
+      });
 
-          willReadFrequently:
-            true,
-        }
-      );
-
-    ctx.fillStyle =
-      "#fff";
-
-    ctx.fillRect(
-      0,
-      0,
-      w,
-      h
-    );
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, w, h);
 
     drawRotated(
       ctx,
@@ -1245,32 +681,21 @@ async function renderEditedCanvas(
     const sx =
       Math.max(
         0,
-        Math.round(
-          c.x *
-          canvas.width
-        )
+        Math.round(c.x * canvas.width)
       );
 
     const sy =
       Math.max(
         0,
-        Math.round(
-          c.y *
-          canvas.height
-        )
+        Math.round(c.y * canvas.height)
       );
 
     const sw =
       Math.max(
         1,
         Math.min(
-          canvas.width -
-          sx,
-
-          Math.round(
-            c.w *
-            canvas.width
-          )
+          canvas.width - sx,
+          Math.round(c.w * canvas.width)
         )
       );
 
@@ -1278,36 +703,23 @@ async function renderEditedCanvas(
       Math.max(
         1,
         Math.min(
-          canvas.height -
-          sy,
-
-          Math.round(
-            c.h *
-            canvas.height
-          )
+          canvas.height - sy,
+          Math.round(c.h * canvas.height)
         )
       );
 
     const out =
-      document.createElement(
-        "canvas"
-      );
+      document.createElement("canvas");
 
     out.width = sw;
     out.height = sh;
 
     const outCtx =
-      out.getContext(
-        "2d",
-        {
-          alpha:
-            false,
-        }
-      );
+      out.getContext("2d", {
+        alpha: false,
+      });
 
-    outCtx.fillStyle =
-      "#fff";
-
+    outCtx.fillStyle = "#fff";
     outCtx.fillRect(
       0,
       0,
@@ -1317,12 +729,10 @@ async function renderEditedCanvas(
 
     outCtx.drawImage(
       canvas,
-
       sx,
       sy,
       sw,
       sh,
-
       0,
       0,
       sw,
@@ -1330,7 +740,6 @@ async function renderEditedCanvas(
     );
 
     return out;
-
   } finally {
     bitmap.close?.();
   }
@@ -1341,10 +750,7 @@ function canvasToJpeg(
   quality = 0.8
 ) {
   return new Promise(
-    (
-      resolve,
-      reject
-    ) => {
+    (resolve, reject) => {
       canvas.toBlob(
         (blob) =>
           blob
@@ -1354,9 +760,7 @@ function canvasToJpeg(
                   "Could not save image."
                 )
               ),
-
         "image/jpeg",
-
         quality
       );
     }
@@ -1368,16 +772,12 @@ function canvasToJpeg(
    ============================================================ */
 
 function installEditor() {
-  if (
-    $("pageEditorOverlay")
-  ) {
+  if ($("pageEditorOverlay")) {
     return;
   }
 
   const style =
-    document.createElement(
-      "style"
-    );
+    document.createElement("style");
 
   style.textContent = `
     .sheet-backdrop[hidden],
@@ -1563,14 +963,10 @@ function installEditor() {
     }
   `;
 
-  document.head.appendChild(
-    style
-  );
+  document.head.appendChild(style);
 
   const overlay =
-    document.createElement(
-      "div"
-    );
+    document.createElement("div");
 
   overlay.id =
     "pageEditorOverlay";
@@ -1578,8 +974,7 @@ function installEditor() {
   overlay.className =
     "page-editor-backdrop";
 
-  overlay.hidden =
-    true;
+  overlay.hidden = true;
 
   overlay.innerHTML = `
     <div
@@ -1587,9 +982,7 @@ function installEditor() {
       role="dialog"
       aria-modal="true"
     >
-
       <div class="pe-head">
-
         <div>
           <strong id="peTitle">
             Edit page
@@ -1612,20 +1005,17 @@ function installEditor() {
         >
           Cancel
         </button>
-
       </div>
 
       <div
         class="pe-stage"
         id="peStage"
       >
-
         <canvas
           id="peCanvas"
         ></canvas>
 
         <div id="cropBox">
-
           <span
             class="crop-handle"
             data-handle="nw"
@@ -1645,15 +1035,11 @@ function installEditor() {
             class="crop-handle"
             data-handle="se"
           ></span>
-
         </div>
-
       </div>
 
       <div class="pe-controls">
-
         <div class="pe-row">
-
           <button
             id="rotL"
             type="button"
@@ -1681,14 +1067,12 @@ function installEditor() {
           >
             Reset all
           </button>
-
         </div>
 
         <div
           class="pe-row"
           id="filterRow"
         >
-
           <button
             class="pe-filter"
             data-filter="original"
@@ -1720,7 +1104,6 @@ function installEditor() {
           >
             B&amp;W
           </button>
-
         </div>
 
         <label
@@ -1745,7 +1128,6 @@ function installEditor() {
         </label>
 
         <label class="pe-slider">
-
           <span>
             Brightness
           </span>
@@ -1764,7 +1146,6 @@ function installEditor() {
         </label>
 
         <label class="pe-slider">
-
           <span>
             Contrast
           </span>
@@ -1783,7 +1164,6 @@ function installEditor() {
         </label>
 
         <div class="pe-row">
-
           <button
             class="pe-apply"
             id="peApply"
@@ -1799,28 +1179,21 @@ function installEditor() {
           >
             Apply &amp; next
           </button>
-
         </div>
-
       </div>
-
     </div>
   `;
 
-  document.body.appendChild(
-    overlay
-  );
+  document.body.appendChild(overlay);
 
   $("peCancel").onclick =
     closeEditor;
 
   $("rotL").onclick =
-    () =>
-      rotateEditor(-90);
+    () => rotateEditor(-90);
 
   $("rotR").onclick =
-    () =>
-      rotateEditor(90);
+    () => rotateEditor(90);
 
   $("peResetCrop").onclick =
     resetCrop;
@@ -1829,80 +1202,54 @@ function installEditor() {
     resetEditor;
 
   $("peApply").onclick =
-    () =>
-      applyEditor(false);
+    () => applyEditor(false);
 
   $("peApplyNext").onclick =
-    () =>
-      applyEditor(true);
+    () => applyEditor(true);
 
-  $("filterRow")
-    .addEventListener(
-      "click",
-      (event) => {
-        const btn =
-          event.target.closest(
-            "[data-filter]"
-          );
+  $("filterRow").addEventListener(
+    "click",
+    (event) => {
+      const btn =
+        event.target.closest(
+          "[data-filter]"
+        );
 
-        if (
-          !btn ||
-          !state.editor
-        ) {
+      if (!btn || !state.editor) {
+        return;
+      }
+
+      state.editor.edit.filter =
+        btn.dataset.filter ||
+        "original";
+
+      syncEditorControls();
+
+      scheduleEditorRedraw();
+    }
+  );
+
+  [
+    ["magicIntensity", "magicIntensity"],
+    ["brightnessSlider", "brightness"],
+    ["contrastSlider", "contrast"],
+  ].forEach(([id, key]) => {
+    $(id).addEventListener(
+      "input",
+      () => {
+        if (!state.editor) {
           return;
         }
 
-        state.editor.edit.filter =
-          btn.dataset.filter ||
-          "original";
+        state.editor.edit[key] =
+          Number($(id).value);
 
-        syncEditorControls();
+        syncEditorControls(false);
 
         scheduleEditorRedraw();
       }
     );
-
-  [
-    [
-      "magicIntensity",
-      "magicIntensity",
-    ],
-
-    [
-      "brightnessSlider",
-      "brightness",
-    ],
-
-    [
-      "contrastSlider",
-      "contrast",
-    ],
-  ].forEach(
-    ([id, key]) => {
-      $(id)
-        .addEventListener(
-          "input",
-          () => {
-            if (
-              !state.editor
-            ) {
-              return;
-            }
-
-            state.editor.edit[key] =
-              Number(
-                $(id).value
-              );
-
-            syncEditorControls(
-              false
-            );
-
-            scheduleEditorRedraw();
-          }
-        );
-    }
-  );
+  });
 
   setupCropGestures();
 
@@ -1911,9 +1258,7 @@ function installEditor() {
     () => {
       if (
         state.editor &&
-        !$(
-          "pageEditorOverlay"
-        ).hidden
+        !$("pageEditorOverlay").hidden
       ) {
         positionCropBox();
       }
@@ -1933,15 +1278,12 @@ function scheduleEditorRedraw() {
     );
 }
 
-async function openEditor(
-  pageId
-) {
+async function openEditor(pageId) {
   installEditor();
 
   const page =
     state.pages.find(
-      (p) =>
-        p.id === pageId
+      (p) => p.id === pageId
     );
 
   if (!page) {
@@ -1950,37 +1292,29 @@ async function openEditor(
 
   state.editor = {
     pageId,
-
-    edit:
-      JSON.parse(
-        JSON.stringify(
-          page.edit ||
-          defaultEdit()
-        )
-      ),
+    edit: JSON.parse(
+      JSON.stringify(
+        page.edit ||
+        defaultEdit()
+      )
+    ),
   };
 
   const index =
     state.pages.findIndex(
-      (p) =>
-        p.id === pageId
+      (p) => p.id === pageId
     );
 
   $("peTitle").textContent =
-    `Edit page ${
-      index + 1
-    }`;
+    `Edit page ${index + 1}`;
 
-  $("peApplyNext")
-    .style.display =
-      index <
-      state.pages.length - 1
-        ? "inline-flex"
-        : "none";
+  $("peApplyNext").style.display =
+    index < state.pages.length - 1
+      ? "inline-flex"
+      : "none";
 
-  $("pageEditorOverlay")
-    .hidden =
-      false;
+  $("pageEditorOverlay").hidden =
+    false;
 
   document.body.style.overflow =
     "hidden";
@@ -1997,9 +1331,8 @@ function closeEditor() {
 
   state.editor = null;
 
-  $("pageEditorOverlay")
-    .hidden =
-      true;
+  $("pageEditorOverlay").hidden =
+    true;
 
   document.body.style.overflow =
     "";
@@ -2008,9 +1341,7 @@ function closeEditor() {
 function syncEditorControls(
   updateInputs = true
 ) {
-  if (
-    !state.editor
-  ) {
+  if (!state.editor) {
     return;
   }
 
@@ -2021,81 +1352,58 @@ function syncEditorControls(
     .querySelectorAll(
       ".pe-filter"
     )
-    .forEach(
-      (btn) => {
-        btn.classList.toggle(
-          "active",
-          btn.dataset.filter ===
+    .forEach((btn) => {
+      btn.classList.toggle(
+        "active",
+        btn.dataset.filter ===
           edit.filter
-        );
-      }
-    );
+      );
+    });
 
-  $("magicSliderRow")
-    .style.display =
-      edit.filter ===
-      "magic"
-        ? "grid"
-        : "none";
+  $("magicSliderRow").style.display =
+    edit.filter === "magic"
+      ? "grid"
+      : "none";
 
-  if (
-    updateInputs
-  ) {
+  if (updateInputs) {
     $("magicIntensity").value =
       String(
-        edit.magicIntensity ??
-        88
+        edit.magicIntensity ?? 88
       );
 
     $("brightnessSlider").value =
       String(
-        edit.brightness ??
-        0
+        edit.brightness ?? 0
       );
 
     $("contrastSlider").value =
       String(
-        edit.contrast ??
-        18
+        edit.contrast ?? 18
       );
   }
 
-  $("magicIntensityOut")
-    .textContent =
-      `${Math.round(
-        edit.magicIntensity ??
-        88
-      )}%`;
+  $("magicIntensityOut").textContent =
+    `${Math.round(
+      edit.magicIntensity ?? 88
+    )}%`;
 
-  $("brightnessOut")
-    .textContent =
-      `${
-        Number(
-          edit.brightness || 0
-        ) > 0
-          ? "+"
-          : ""
-      }${
-        edit.brightness || 0
-      }`;
+  $("brightnessOut").textContent =
+    `${
+      Number(edit.brightness || 0) > 0
+        ? "+"
+        : ""
+    }${edit.brightness || 0}`;
 
-  $("contrastOut")
-    .textContent =
-      `${
-        Number(
-          edit.contrast || 0
-        ) > 0
-          ? "+"
-          : ""
-      }${
-        edit.contrast || 0
-      }`;
+  $("contrastOut").textContent =
+    `${
+      Number(edit.contrast || 0) > 0
+        ? "+"
+        : ""
+    }${edit.contrast || 0}`;
 }
 
 function rotateEditor(delta) {
-  if (
-    !state.editor
-  ) {
+  if (!state.editor) {
     return;
   }
 
@@ -2117,9 +1425,7 @@ function rotateEditor(delta) {
 function resetCrop(
   redraw = true
 ) {
-  if (
-    !state.editor
-  ) {
+  if (!state.editor) {
     return;
   }
 
@@ -2136,9 +1442,7 @@ function resetCrop(
 }
 
 function resetEditor() {
-  if (
-    !state.editor
-  ) {
+  if (!state.editor) {
     return;
   }
 
@@ -2151,9 +1455,7 @@ function resetEditor() {
 }
 
 async function redrawEditor() {
-  if (
-    !state.editor
-  ) {
+  if (!state.editor) {
     return;
   }
 
@@ -2170,9 +1472,7 @@ async function redrawEditor() {
 
   const temp = {
     ...page,
-
-    edit:
-      state.editor.edit,
+    edit: state.editor.edit,
   };
 
   const rendered =
@@ -2184,8 +1484,7 @@ async function redrawEditor() {
 
   if (
     !state.editor ||
-    state.editor.pageId !==
-    page.id
+    state.editor.pageId !== page.id
   ) {
     return;
   }
@@ -2202,10 +1501,7 @@ async function redrawEditor() {
   canvas
     .getContext(
       "2d",
-      {
-        alpha:
-          false,
-      }
+      { alpha: false }
     )
     .drawImage(
       rendered,
@@ -2219,9 +1515,7 @@ async function redrawEditor() {
 }
 
 function positionCropBox() {
-  if (
-    !state.editor
-  ) {
+  if (!state.editor) {
     return;
   }
 
@@ -2272,15 +1566,12 @@ function setupCropGestures() {
   const box =
     $("cropBox");
 
-  let drag =
-    null;
+  let drag = null;
 
   box.addEventListener(
     "pointerdown",
     (event) => {
-      if (
-        !state.editor
-      ) {
+      if (!state.editor) {
         return;
       }
 
@@ -2291,16 +1582,14 @@ function setupCropGestures() {
           .getBoundingClientRect();
 
       drag = {
-        id:
-          event.pointerId,
+        id: event.pointerId,
 
         handle:
           event.target
             .closest(
               "[data-handle]"
             )
-            ?.dataset
-            .handle ||
+            ?.dataset.handle ||
           "move",
 
         startX:
@@ -2333,7 +1622,7 @@ function setupCropGestures() {
         !drag ||
         !state.editor ||
         event.pointerId !==
-        drag.id
+          drag.id
       ) {
         return;
       }
@@ -2374,29 +1663,24 @@ function setupCropGestures() {
       } = s;
 
       if (
-        drag.handle ===
-        "move"
+        drag.handle === "move"
       ) {
-        x =
-          Math.max(
-            0,
-            Math.min(
-              1 - w,
-              s.x + dx
-            )
-          );
+        x = Math.max(
+          0,
+          Math.min(
+            1 - w,
+            s.x + dx
+          )
+        );
 
-        y =
-          Math.max(
-            0,
-            Math.min(
-              1 - h,
-              s.y + dy
-            )
-          );
-
+        y = Math.max(
+          0,
+          Math.min(
+            1 - h,
+            s.y + dy
+          )
+        );
       } else {
-
         if (
           drag.handle.includes(
             "w"
@@ -2407,9 +1691,8 @@ function setupCropGestures() {
               0,
               Math.min(
                 s.x +
-                  s.w -
-                  min,
-
+                s.w -
+                min,
                 s.x + dx
               )
             );
@@ -2419,8 +1702,7 @@ function setupCropGestures() {
             s.w -
             nx;
 
-          x =
-            nx;
+          x = nx;
         }
 
         if (
@@ -2448,9 +1730,8 @@ function setupCropGestures() {
               0,
               Math.min(
                 s.y +
-                  s.h -
-                  min,
-
+                s.h -
+                min,
                 s.y + dy
               )
             );
@@ -2460,8 +1741,7 @@ function setupCropGestures() {
             s.h -
             ny;
 
-          y =
-            ny;
+          y = ny;
         }
 
         if (
@@ -2496,10 +1776,9 @@ function setupCropGestures() {
       if (
         drag &&
         event.pointerId ===
-        drag.id
+          drag.id
       ) {
-        drag =
-          null;
+        drag = null;
       }
     };
 
@@ -2535,17 +1814,13 @@ async function refreshThumbnail(
   );
 
   page.thumbUrl =
-    URL.createObjectURL(
-      blob
-    );
+    URL.createObjectURL(blob);
 }
 
 async function applyEditor(
   openNext
 ) {
-  if (
-    !state.editor
-  ) {
+  if (!state.editor) {
     return;
   }
 
@@ -2556,9 +1831,7 @@ async function applyEditor(
         state.editor.pageId
     );
 
-  if (
-    index < 0
-  ) {
+  if (index < 0) {
     return;
   }
 
@@ -2585,18 +1858,14 @@ async function applyEditor(
 
   renderPages();
 
-  /*
-   * Small thumbnail only.
-   * Heavy 1600px processing
-   * happens during Generate PDF.
-   */
+  // Small thumbnail only.
+  // Heavy 1600px processing happens
+  // only during Generate PDF.
   refreshThumbnail(page)
     .then(renderPages)
     .catch(console.warn);
 
-  if (
-    nextId
-  ) {
+  if (nextId) {
     await nextPaint();
 
     await openEditor(
@@ -2624,30 +1893,21 @@ function renderPages() {
   $("thumbStrip").innerHTML =
     state.pages
       .map(
-        (
-          page,
-          index
-        ) => `
+        (page, index) => `
           <div
             class="thumb"
             data-id="${page.id}"
           >
-
             <img
               src="${page.thumbUrl}"
               alt="Page ${index + 1}"
             >
 
-            <div
-              class="page-no"
-            >
+            <div class="page-no">
               ${index + 1}
             </div>
 
-            <div
-              class="thumb-actions"
-            >
-
+            <div class="thumb-actions">
               <button
                 type="button"
                 data-act="edit"
@@ -2671,7 +1931,6 @@ function renderPages() {
               >
                 ✕
               </button>
-
             </div>
 
             <div
@@ -2680,12 +1939,10 @@ function renderPages() {
             >
               ☰
             </div>
-
           </div>
         `
       )
       .join("") +
-
     `
       <button
         type="button"
@@ -2693,9 +1950,7 @@ function renderPages() {
         class="add-more"
       >
         ＋
-        <span>
-          Add page
-        </span>
+        <span>Add page</span>
       </button>
     `;
 
@@ -2708,448 +1963,14 @@ function renderPages() {
     new Sortable(
       $("thumbStrip"),
       {
-        animation:
-          150,
-
-        draggable:
-          ".thumb",
-
-        handle:
-          ".drag",
-
-        ghostClass:
-          "ghost",
-
-        chosenClass:
-          "chosen",
-
-        onEnd(event) {
-          const from =
-            event.oldDraggableIndex;
-
-          const to =
-            event.newDraggableIndex;
-
-          if (
-            from == null ||
-            to == null ||
-            from === to
-          ) {
-            return;
-          }
-
-          const [moved] =
-            state.pages.splice(
-              from,
-              1
-            );
-
-          state.pages.splice(
-            to,
-            0,
-            moved
-          );
-
-          renderPages();
-        },
-      }
-    );
-}
-
-async function retake(id) {
-  const index =
-    state.pages.findIndex(
-      (p) =>
-        p.id === id
-    );
-
-  if (
-    index < 0
-  ) {
-    return;
-  }
-
-  const result =
-    await Camera.takePhoto({
-      quality:
-        90,
-
-      targetWidth:
-        1800,
-
-      targetHeight:
-        1800,
-
-      correctOrientation:
-        true,
-
-      saveToGallery:
-        false,
-
-      includeMetadata:
-        true,
-
-      editable:
-        "no",
-    });
-
-  const blob =
-    await mediaResultToBlob(
-      result
-    );
-
-  const page =
-    state.pages[index];
-
-  URL.revokeObjectURL(
-    page.thumbUrl
-  );
-
-  page.originalBlob =
-    blob;
-
-  page.thumbUrl =
-    URL.createObjectURL(
-      blob
-    );
-
-  page.edit =
-    defaultEdit();
-
-  renderPages();
-
-  await openEditor(
-    id
-  );
-}
-
-function resetComposer() {
-  state.pages.forEach(
-    (page) =>
-      URL.revokeObjectURL(
-        page.thumbUrl
-      )
-  );
-
-  state.pages =
-    [];
-
-  $("progressWrap").hidden =
-    true;
-
-  $("progressBar").style.width =
-    "0%";
-
-  setError("");
-
-  $("createPanel").hidden =
-    false;
-
-  $("successPanel").hidden =
-    true;
-
-  renderPages();
-}
-
-/* ============================================================
-   PDF GENERATION
-   ============================================================ */
-
-async function generatePdf() {
-  if (
-    state.busy
-  ) {
-    return;
-  }
-
-  try {
-    setError("");
-
-    const {
-      subject,
-      type,
-      year,
-    } =
-      validateForm();
-
-    state.busy =
-      true;
-
-    $("generateBtn").disabled =
-      true;
-
-    const pdf =
-      await PDFDocument.create();
-
-    const filename =
-      filenameFor(
-        subject,
-        type,
-        year
-      );
-
-    pdf.setTitle(
-      filename.replace(
-        /\.pdf$/i,
-        ""
-      ),
-      {
-        showInWindowTitleBar:
-          true,
-      }
-    );
-
-    pdf.setCreator(
-      "Stat Archive Create Entry Test"
-    );
-
-    pdf.setProducer(
-      "Stat Archive Create Entry Test"
-    );
-
-    pdf.setCreationDate(
-      new Date()
-    );
-
-    for (
-      let i = 0;
-      i <
-      state.pages.length;
-      i++
-    ) {
-      setProgress(
-        5 +
-        (
-          i /
-          state.pages.length
-        ) *
-        66,
-
-        `Processing page ${
-          i + 1
-        } of ${
-          state.pages.length
-        }…`
-      );
-
-      const canvas =
-        await renderEditedCanvas(
-          state.pages[i],
-          FINAL_MAX_EDGE,
-          true
-        );
-
-      const jpg =
-        await canvasToJpeg(
-          canvas,
-          0.72
-        );
-
-      const image =
-        await pdf.embedJpg(
-          await jpg.arrayBuffer()
-        );
-
-      const pageW =
-        595;
-
-      const pageH =
-        pageW *
-        image.height /
-        image.width;
-
-      const pdfPage =
-        pdf.addPage([
-          pageW,
-          pageH,
-        ]);
-
-      pdfPage.drawImage(
-        image,
-        {
-          x: 0,
-          y: 0,
-
-          width:
-            pageW,
-
-          height:
-            pageH,
-        }
-      );
-
-      await nextPaint();
-    }
-
-    setProgress(
-      76,
-      "Finalizing PDF…"
-    );
-
-    const bytes =
-      await pdf.save({
-        useObjectStreams:
-          true,
-      });
-
-    const blob =
-      new Blob(
-        [bytes],
-        {
-          type:
-            "application/pdf",
-        }
-      );
-
-    const id =
-      newId();
-
-    const record = {
-      id,
-      subject,
-      type,
-      year,
-      filename,
-
-      uploadedBy:
-        "LOCAL TEST USER",
-
-      uploadedAt:
-        new Date()
-          .toISOString(),
-
-      size:
-        blob.size,
-
-      pdf:
-        blob,
-    };
-
-    setProgress(
-      92,
-      "Saving to local test library…"
-    );
-
-    await dbPut(
-      record
-    );
-
-    state.latestId =
-      id;
-
-    setProgress(
-      100,
-      "Saved locally"
-    );
-
-    $("createPanel").hidden =
-      true;
-
-    $("successPanel").hidden =
-      false;
-
-    $("successText").textContent =
-      `${filename} · ${
-        bytesLabel(
-          blob.size
-        )
-      } · ${
-        state.pages.length
-      } pages`;
-
-    await renderLibrary();
-
-  } catch (err) {
-    console.error(err);
-
-    setError(
-      err?.message ||
-      "Could not generate PDF."
-    );
-
-  } finally {
-    state.busy =
-      false;
-
-    $("generateBtn").disabled =
-      !state.pages.length;
-  }
-}
-
-/* ============================================================
-   NATIVE PDF VIEW / DOWNLOAD
-   ============================================================ */
-
-function blobToBase64(blob) {
-  return new Promise(
-    (
-      resolve,
-      reject
-    ) => {
-      const reader =
-        new FileReader();
-
-      reader.onloadend =
-        () => {
-          const value =
-            String(
-              reader.result || ""
-            );
-
-          resolve(
-            value.includes(",")
-              ? value.split(",")[1]
-              : value
-          );
-        };
-
-      reader.onerror =
-        () =>
-          reject(
-            new Error(
-              "Could not prepare the PDF."
-            )
-          );
-
-      reader.readAsDataURL(
-        blob
-      );
-    }
-  );
-}
-
-async function savePdfTemporarily(
-  record
-) {
-  const result =
-    await Filesystem.writeFile({
-      path:
-        `test-pdfs/${record.filename}`,
-
-      data:
-        await blobToBase64(
-          record.pdf
-        ),
-
-      directory:
-        Directory.Cache,
-
-      recursive:
-        true,
-    });
-
-  return result.uri;
-}
+        animation: 
 
 async function viewRecord(id) {
   try {
-    const record =
-      await dbGet(id);
+    const record = await dbGet(id);
 
     if (!record) {
-      throw new Error(
-        "PDF not found."
-      );
+      throw new Error("PDF not found.");
     }
 
     const uri =
@@ -3160,13 +1981,10 @@ async function viewRecord(id) {
     try {
       await FileViewer
         .openDocumentFromLocalPath({
-          path:
-            uri,
+          path: uri,
         });
 
-    } catch (
-      viewerError
-    ) {
+    } catch (viewerError) {
       console.warn(
         "FileViewer fallback:",
         viewerError
@@ -3333,7 +2151,6 @@ async function renderLibrary() {
             <div
               class="card-actions"
             >
-
               <button
                 type="button"
                 data-act="view"
@@ -3354,7 +2171,6 @@ async function renderLibrary() {
               >
                 Delete
               </button>
-
             </div>
 
           </article>
@@ -3552,3 +2368,55 @@ $("libraryGrid")
       if (!card) {
         return;
       }
+
+      const id =
+        card.dataset.id;
+
+      if (
+        event.target.closest(
+          '[data-act="view"]'
+        )
+      ) {
+        await viewRecord(id);
+        return;
+      }
+
+      if (
+        event.target.closest(
+          '[data-act="download"]'
+        )
+      ) {
+        await downloadRecord(id);
+        return;
+      }
+
+      if (
+        event.target.closest(
+          '[data-act="delete"]'
+        )
+      ) {
+        await dbDelete(id);
+
+        await renderLibrary();
+      }
+    }
+  );
+
+$("clearLibraryBtn").onclick =
+  async () => {
+    if (
+      !confirm(
+        "Delete every PDF from this local TEST library?"
+      )
+    ) {
+      return;
+    }
+
+    await dbClear();
+
+    await renderLibrary();
+  };
+
+renderPages();
+renderLibrary();
+        

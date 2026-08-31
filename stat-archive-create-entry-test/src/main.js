@@ -20,6 +20,7 @@ import {
 } from "pdf-lib";
 
 import Sortable from "sortablejs";
+
 const $ = (id) => document.getElementById(id);
 
 const state = {
@@ -36,12 +37,17 @@ const STORE = "entries";
 function openDb() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
+
     req.onupgradeneeded = () => {
       const db = req.result;
+
       if (!db.objectStoreNames.contains(STORE)) {
-        db.createObjectStore(STORE, { keyPath: "id" });
+        db.createObjectStore(STORE, {
+          keyPath: "id"
+        });
       }
     };
+
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
@@ -49,58 +55,80 @@ function openDb() {
 
 async function dbPut(record) {
   const db = await openDb();
+
   await new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, "readwrite");
+
     tx.objectStore(STORE).put(record);
+
     tx.oncomplete = resolve;
     tx.onerror = () => reject(tx.error);
   });
+
   db.close();
 }
 
 async function dbGetAll() {
   const db = await openDb();
+
   const rows = await new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, "readonly");
+
     const req = tx.objectStore(STORE).getAll();
+
     req.onsuccess = () => resolve(req.result || []);
     req.onerror = () => reject(req.error);
   });
+
   db.close();
+
   return rows;
 }
 
 async function dbGet(id) {
   const db = await openDb();
+
   const row = await new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, "readonly");
+
     const req = tx.objectStore(STORE).get(id);
+
     req.onsuccess = () => resolve(req.result || null);
     req.onerror = () => reject(req.error);
   });
+
   db.close();
+
   return row;
 }
 
 async function dbDelete(id) {
   const db = await openDb();
+
   await new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, "readwrite");
+
     tx.objectStore(STORE).delete(id);
+
     tx.oncomplete = resolve;
     tx.onerror = () => reject(tx.error);
   });
+
   db.close();
 }
 
 async function dbClear() {
   const db = await openDb();
+
   await new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, "readwrite");
+
     tx.objectStore(STORE).clear();
+
     tx.oncomplete = resolve;
     tx.onerror = () => reject(tx.error);
   });
+
   db.close();
 }
 
@@ -111,7 +139,10 @@ function setError(msg = "") {
 
 function setProgress(pct, msg) {
   $("progressWrap").hidden = false;
-  $("progressBar").style.width = `${Math.max(0, Math.min(100, pct))}%`;
+
+  $("progressBar").style.width =
+    `${Math.max(0, Math.min(100, pct))}%`;
+
   $("progressText").textContent = msg;
 }
 
@@ -127,275 +158,691 @@ function slug(s) {
 }
 
 function filenameFor(subject, type, year) {
-  return [slug(subject) || "Document", slug(type) || "Paper", year].filter(Boolean).join("_") + ".pdf";
+  return [
+    slug(subject) || "Document",
+    slug(type) || "Paper",
+    year
+  ]
+    .filter(Boolean)
+    .join("_") + ".pdf";
 }
 
 function bytesLabel(n) {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${Math.round(n / 1024)} KB`;
+  if (n < 1024) {
+    return `${n} B`;
+  }
+
+  if (n < 1024 * 1024) {
+    return `${Math.round(n / 1024)} KB`;
+  }
+
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
 
 function validateForm() {
-  const subject = $("subjectInput").value.trim();
-  const type = $("typeInput").value;
-  const year = $("yearInput").value.trim();
+  const subject =
+    $("subjectInput").value.trim();
 
-  if (!subject) throw new Error("Choose or enter a subject.");
-  if (!type) throw new Error("Choose a paper type.");
-  if (!/^(19|20)\d{2}$/.test(year)) throw new Error("Enter a valid 4-digit year.");
-  if (!state.pages.length) throw new Error("Add at least one photo.");
-  return { subject, type, year };
+  const type =
+    $("typeInput").value;
+
+  const year =
+    $("yearInput").value.trim();
+
+  if (!subject) {
+    throw new Error(
+      "Choose or enter a subject."
+    );
+  }
+
+  if (!type) {
+    throw new Error(
+      "Choose a paper type."
+    );
+  }
+
+  if (!/^(19|20)\d{2}$/.test(year)) {
+    throw new Error(
+      "Enter a valid 4-digit year."
+    );
+  }
+
+  if (!state.pages.length) {
+    throw new Error(
+      "Add at least one photo."
+    );
+  }
+
+  return {
+    subject,
+    type,
+    year
+  };
 }
 
 async function photoToBlob(photo) {
   if (photo.webPath) {
-    const res = await fetch(photo.webPath);
-    if (!res.ok) throw new Error("Couldn't read the selected photo.");
+    const res =
+      await fetch(photo.webPath);
+
+    if (!res.ok) {
+      throw new Error(
+        "Couldn't read the selected photo."
+      );
+    }
+
     return await res.blob();
   }
-  if (photo.dataUrl) return await (await fetch(photo.dataUrl)).blob();
-  throw new Error("Camera did not return a readable image.");
+
+  if (photo.dataUrl) {
+    return await (
+      await fetch(photo.dataUrl)
+    ).blob();
+  }
+
+  throw new Error(
+    "Camera did not return a readable image."
+  );
 }
 
 async function pickPhoto(source) {
   setError("");
-  const photo = await Camera.getPhoto({
-    source,
-    resultType: CameraResultType.Uri,
-    quality: 90,
-    width: 2200,
-    correctOrientation: true,
-    allowEditing: false,
-    saveToGallery: false
-  });
-  const blob = await photoToBlob(photo);
+
+  const photo =
+    await Camera.getPhoto({
+      source,
+      resultType: CameraResultType.Uri,
+      quality: 90,
+      width: 2200,
+      correctOrientation: true,
+      allowEditing: false,
+      saveToGallery: false
+    });
+
+  const blob =
+    await photoToBlob(photo);
+
   state.pages.push({
-    id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random()}`,
+    id: crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}_${Math.random()}`,
+
     blob,
-    url: URL.createObjectURL(blob)
+
+    url:
+      URL.createObjectURL(blob)
   });
+
   renderPages();
 }
 
-async function compress(blob, maxWidth = 1600, quality = 0.70) {
-  const bmp = await createImageBitmap(blob);
+async function compress(
+  blob,
+  maxWidth = 1600,
+  quality = 0.70
+) {
+  const bmp =
+    await createImageBitmap(blob);
+
   try {
-    let w = bmp.width, h = bmp.height;
+    let w = bmp.width;
+    let h = bmp.height;
+
     if (w > maxWidth) {
-      const r = maxWidth / w;
-      w = Math.round(w * r);
-      h = Math.round(h * r);
+      const r =
+        maxWidth / w;
+
+      w =
+        Math.round(w * r);
+
+      h =
+        Math.round(h * r);
     }
-    const c = document.createElement("canvas");
-    c.width = w; c.height = h;
-    const ctx = c.getContext("2d", { alpha: false });
+
+    const c =
+      document.createElement("canvas");
+
+    c.width = w;
+    c.height = h;
+
+    const ctx =
+      c.getContext(
+        "2d",
+        {
+          alpha: false
+        }
+      );
+
     ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, w, h);
-    ctx.drawImage(bmp, 0, 0, w, h);
-    const out = await new Promise((resolve, reject) =>
-      c.toBlob(b => b ? resolve(b) : reject(new Error("Compression failed.")), "image/jpeg", quality)
+
+    ctx.fillRect(
+      0,
+      0,
+      w,
+      h
     );
+
+    ctx.drawImage(
+      bmp,
+      0,
+      0,
+      w,
+      h
+    );
+
+    const out =
+      await new Promise(
+        (resolve, reject) => {
+          c.toBlob(
+            (b) => {
+              if (b) {
+                resolve(b);
+              } else {
+                reject(
+                  new Error(
+                    "Compression failed."
+                  )
+                );
+              }
+            },
+            "image/jpeg",
+            quality
+          );
+        }
+      );
+
     return out;
+
   } finally {
     bmp.close?.();
   }
 }
 
 function renderPages() {
-  $("pageCount").textContent = `${state.pages.length} ${state.pages.length === 1 ? "page" : "pages"}`;
-  $("generateBtn").disabled = state.busy || !state.pages.length;
+  $("pageCount").textContent =
+    `${state.pages.length} ${
+      state.pages.length === 1
+        ? "page"
+        : "pages"
+    }`;
 
-  $("thumbStrip").innerHTML = state.pages.map((p, i) => `
-    <div class="thumb" data-id="${p.id}">
-      <img src="${p.url}" alt="Page ${i + 1}">
-      <div class="page-no">${i + 1}</div>
-      <div class="thumb-actions">
-        <button type="button" data-act="retake" aria-label="Retake">↻</button>
-        <button type="button" data-act="delete" aria-label="Delete">✕</button>
-      </div>
-      <div class="drag" aria-label="Drag to reorder">☰</div>
-    </div>
-  `).join("") + `<button type="button" id="addMoreBtn" class="add-more">＋<span>Add page</span></button>`;
+  $("generateBtn").disabled =
+    state.busy ||
+    !state.pages.length;
 
-  $("addMoreBtn").onclick = showSource;
+  $("thumbStrip").innerHTML =
+    state.pages
+      .map(
+        (p, i) => `
+          <div
+            class="thumb"
+            data-id="${p.id}"
+          >
+
+            <img
+              src="${p.url}"
+              alt="Page ${i + 1}"
+            >
+
+            <div class="page-no">
+              ${i + 1}
+            </div>
+
+            <div class="thumb-actions">
+
+              <button
+                type="button"
+                data-act="retake"
+                aria-label="Retake"
+              >
+                ↻
+              </button>
+
+              <button
+                type="button"
+                data-act="delete"
+                aria-label="Delete"
+              >
+                ✕
+              </button>
+
+            </div>
+
+            <div
+              class="drag"
+              aria-label="Drag to reorder"
+            >
+              ☰
+            </div>
+
+          </div>
+        `
+      )
+      .join("") +
+
+    `
+      <button
+        type="button"
+        id="addMoreBtn"
+        class="add-more"
+      >
+        ＋
+        <span>Add page</span>
+      </button>
+    `;
+
+  $("addMoreBtn").onclick =
+    showSource;
 
   state.sortable?.destroy();
-  state.sortable = new Sortable($("thumbStrip"), {
-    animation: 160,
-    draggable: ".thumb",
-    handle: ".drag",
-    ghostClass: "ghost",
-    chosenClass: "chosen",
-    onEnd(evt) {
-      const oldIndex = evt.oldDraggableIndex;
-      const newIndex = evt.newDraggableIndex;
-      if (oldIndex == null || newIndex == null || oldIndex === newIndex) return;
-      const [moved] = state.pages.splice(oldIndex, 1);
-      state.pages.splice(newIndex, 0, moved);
-      renderPages();
-    }
-  });
+
+  state.sortable =
+    new Sortable(
+      $("thumbStrip"),
+      {
+        animation: 160,
+
+        draggable: ".thumb",
+
+        handle: ".drag",
+
+        ghostClass: "ghost",
+
+        chosenClass: "chosen",
+
+        onEnd(evt) {
+          const oldIndex =
+            evt.oldDraggableIndex;
+
+          const newIndex =
+            evt.newDraggableIndex;
+
+          if (
+            oldIndex == null ||
+            newIndex == null ||
+            oldIndex === newIndex
+          ) {
+            return;
+          }
+
+          const [moved] =
+            state.pages.splice(
+              oldIndex,
+              1
+            );
+
+          state.pages.splice(
+            newIndex,
+            0,
+            moved
+          );
+
+          renderPages();
+        }
+      }
+    );
 }
 
 async function retake(id) {
-  const idx = state.pages.findIndex(p => p.id === id);
-  if (idx < 0) return;
-  const photo = await Camera.getPhoto({
-    source: CameraSource.Camera,
-    resultType: CameraResultType.Uri,
-    quality: 90,
-    width: 2200,
-    correctOrientation: true,
-    allowEditing: false,
-    saveToGallery: false
-  });
-  const blob = await photoToBlob(photo);
-  URL.revokeObjectURL(state.pages[idx].url);
-  state.pages[idx] = { ...state.pages[idx], blob, url: URL.createObjectURL(blob) };
+  const idx =
+    state.pages.findIndex(
+      (p) => p.id === id
+    );
+
+  if (idx < 0) {
+    return;
+  }
+
+  const photo =
+    await Camera.getPhoto({
+      source: CameraSource.Camera,
+      resultType: CameraResultType.Uri,
+      quality: 90,
+      width: 2200,
+      correctOrientation: true,
+      allowEditing: false,
+      saveToGallery: false
+    });
+
+  const blob =
+    await photoToBlob(photo);
+
+  URL.revokeObjectURL(
+    state.pages[idx].url
+  );
+
+  state.pages[idx] = {
+    ...state.pages[idx],
+
+    blob,
+
+    url:
+      URL.createObjectURL(blob)
+  };
+
   renderPages();
 }
 
 function resetComposer() {
-  state.pages.forEach(p => URL.revokeObjectURL(p.url));
+  state.pages.forEach(
+    (p) =>
+      URL.revokeObjectURL(p.url)
+  );
+
   state.pages = [];
-  $("progressWrap").hidden = true;
-  $("progressBar").style.width = "0%";
+
+  $("progressWrap").hidden =
+    true;
+
+  $("progressBar").style.width =
+    "0%";
+
   setError("");
-  $("createPanel").hidden = false;
-  $("successPanel").hidden = true;
+
+  $("createPanel").hidden =
+    false;
+
+  $("successPanel").hidden =
+    true;
+
   renderPages();
 }
 
 async function generatePdf() {
-  if (state.busy) return;
+  if (state.busy) {
+    return;
+  }
+
   try {
     setError("");
-    const { subject, type, year } = validateForm();
+
+    const {
+      subject,
+      type,
+      year
+    } = validateForm();
+
     state.busy = true;
-    $("generateBtn").disabled = true;
 
-    const pdf = await PDFDocument.create();
-    const filename = filenameFor(subject, type, year);
-    pdf.setTitle(filename.replace(/\.pdf$/i, ""), { showInWindowTitleBar: true });
-    pdf.setCreator("Stat Archive Create Entry Test");
-    pdf.setProducer("Stat Archive Create Entry Test");
-    pdf.setCreationDate(new Date());
+    $("generateBtn").disabled =
+      true;
 
-    for (let i = 0; i < state.pages.length; i++) {
-      setProgress(5 + (i / state.pages.length) * 55, `Compressing page ${i + 1} of ${state.pages.length}…`);
-      const jpgBlob = await compress(state.pages[i].blob, 1600, 0.70);
-      const image = await pdf.embedJpg(await jpgBlob.arrayBuffer());
+    const pdf =
+      await PDFDocument.create();
+
+    const filename =
+      filenameFor(
+        subject,
+        type,
+        year
+      );
+
+    pdf.setTitle(
+      filename.replace(
+        /\.pdf$/i,
+        ""
+      ),
+      {
+        showInWindowTitleBar: true
+      }
+    );
+
+    pdf.setCreator(
+      "Stat Archive Create Entry Test"
+    );
+
+    pdf.setProducer(
+      "Stat Archive Create Entry Test"
+    );
+
+    pdf.setCreationDate(
+      new Date()
+    );
+
+    for (
+      let i = 0;
+      i < state.pages.length;
+      i++
+    ) {
+      setProgress(
+        5 +
+          (i / state.pages.length) *
+            55,
+
+        `Compressing page ${
+          i + 1
+        } of ${
+          state.pages.length
+        }…`
+      );
+
+      const jpgBlob =
+        await compress(
+          state.pages[i].blob,
+          1600,
+          0.70
+        );
+
+      const image =
+        await pdf.embedJpg(
+          await jpgBlob.arrayBuffer()
+        );
 
       const pageW = 595;
-      const pageH = pageW * image.height / image.width;
-      const page = pdf.addPage([pageW, pageH]);
-      page.drawImage(image, { x: 0, y: 0, width: pageW, height: pageH });
+
+      const pageH =
+        pageW *
+        image.height /
+        image.width;
+
+      const page =
+        pdf.addPage([
+          pageW,
+          pageH
+        ]);
+
+      page.drawImage(
+        image,
+        {
+          x: 0,
+          y: 0,
+          width: pageW,
+          height: pageH
+        }
+      );
     }
 
-    setProgress(72, "Finalizing PDF…");
-    const bytes = await pdf.save({ useObjectStreams: true });
-    const blob = new Blob([bytes], { type: "application/pdf" });
+    setProgress(
+      72,
+      "Finalizing PDF…"
+    );
 
-    const id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random()}`;
+    const bytes =
+      await pdf.save({
+        useObjectStreams: true
+      });
+
+    const blob =
+      new Blob(
+        [bytes],
+        {
+          type:
+            "application/pdf"
+        }
+      );
+
+    const id =
+      crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${Date.now()}_${Math.random()}`;
+
     const record = {
       id,
       subject,
       type,
       year,
       filename,
-      uploadedBy: "LOCAL TEST USER",
-      uploadedAt: new Date().toISOString(),
-      size: blob.size,
-      pdf: blob
+
+      uploadedBy:
+        "LOCAL TEST USER",
+
+      uploadedAt:
+        new Date().toISOString(),
+
+      size:
+        blob.size,
+
+      pdf:
+        blob
     };
 
-    setProgress(88, "Saving to local test library…");
-    await dbPut(record);
-    state.latestId = id;
+    setProgress(
+      88,
+      "Saving to local test library…"
+    );
 
-    setProgress(100, "Saved locally");
-    $("createPanel").hidden = true;
-    $("successPanel").hidden = false;
-    $("successText").textContent = `${filename} · ${bytesLabel(blob.size)} · ${state.pages.length} pages`;
+    await dbPut(record);
+
+    state.latestId =
+      id;
+
+    setProgress(
+      100,
+      "Saved locally"
+    );
+
+    $("createPanel").hidden =
+      true;
+
+    $("successPanel").hidden =
+      false;
+
+    $("successText").textContent =
+      `${filename} · ${
+        bytesLabel(blob.size)
+      } · ${
+        state.pages.length
+      } pages`;
+
     await renderLibrary();
+
   } catch (err) {
     console.error(err);
-    setError(err?.message || "Could not generate PDF.");
+
+    setError(
+      err?.message ||
+      "Could not generate PDF."
+    );
+
   } finally {
     state.busy = false;
-    $("generateBtn").disabled = !state.pages.length;
+
+    $("generateBtn").disabled =
+      !state.pages.length;
   }
 }
 
 
-  const r = await dbGet(id);
-  if (!r) return;
-  const url = URL.createObjectURL(r.pdf);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = r.filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 15000);
-}
+/* ==============================
+   NATIVE PDF FILE HANDLING
+   ============================== */
 
 function blobToBase64(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+  return new Promise(
+    (resolve, reject) => {
+      const reader =
+        new FileReader();
 
-    reader.onloadend = () => {
-      const result = String(reader.result || "");
-      const base64 = result.includes(",")
-        ? result.split(",")[1]
-        : result;
+      reader.onloadend =
+        () => {
+          const result =
+            String(
+              reader.result || ""
+            );
 
-      resolve(base64);
-    };
+          const base64 =
+            result.includes(",")
+              ? result.split(",")[1]
+              : result;
 
-    reader.onerror = () => {
-      reject(new Error("Could not prepare the PDF."));
-    };
+          resolve(base64);
+        };
 
-    reader.readAsDataURL(blob);
-  });
+      reader.onerror =
+        () => {
+          reject(
+            new Error(
+              "Could not prepare the PDF."
+            )
+          );
+        };
+
+      reader.readAsDataURL(blob);
+    }
+  );
 }
 
+async function savePdfTemporarily(
+  record
+) {
+  const base64 =
+    await blobToBase64(
+      record.pdf
+    );
 
-async function savePdfTemporarily(record) {
-  const base64 = await blobToBase64(record.pdf);
+  const result =
+    await Filesystem.writeFile({
+      path:
+        `test-pdfs/${record.filename}`,
 
-  const result = await Filesystem.writeFile({
-    path: `test-pdfs/${record.filename}`,
-    data: base64,
-    directory: Directory.Cache,
-    recursive: true
-  });
+      data:
+        base64,
+
+      directory:
+        Directory.Cache,
+
+      recursive:
+        true
+    });
 
   return result.uri;
 }
 
-
 async function viewRecord(id) {
   try {
-    const record = await dbGet(id);
+    const record =
+      await dbGet(id);
 
     if (!record) {
-      throw new Error("PDF not found.");
+      throw new Error(
+        "PDF not found."
+      );
     }
 
-    const uri = await savePdfTemporarily(record);
+    const uri =
+      await savePdfTemporarily(
+        record
+      );
 
     await Share.share({
-      title: record.filename,
-      text: "Open this generated PDF",
-      url: uri,
-      dialogTitle: "Open PDF with"
+      title:
+        record.filename,
+
+      text:
+        "Open this generated PDF",
+
+      url:
+        uri,
+
+      dialogTitle:
+        "Open PDF with"
     });
 
   } catch (err) {
-    console.error("View PDF failed:", err);
+    console.error(
+      "View PDF failed:",
+      err
+    );
 
     alert(
       err?.message ||
@@ -404,23 +851,36 @@ async function viewRecord(id) {
   }
 }
 
-
 async function downloadRecord(id) {
   try {
-    const record = await dbGet(id);
+    const record =
+      await dbGet(id);
 
     if (!record) {
-      throw new Error("PDF not found.");
+      throw new Error(
+        "PDF not found."
+      );
     }
 
-    const base64 = await blobToBase64(record.pdf);
+    const base64 =
+      await blobToBase64(
+        record.pdf
+      );
 
-    const result = await Filesystem.writeFile({
-      path: record.filename,
-      data: base64,
-      directory: Directory.Documents,
-      recursive: true
-    });
+    const result =
+      await Filesystem.writeFile({
+        path:
+          record.filename,
+
+        data:
+          base64,
+
+        directory:
+          Directory.Documents,
+
+        recursive:
+          true
+      });
 
     alert(
       `PDF saved successfully.\n\n${record.filename}`
@@ -432,28 +892,38 @@ async function downloadRecord(id) {
     );
 
   } catch (err) {
-    console.error("Download PDF failed:", err);
+    console.error(
+      "Download PDF failed:",
+      err
+    );
 
-    /*
-     * Some Android versions restrict direct writes
-     * to Documents. If that happens, fall back to
-     * Android's native Share / Save interface.
-     */
     try {
-      const record = await dbGet(id);
+      const record =
+        await dbGet(id);
 
       if (!record) {
-        throw new Error("PDF not found.");
+        throw new Error(
+          "PDF not found."
+        );
       }
 
       const uri =
-        await savePdfTemporarily(record);
+        await savePdfTemporarily(
+          record
+        );
 
       await Share.share({
-        title: record.filename,
-        text: "Save this generated PDF",
-        url: uri,
-        dialogTitle: "Save or share PDF"
+        title:
+          record.filename,
+
+        text:
+          "Save this generated PDF",
+
+        url:
+          uri,
+
+        dialogTitle:
+          "Save or share PDF"
       });
 
     } catch (fallbackErr) {
@@ -469,97 +939,357 @@ async function downloadRecord(id) {
     }
   }
 }
-  const r = await dbGet(id);
-  if (!r) return;
-  const url = URL.createObjectURL(r.pdf);
-  window.open(url, "_blank");
-  setTimeout(() => URL.revokeObjectURL(url), 60000);
-}
+
+
+/* ==============================
+   LIBRARY
+   ============================== */
 
 async function renderLibrary() {
-  const rows = (await dbGetAll()).sort((a,b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+  const rows =
+    (await dbGetAll())
+      .sort(
+        (a, b) =>
+          new Date(
+            b.uploadedAt
+          ) -
+          new Date(
+            a.uploadedAt
+          )
+      );
+
   if (!rows.length) {
-    $("libraryGrid").innerHTML = `<div class="empty-library">No test PDFs yet.</div>`;
+    $("libraryGrid").innerHTML =
+      `
+        <div class="empty-library">
+          No test PDFs yet.
+        </div>
+      `;
+
     return;
   }
-  $("libraryGrid").innerHTML = rows.map(r => `
-    <article class="card" data-id="${r.id}">
-      <div class="subject">${r.subject}</div>
-      <h3>${r.filename}</h3>
-      <div class="meta">${r.type} · ${r.year} · ${bytesLabel(r.size)}</div>
-      <div class="meta">Uploaded by ${r.uploadedBy}</div>
-      <div class="card-actions">
-        <button type="button" data-act="view">View PDF</button>
-        <button type="button" data-act="download">Download PDF</button>
-        <button type="button" data-act="delete">Delete</button>
-      </div>
-    </article>
-  `).join("");
+
+  $("libraryGrid").innerHTML =
+    rows
+      .map(
+        (r) => `
+          <article
+            class="card"
+            data-id="${r.id}"
+          >
+
+            <div class="subject">
+              ${r.subject}
+            </div>
+
+            <h3>
+              ${r.filename}
+            </h3>
+
+            <div class="meta">
+              ${r.type}
+              ·
+              ${r.year}
+              ·
+              ${bytesLabel(r.size)}
+            </div>
+
+            <div class="meta">
+              Uploaded by
+              ${r.uploadedBy}
+            </div>
+
+            <div class="card-actions">
+
+              <button
+                type="button"
+                data-act="view"
+              >
+                View PDF
+              </button>
+
+              <button
+                type="button"
+                data-act="download"
+              >
+                Download PDF
+              </button>
+
+              <button
+                type="button"
+                data-act="delete"
+              >
+                Delete
+              </button>
+
+            </div>
+
+          </article>
+        `
+      )
+      .join("");
 }
 
-function showSource() { $("sourceSheet").hidden = false; }
-function hideSource() { $("sourceSheet").hidden = true; }
 
-$("addPhotosBtn").onclick = showSource;
-$("firstAddBtn").onclick = showSource;
-$("cancelSourceBtn").onclick = hideSource;
+/* ==============================
+   PHOTO SOURCE SHEET
+   ============================== */
 
-$("cameraBtn").onclick = async () => {
-  hideSource();
-  try { await pickPhoto(CameraSource.Camera); }
-  catch (e) {
-    if (!String(e?.message || "").toLowerCase().includes("cancel")) setError(e?.message || "Camera failed.");
-  }
-};
+function showSource() {
+  $("sourceSheet").hidden =
+    false;
+}
 
-$("galleryBtn").onclick = async () => {
-  hideSource();
-  try { await pickPhoto(CameraSource.Photos); }
-  catch (e) {
-    if (!String(e?.message || "").toLowerCase().includes("cancel")) setError(e?.message || "Gallery failed.");
-  }
-};
+function hideSource() {
+  $("sourceSheet").hidden =
+    true;
+}
 
-$("thumbStrip").addEventListener("click", async (e) => {
-  const thumb = e.target.closest(".thumb");
-  if (!thumb) return;
-  const id = thumb.dataset.id;
-  if (e.target.closest('[data-act="delete"]')) {
-    const idx = state.pages.findIndex(p => p.id === id);
-    if (idx >= 0) {
-      URL.revokeObjectURL(state.pages[idx].url);
-      state.pages.splice(idx, 1);
-      renderPages();
+
+/* ==============================
+   BUTTON EVENTS
+   ============================== */
+
+$("addPhotosBtn").onclick =
+  showSource;
+
+$("firstAddBtn").onclick =
+  showSource;
+
+$("cancelSourceBtn").onclick =
+  hideSource;
+
+
+/* CAMERA */
+
+$("cameraBtn").onclick =
+  async () => {
+    hideSource();
+
+    try {
+      await pickPhoto(
+        CameraSource.Camera
+      );
+
+    } catch (e) {
+      if (
+        !String(
+          e?.message || ""
+        )
+          .toLowerCase()
+          .includes("cancel")
+      ) {
+        setError(
+          e?.message ||
+          "Camera failed."
+        );
+      }
     }
-  } else if (e.target.closest('[data-act="retake"]')) {
-    try { await retake(id); }
-    catch (err) {
-      if (!String(err?.message || "").toLowerCase().includes("cancel")) setError(err?.message || "Retake failed.");
+  };
+
+
+/* GALLERY */
+
+$("galleryBtn").onclick =
+  async () => {
+    hideSource();
+
+    try {
+      await pickPhoto(
+        CameraSource.Photos
+      );
+
+    } catch (e) {
+      if (
+        !String(
+          e?.message || ""
+        )
+          .toLowerCase()
+          .includes("cancel")
+      ) {
+        setError(
+          e?.message ||
+          "Gallery failed."
+        );
+      }
     }
-  }
-});
+  };
 
-$("generateBtn").onclick = generatePdf;
-$("addAnotherBtn").onclick = resetComposer;
-$("viewLibraryBtn").onclick = () => $("libraryPanel").scrollIntoView({ behavior: "smooth", block: "start" });
-$("downloadLatestBtn").onclick = () => state.latestId && downloadRecord(state.latestId);
 
-$("libraryGrid").addEventListener("click", async (e) => {
-  const card = e.target.closest(".card");
-  if (!card) return;
-  const id = card.dataset.id;
-  if (e.target.closest('[data-act="view"]')) await viewRecord(id);
-  if (e.target.closest('[data-act="download"]')) await downloadRecord(id);
-  if (e.target.closest('[data-act="delete"]')) {
-    await dbDelete(id);
+/* THUMBNAIL ACTIONS */
+
+$("thumbStrip")
+  .addEventListener(
+    "click",
+    async (e) => {
+      const thumb =
+        e.target.closest(
+          ".thumb"
+        );
+
+      if (!thumb) {
+        return;
+      }
+
+      const id =
+        thumb.dataset.id;
+
+      if (
+        e.target.closest(
+          '[data-act="delete"]'
+        )
+      ) {
+        const idx =
+          state.pages.findIndex(
+            (p) =>
+              p.id === id
+          );
+
+        if (idx >= 0) {
+          URL.revokeObjectURL(
+            state.pages[idx].url
+          );
+
+          state.pages.splice(
+            idx,
+            1
+          );
+
+          renderPages();
+        }
+
+      } else if (
+        e.target.closest(
+          '[data-act="retake"]'
+        )
+      ) {
+        try {
+          await retake(id);
+
+        } catch (err) {
+          if (
+            !String(
+              err?.message || ""
+            )
+              .toLowerCase()
+              .includes("cancel")
+          ) {
+            setError(
+              err?.message ||
+              "Retake failed."
+            );
+          }
+        }
+      }
+    }
+  );
+
+
+/* GENERATE */
+
+$("generateBtn").onclick =
+  generatePdf;
+
+
+/* ADD ANOTHER */
+
+$("addAnotherBtn").onclick =
+  resetComposer;
+
+
+/* VIEW LIBRARY */
+
+$("viewLibraryBtn").onclick =
+  () => {
+    $("libraryPanel")
+      .scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+  };
+
+
+/* DOWNLOAD LATEST */
+
+$("downloadLatestBtn").onclick =
+  () => {
+    if (state.latestId) {
+      downloadRecord(
+        state.latestId
+      );
+    }
+  };
+
+
+/* LIBRARY CARD ACTIONS */
+
+$("libraryGrid")
+  .addEventListener(
+    "click",
+    async (e) => {
+      const card =
+        e.target.closest(
+          ".card"
+        );
+
+      if (!card) {
+        return;
+      }
+
+      const id =
+        card.dataset.id;
+
+      if (
+        e.target.closest(
+          '[data-act="view"]'
+        )
+      ) {
+        await viewRecord(id);
+        return;
+      }
+
+      if (
+        e.target.closest(
+          '[data-act="download"]'
+        )
+      ) {
+        await downloadRecord(id);
+        return;
+      }
+
+      if (
+        e.target.closest(
+          '[data-act="delete"]'
+        )
+      ) {
+        await dbDelete(id);
+
+        await renderLibrary();
+      }
+    }
+  );
+
+
+/* CLEAR TEST LIBRARY */
+
+$("clearLibraryBtn").onclick =
+  async () => {
+    if (
+      !confirm(
+        "Delete every PDF from this local TEST library?"
+      )
+    ) {
+      return;
+    }
+
+    await dbClear();
+
     await renderLibrary();
-  }
-});
+  };
 
-$("clearLibraryBtn").onclick = async () => {
-  if (!confirm("Delete every PDF from this local TEST library?")) return;
-  await dbClear();
-  await renderLibrary();
-};
+
+/* ==============================
+   INITIAL LOAD
+   ============================== */
 
 renderLibrary();

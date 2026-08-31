@@ -2,8 +2,7 @@ import "./style.css";
 
 import {
   Camera,
-  CameraResultType,
-  CameraSource
+  MediaTypeSelection
 } from "@capacitor/camera";
 
 import {
@@ -11,14 +10,8 @@ import {
   Directory
 } from "@capacitor/filesystem";
 
-import {
-  Share
-} from "@capacitor/share";
-
-import {
-  PDFDocument
-} from "pdf-lib";
-
+import { Share } from "@capacitor/share";
+import { PDFDocument } from "pdf-lib";
 import Sortable from "sortablejs";
 
 const $ = (id) => document.getElementById(id);
@@ -27,12 +20,19 @@ const state = {
   pages: [],
   busy: false,
   sortable: null,
-  latestId: null
+  latestId: null,
+  editor: null
 };
 
 const DB_NAME = "statArchiveCreateEntryTest";
 const DB_VERSION = 1;
 const STORE = "entries";
+const MAX_EDITOR_EDGE = 1600;
+
+
+/* ============================================================
+   LOCAL TEST LIBRARY
+   ============================================================ */
 
 function openDb() {
   return new Promise((resolve, reject) => {
@@ -53,6 +53,7 @@ function openDb() {
   });
 }
 
+
 async function dbPut(record) {
   const db = await openDb();
 
@@ -67,6 +68,7 @@ async function dbPut(record) {
 
   db.close();
 }
+
 
 async function dbGetAll() {
   const db = await openDb();
@@ -85,6 +87,7 @@ async function dbGetAll() {
   return rows;
 }
 
+
 async function dbGet(id) {
   const db = await openDb();
 
@@ -102,6 +105,7 @@ async function dbGet(id) {
   return row;
 }
 
+
 async function dbDelete(id) {
   const db = await openDb();
 
@@ -116,6 +120,7 @@ async function dbDelete(id) {
 
   db.close();
 }
+
 
 async function dbClear() {
   const db = await openDb();
@@ -132,10 +137,16 @@ async function dbClear() {
   db.close();
 }
 
+
+/* ============================================================
+   GENERAL HELPERS
+   ============================================================ */
+
 function setError(msg = "") {
   $("errorBox").textContent = msg;
   $("errorBox").hidden = !msg;
 }
+
 
 function setProgress(pct, msg) {
   $("progressWrap").hidden = false;
@@ -145,6 +156,7 @@ function setProgress(pct, msg) {
 
   $("progressText").textContent = msg;
 }
+
 
 function slug(s) {
   return String(s || "")
@@ -157,6 +169,7 @@ function slug(s) {
     .replace(/^-|-$/g, "");
 }
 
+
 function filenameFor(subject, type, year) {
   return [
     slug(subject) || "Document",
@@ -166,6 +179,7 @@ function filenameFor(subject, type, year) {
     .filter(Boolean)
     .join("_") + ".pdf";
 }
+
 
 function bytesLabel(n) {
   if (n < 1024) {
@@ -178,6 +192,7 @@ function bytesLabel(n) {
 
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
+
 
 function validateForm() {
   const subject =
@@ -220,1076 +235,1207 @@ function validateForm() {
   };
 }
 
-async function photoToBlob(photo) {
-  if (photo.webPath) {
-    const res =
-      await fetch(photo.webPath);
 
-    if (!res.ok) {
-      throw new Error(
-        "Couldn't read the selected photo."
-      );
-    }
-
-    return await res.blob();
-  }
-
-  if (photo.dataUrl) {
-    return await (
-      await fetch(photo.dataUrl)
-    ).blob();
-  }
-
-  throw new Error(
-    "Camera did not return a readable image."
-  );
+function newId() {
+  return crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}_${Math.random()
+        .toString(36)
+        .slice(2)}`;
 }
 
-async function pickPhoto(source) {
-  setError("");
 
-  const photo =
-    await Camera.getPhoto({
-      source,
-      resultType: CameraResultType.Uri,
-      quality: 90,
-      width: 2200,
-      correctOrientation: true,
-      allowEditing: false,
-      saveToGallery: false
-    });
+function makePage(blob) {
+  return {
+    id: newId(),
 
-  const blob =
-    await photoToBlob(photo);
-
-  state.pages.push({
-    id: crypto.randomUUID
-      ? crypto.randomUUID()
-      : `${Date.now()}_${Math.random()}`,
+    originalBlob: blob,
 
     blob,
 
     url:
-      URL.createObjectURL(blob)
-  });
+      URL.createObjectURL(blob),
 
-  renderPages();
+    edit: {
+      rotation: 0,
+
+      filter: "original",
+
+      crop: {
+        x: 0.03,
+        y: 0.03,
+        w: 0.94,
+        h: 0.94
+      }
+    }
+  };
 }
 
-async function compress(
-  blob,
-  maxWidth = 1600,
-  quality = 0.70
-) {
-  const bmp =
-    await createImageBitmap(blob);
 
-  try {
-    let w = bmp.width;
-    let h = bmp.height;
+async function mediaResultToBlob(result) {
+  if (!result?.webPath) {
+    throw new Error(
+      "The selected image could not be read."
+    );
+  }
 
-    if (w > maxWidth) {
-      const r =
-        maxWidth / w;
+  const response =
+    await fetch(result.webPath);
 
-      w =
-        Math.round(w * r);
+  if (!response.ok) {
+    throw new Error(
+      "Couldn't read one of the selected photos."
+    );
+  }
 
-      h =
-        Math.round(h * r);
-    }
+  return await response.blob();
+}
 
-    const c =
-      document.createElement("canvas");
 
-    c.width = w;
-    c.height = h;
+/* ============================================================
+   CAMERA + MULTI-SELECT GALLERY
+   ============================================================ */
 
-    const ctx =
-      c.getContext(
-        "2d",
-        {
-          alpha: false
-        }
+async function capturePhoto() {
+  setError("");
+
+  const result =
+    await Camera.takePhoto({
+      quality: 90,
+
+      targetWidth: 2200,
+      targetHeight: 2200,
+
+      correctOrientation: true,
+
+      saveToGallery: false,
+
+      includeMetadata: true,
+
+      editable: "no"
+    });
+
+  const blob =
+    await mediaResultToBlob(
+      result
+    );
+
+  const page =
+    makePage(blob);
+
+  state.pages.push(page);
+
+  renderPages();
+
+  await openPageEditor(
+    page.id
+  );
+}
+
+
+async function chooseMultiplePhotos() {
+  setError("");
+
+  const {
+    results
+  } =
+    await Camera.chooseFromGallery({
+      mediaType:
+        MediaTypeSelection.Photo,
+
+      allowMultipleSelection: true,
+
+      limit: 20,
+
+      quality: 90,
+
+      targetWidth: 2200,
+      targetHeight: 2200,
+
+      correctOrientation: true,
+
+      includeMetadata: true,
+
+      editable: "no"
+    });
+
+  if (!results?.length) {
+    return;
+  }
+
+  const addedIds = [];
+
+  for (
+    const result
+    of results
+  ) {
+    const blob =
+      await mediaResultToBlob(
+        result
       );
 
-    ctx.fillStyle = "#fff";
+    const page =
+      makePage(blob);
 
-    ctx.fillRect(
-      0,
-      0,
-      w,
-      h
+    state.pages.push(page);
+
+    addedIds.push(
+      page.id
+    );
+  }
+
+  renderPages();
+
+  /*
+   * Open the first selected page
+   * immediately in the editor.
+   *
+   * Apply & next lets you edit the
+   * rest one after another.
+   */
+  if (addedIds.length) {
+    await openPageEditor(
+      addedIds[0]
+    );
+  }
+}
+
+
+/* ============================================================
+   PAGE EDITOR UI
+
+   Crop
+   Rotate
+   Original
+   Magic
+   Grayscale
+   B&W
+   ============================================================ */
+
+function installEditorUI() {
+  if (
+    $("pageEditorOverlay")
+  ) {
+    return;
+  }
+
+  const style =
+    document.createElement(
+      "style"
+    );
+
+  style.textContent = `
+
+    .sheet-backdrop[hidden],
+    .page-editor-backdrop[hidden] {
+      display: none !important;
+    }
+
+
+    .page-editor-backdrop {
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 100000;
+
+      background: #05080dcc;
+
+      display: flex;
+
+      align-items: stretch;
+      justify-content: center;
+
+      padding:
+        env(safe-area-inset-top)
+        0
+        env(safe-area-inset-bottom);
+
+      backdrop-filter:
+        blur(5px);
+    }
+
+
+    .page-editor {
+      width:
+        min(760px, 100%);
+
+      height: 100%;
+
+      display: flex;
+
+      flex-direction:
+        column;
+
+      background:
+        #0c131c;
+
+      color:
+        #edf4fb;
+    }
+
+
+    .page-editor-head {
+      display: flex;
+
+      align-items:
+        center;
+
+      justify-content:
+        space-between;
+
+      gap: 12px;
+
+      padding:
+        12px 14px;
+
+      border-bottom:
+        1px solid #263343;
+
+      flex:
+        0 0 auto;
+    }
+
+
+    .page-editor-head strong {
+      font-size:
+        15px;
+    }
+
+
+    .page-editor-head small {
+      display:
+        block;
+
+      color:
+        #9aabba;
+
+      margin-top:
+        2px;
+    }
+
+
+    .page-editor-head button {
+      padding:
+        8px 11px;
+    }
+
+
+    .page-editor-stage {
+      position:
+        relative;
+
+      flex:
+        1 1 auto;
+
+      min-height:
+        0;
+
+      display:
+        flex;
+
+      align-items:
+        center;
+
+      justify-content:
+        center;
+
+      padding:
+        12px;
+
+      overflow:
+        hidden;
+
+      background:
+        #070b10;
+
+      touch-action:
+        none;
+    }
+
+
+    #pageEditorCanvas {
+      display:
+        block;
+
+      max-width:
+        100%;
+
+      max-height:
+        100%;
+
+      box-shadow:
+        0 12px 40px #0008;
+    }
+
+
+    .crop-box {
+      position:
+        absolute;
+
+      border:
+        2px solid #7de3f5;
+
+      box-shadow:
+        0 0 0 9999px #0006;
+
+      touch-action:
+        none;
+
+      cursor:
+        move;
+    }
+
+
+    .crop-box:before,
+    .crop-box:after {
+      content: "";
+
+      position:
+        absolute;
+
+      pointer-events:
+        none;
+    }
+
+
+    .crop-box:before {
+      left:
+        33.333%;
+
+      right:
+        33.333%;
+
+      top:
+        0;
+
+      bottom:
+        0;
+
+      border-left:
+        1px solid #7de3f5;
+
+      border-right:
+        1px solid #7de3f5;
+    }
+
+
+    .crop-box:after {
+      top:
+        33.333%;
+
+      bottom:
+        33.333%;
+
+      left:
+        0;
+
+      right:
+        0;
+
+      border-top:
+        1px solid #7de3f5;
+
+      border-bottom:
+        1px solid #7de3f5;
+    }
+
+
+    .crop-handle {
+      position:
+        absolute;
+
+      width:
+        22px;
+
+      height:
+        22px;
+
+      border-radius:
+        50%;
+
+      background:
+        #fff;
+
+      border:
+        3px solid #7de3f5;
+
+      z-index:
+        2;
+
+      touch-action:
+        none;
+    }
+
+
+    .crop-handle[data-handle="nw"] {
+      left:
+        -12px;
+
+      top:
+        -12px;
+    }
+
+
+    .crop-handle[data-handle="ne"] {
+      right:
+        -12px;
+
+      top:
+        -12px;
+    }
+
+
+    .crop-handle[data-handle="sw"] {
+      left:
+        -12px;
+
+      bottom:
+        -12px;
+    }
+
+
+    .crop-handle[data-handle="se"] {
+      right:
+        -12px;
+
+      bottom:
+        -12px;
+    }
+
+
+    .page-editor-controls {
+      flex:
+        0 0 auto;
+
+      border-top:
+        1px solid #263343;
+
+      background:
+        #101923;
+
+      padding:
+        10px 12px 12px;
+
+      overflow-x:
+        hidden;
+    }
+
+
+    .editor-row {
+      display:
+        flex;
+
+      gap:
+        8px;
+
+      align-items:
+        center;
+
+      margin-bottom:
+        9px;
+
+      overflow-x:
+        auto;
+
+      padding-bottom:
+        2px;
+    }
+
+
+    .editor-row:last-child {
+      margin-bottom:
+        0;
+    }
+
+
+    .editor-row button {
+      white-space:
+        nowrap;
+
+      padding:
+        9px 11px;
+    }
+
+
+    .editor-filter.active {
+      background:
+        #7de3f5;
+
+      color:
+        #041015;
+
+      border-color:
+        transparent;
+
+      font-weight:
+        800;
+    }
+
+
+    .editor-apply {
+      background:
+        #7de3f5 !important;
+
+      color:
+        #041015 !important;
+
+      border-color:
+        transparent !important;
+
+      font-weight:
+        800;
+    }
+
+
+    .editor-next {
+      background:
+        #7ee0a9 !important;
+
+      color:
+        #041015 !important;
+
+      border-color:
+        transparent !important;
+
+      font-weight:
+        800;
+    }
+
+
+    .editor-tip {
+      color:
+        #9aabba;
+
+      font-size:
+        11px;
+
+      margin:
+        0 0 8px;
+
+      line-height:
+        1.4;
+    }
+
+
+    .thumb-edit {
+      background:
+        #000c !important;
+    }
+
+
+    @media
+    (max-width: 520px) {
+
+      .page-editor-head {
+        padding:
+          10px 11px;
+      }
+
+      .page-editor-stage {
+        padding:
+          8px;
+      }
+
+      .page-editor-controls {
+        padding:
+          9px;
+      }
+
+      .editor-row button {
+        padding:
+          9px 10px;
+
+        font-size:
+          12px;
+      }
+
+    }
+
+  `;
+
+  document.head.appendChild(
+    style
+  );
+
+
+  const overlay =
+    document.createElement(
+      "div"
+    );
+
+  overlay.id =
+    "pageEditorOverlay";
+
+  overlay.className =
+    "page-editor-backdrop";
+
+  overlay.hidden =
+    true;
+
+
+  overlay.innerHTML = `
+
+    <div
+      class="page-editor"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="pageEditorTitle"
+    >
+
+      <div
+        class="page-editor-head"
+      >
+
+        <div>
+
+          <strong
+            id="pageEditorTitle"
+          >
+            Edit page
+          </strong>
+
+          <small
+            id="pageEditorSubtitle"
+          >
+            Drag the corners to crop
+          </small>
+
+        </div>
+
+
+        <button
+          type="button"
+          id="pageEditorCancelBtn"
+        >
+          Cancel
+        </button>
+
+      </div>
+
+
+      <div
+        class="page-editor-stage"
+        id="pageEditorStage"
+      >
+
+        <canvas
+          id="pageEditorCanvas"
+        ></canvas>
+
+
+        <div
+          class="crop-box"
+          id="pageEditorCropBox"
+        >
+
+          <span
+            class="crop-handle"
+            data-handle="nw"
+          ></span>
+
+          <span
+            class="crop-handle"
+            data-handle="ne"
+          ></span>
+
+          <span
+            class="crop-handle"
+            data-handle="sw"
+          ></span>
+
+          <span
+            class="crop-handle"
+            data-handle="se"
+          ></span>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="page-editor-controls"
+      >
+
+        <p
+          class="editor-tip"
+        >
+          Crop the paper, rotate if needed,
+          then choose a document filter.
+        </p>
+
+
+        <div
+          class="editor-row"
+        >
+
+          <button
+            type="button"
+            id="rotateLeftBtn"
+          >
+            ↶ Rotate left
+          </button>
+
+          <button
+            type="button"
+            id="rotateRightBtn"
+          >
+            ↷ Rotate right
+          </button>
+
+          <button
+            type="button"
+            id="editorResetBtn"
+          >
+            Reset
+          </button>
+
+        </div>
+
+
+        <div
+          class="editor-row"
+          id="editorFilterRow"
+        >
+
+          <button
+            type="button"
+            class="editor-filter"
+            data-filter="original"
+          >
+            Original
+          </button>
+
+          <button
+            type="button"
+            class="editor-filter"
+            data-filter="magic"
+          >
+            ✨ Magic
+          </button>
+
+          <button
+            type="button"
+            class="editor-filter"
+            data-filter="grayscale"
+          >
+            Grayscale
+          </button>
+
+          <button
+            type="button"
+            class="editor-filter"
+            data-filter="bw"
+          >
+            B&amp;W
+          </button>
+
+        </div>
+
+
+        <div
+          class="editor-row"
+        >
+
+          <button
+            type="button"
+            id="editorApplyBtn"
+            class="editor-apply"
+          >
+            Apply
+          </button>
+
+          <button
+            type="button"
+            id="editorApplyNextBtn"
+            class="editor-next"
+          >
+            Apply &amp; next
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  document.body.appendChild(
+    overlay
+  );
+
+
+  $("pageEditorCancelBtn")
+    .onclick =
+      closePageEditor;
+
+
+  $("rotateLeftBtn")
+    .onclick =
+      () =>
+        rotateEditor(-90);
+
+
+  $("rotateRightBtn")
+    .onclick =
+      () =>
+        rotateEditor(90);
+
+
+  $("editorResetBtn")
+    .onclick =
+      resetEditor;
+
+
+  $("editorApplyBtn")
+    .onclick =
+      () =>
+        applyEditor(false);
+
+
+  $("editorApplyNextBtn")
+    .onclick =
+      () =>
+        applyEditor(true);
+
+
+  $("editorFilterRow")
+    .addEventListener(
+      "click",
+      (event) => {
+
+        const btn =
+          event.target.closest(
+            "[data-filter]"
+          );
+
+        if (
+          !btn ||
+          !state.editor
+        ) {
+          return;
+        }
+
+        state.editor.filter =
+          btn.dataset.filter ||
+          "original";
+
+        redrawEditor(false);
+      }
+    );
+
+
+  setupCropGestures();
+
+
+  window.addEventListener(
+    "resize",
+    () => {
+
+      if (
+        state.editor &&
+        !$(
+          "pageEditorOverlay"
+        ).hidden
+      ) {
+        positionCropBox();
+      }
+
+    }
+  );
+}
+
+
+async function openPageEditor(
+  pageId
+) {
+  installEditorUI();
+
+  const page =
+    state.pages.find(
+      (p) =>
+        p.id === pageId
+    );
+
+  if (!page) {
+    return;
+  }
+
+
+  if (
+    state.editor?.bitmap
+  ) {
+    state.editor.bitmap
+      .close?.();
+  }
+
+
+  const bitmap =
+    await createImageBitmap(
+      page.originalBlob ||
+      page.blob
+    );
+
+
+  const saved =
+    page.edit || {};
+
+
+  state.editor = {
+    pageId,
+
+    bitmap,
+
+    rotation:
+      Number(
+        saved.rotation ||
+        0
+      ),
+
+    filter:
+      saved.filter ||
+      "original",
+
+    crop:
+      saved.crop
+
+        ? {
+            ...saved.crop
+          }
+
+        : {
+            x: 0.03,
+            y: 0.03,
+            w: 0.94,
+            h: 0.94
+          }
+  };
+
+
+  const index =
+    state.pages.findIndex(
+      (p) =>
+        p.id === pageId
+    );
+
+
+  $("pageEditorTitle")
+    .textContent =
+      `Edit page ${index + 1}`;
+
+
+  $("editorApplyNextBtn")
+    .style.display =
+
+      index <
+      state.pages.length - 1
+
+        ? "inline-flex"
+
+        : "none";
+
+
+  $("pageEditorOverlay")
+    .hidden =
+      false;
+
+
+  document.body.style
+    .overflow =
+      "hidden";
+
+
+  await redrawEditor(
+    false
+  );
+}
+
+
+function closePageEditor() {
+  if (
+    state.editor?.bitmap
+  ) {
+    state.editor.bitmap
+      .close?.();
+  }
+
+  state.editor =
+    null;
+
+  $("pageEditorOverlay")
+    .hidden =
+      true;
+
+  document.body.style
+    .overflow =
+      "";
+}
+
+
+function rotateEditor(delta) {
+  if (!state.editor) {
+    return;
+  }
+
+  state.editor.rotation =
+    (
+      state.editor.rotation +
+      delta +
+      360
+    ) % 360;
+
+
+  state.editor.crop = {
+    x: 0.03,
+    y: 0.03,
+    w: 0.94,
+    h: 0.94
+  };
+
+
+  redrawEditor(false);
+}
+
+
+function resetEditor() {
+  if (!state.editor) {
+    return;
+  }
+
+  state.editor.rotation =
+    0;
+
+  state.editor.filter =
+    "original";
+
+  state.editor.crop = {
+    x: 0.03,
+    y: 0.03,
+    w: 0.94,
+    h: 0.94
+  };
+
+  redrawEditor(false);
+}
+
+
+/* ============================================================
+   ROTATION
+   ============================================================ */
+
+function drawOrientedBitmap(
+  ctx,
+  bitmap,
+  rotation,
+  targetW,
+  targetH
+) {
+  ctx.save();
+
+
+  if (rotation === 90) {
+
+    ctx.translate(
+      targetW,
+      0
+    );
+
+    ctx.rotate(
+      Math.PI / 2
     );
 
     ctx.drawImage(
-      bmp,
+      bitmap,
       0,
       0,
-      w,
-      h
+      targetH,
+      targetW
     );
 
-    const out =
-      await new Promise(
-        (resolve, reject) => {
-          c.toBlob(
-            (b) => {
-              if (b) {
-                resolve(b);
-              } else {
-                reject(
-                  new Error(
-                    "Compression failed."
-                  )
-                );
-              }
-            },
-            "image/jpeg",
-            quality
-          );
-        }
-      );
+  } else if (
+    rotation === 180
+  ) {
 
-    return out;
-
-  } finally {
-    bmp.close?.();
-  }
-}
-
-function renderPages() {
-  $("pageCount").textContent =
-    `${state.pages.length} ${
-      state.pages.length === 1
-        ? "page"
-        : "pages"
-    }`;
-
-  $("generateBtn").disabled =
-    state.busy ||
-    !state.pages.length;
-
-  $("thumbStrip").innerHTML =
-    state.pages
-      .map(
-        (p, i) => `
-          <div
-            class="thumb"
-            data-id="${p.id}"
-          >
-
-            <img
-              src="${p.url}"
-              alt="Page ${i + 1}"
-            >
-
-            <div class="page-no">
-              ${i + 1}
-            </div>
-
-            <div class="thumb-actions">
-
-              <button
-                type="button"
-                data-act="retake"
-                aria-label="Retake"
-              >
-                ↻
-              </button>
-
-              <button
-                type="button"
-                data-act="delete"
-                aria-label="Delete"
-              >
-                ✕
-              </button>
-
-            </div>
-
-            <div
-              class="drag"
-              aria-label="Drag to reorder"
-            >
-              ☰
-            </div>
-
-          </div>
-        `
-      )
-      .join("") +
-
-    `
-      <button
-        type="button"
-        id="addMoreBtn"
-        class="add-more"
-      >
-        ＋
-        <span>Add page</span>
-      </button>
-    `;
-
-  $("addMoreBtn").onclick =
-    showSource;
-
-  state.sortable?.destroy();
-
-  state.sortable =
-    new Sortable(
-      $("thumbStrip"),
-      {
-        animation: 160,
-
-        draggable: ".thumb",
-
-        handle: ".drag",
-
-        ghostClass: "ghost",
-
-        chosenClass: "chosen",
-
-        onEnd(evt) {
-          const oldIndex =
-            evt.oldDraggableIndex;
-
-          const newIndex =
-            evt.newDraggableIndex;
-
-          if (
-            oldIndex == null ||
-            newIndex == null ||
-            oldIndex === newIndex
-          ) {
-            return;
-          }
-
-          const [moved] =
-            state.pages.splice(
-              oldIndex,
-              1
-            );
-
-          state.pages.splice(
-            newIndex,
-            0,
-            moved
-          );
-
-          renderPages();
-        }
-      }
-    );
-}
-
-async function retake(id) {
-  const idx =
-    state.pages.findIndex(
-      (p) => p.id === id
+    ctx.translate(
+      targetW,
+      targetH
     );
 
-  if (idx < 0) {
-    return;
+    ctx.rotate(
+      Math.PI
+    );
+
+    ctx.drawImage(
+      bitmap,
+      0,
+      0,
+      targetW,
+      targetH
+    );
+
+  } else if (
+    rotation === 270
+  ) {
+
+    ctx.translate(
+      0,
+      targetH
+    );
+
+    ctx.rotate(
+      -Math.PI / 2
+    );
+
+    ctx.drawImage(
+      bitmap,
+      0,
+      0,
+      targetH,
+      targetW
+    );
+
+  } else {
+
+    ctx.drawImage(
+      bitmap,
+      0,
+      0,
+      targetW,
+      targetH
+    );
+
   }
 
-  const photo =
-    await Camera.getPhoto({
-      source: CameraSource.Camera,
-      resultType: CameraResultType.Uri,
-      quality: 90,
-      width: 2200,
-      correctOrientation: true,
-      allowEditing: false,
-      saveToGallery: false
-    });
 
-  const blob =
-    await photoToBlob(photo);
-
-  URL.revokeObjectURL(
-    state.pages[idx].url
-  );
-
-  state.pages[idx] = {
-    ...state.pages[idx],
-
-    blob,
-
-    url:
-      URL.createObjectURL(blob)
-  };
-
-  renderPages();
-}
-
-function resetComposer() {
-  state.pages.forEach(
-    (p) =>
-      URL.revokeObjectURL(p.url)
-  );
-
-  state.pages = [];
-
-  $("progressWrap").hidden =
-    true;
-
-  $("progressBar").style.width =
-    "0%";
-
-  setError("");
-
-  $("createPanel").hidden =
-    false;
-
-  $("successPanel").hidden =
-    true;
-
-  renderPages();
-}
-
-async function generatePdf() {
-  if (state.busy) {
-    return;
-  }
-
-  try {
-    setError("");
-
-    const {
-      subject,
-      type,
-      year
-    } = validateForm();
-
-    state.busy = true;
-
-    $("generateBtn").disabled =
-      true;
-
-    const pdf =
-      await PDFDocument.create();
-
-    const filename =
-      filenameFor(
-        subject,
-        type,
-        year
-      );
-
-    pdf.setTitle(
-      filename.replace(
-        /\.pdf$/i,
-        ""
-      ),
-      {
-        showInWindowTitleBar: true
-      }
-    );
-
-    pdf.setCreator(
-      "Stat Archive Create Entry Test"
-    );
-
-    pdf.setProducer(
-      "Stat Archive Create Entry Test"
-    );
-
-    pdf.setCreationDate(
-      new Date()
-    );
-
-    for (
-      let i = 0;
-      i < state.pages.length;
-      i++
-    ) {
-      setProgress(
-        5 +
-          (i / state.pages.length) *
-            55,
-
-        `Compressing page ${
-          i + 1
-        } of ${
-          state.pages.length
-        }…`
-      );
-
-      const jpgBlob =
-        await compress(
-          state.pages[i].blob,
-          1600,
-          0.70
-        );
-
-      const image =
-        await pdf.embedJpg(
-          await jpgBlob.arrayBuffer()
-        );
-
-      const pageW = 595;
-
-      const pageH =
-        pageW *
-        image.height /
-        image.width;
-
-      const page =
-        pdf.addPage([
-          pageW,
-          pageH
-        ]);
-
-      page.drawImage(
-        image,
-        {
-          x: 0,
-          y: 0,
-          width: pageW,
-          height: pageH
-        }
-      );
-    }
-
-    setProgress(
-      72,
-      "Finalizing PDF…"
-    );
-
-    const bytes =
-      await pdf.save({
-        useObjectStreams: true
-      });
-
-    const blob =
-      new Blob(
-        [bytes],
-        {
-          type:
-            "application/pdf"
-        }
-      );
-
-    const id =
-      crypto.randomUUID
-        ? crypto.randomUUID()
-        : `${Date.now()}_${Math.random()}`;
-
-    const record = {
-      id,
-      subject,
-      type,
-      year,
-      filename,
-
-      uploadedBy:
-        "LOCAL TEST USER",
-
-      uploadedAt:
-        new Date().toISOString(),
-
-      size:
-        blob.size,
-
-      pdf:
-        blob
-    };
-
-    setProgress(
-      88,
-      "Saving to local test library…"
-    );
-
-    await dbPut(record);
-
-    state.latestId =
-      id;
-
-    setProgress(
-      100,
-      "Saved locally"
-    );
-
-    $("createPanel").hidden =
-      true;
-
-    $("successPanel").hidden =
-      false;
-
-    $("successText").textContent =
-      `${filename} · ${
-        bytesLabel(blob.size)
-      } · ${
-        state.pages.length
-      } pages`;
-
-    await renderLibrary();
-
-  } catch (err) {
-    console.error(err);
-
-    setError(
-      err?.message ||
-      "Could not generate PDF."
-    );
-
-  } finally {
-    state.busy = false;
-
-    $("generateBtn").disabled =
-      !state.pages.length;
-  }
+  ctx.restore();
 }
 
 
-/* ==============================
-   NATIVE PDF FILE HANDLING
-   ============================== */
+/* ============================================================
+   DOCUMENT FILTERS
 
-function blobToBase64(blob) {
-  return new Promise(
-    (resolve, reject) => {
-      const reader =
-        new FileReader();
+   Original
+   Magic
+   Grayscale
+   B&W
+   ============================================================ */
 
-      reader.onloadend =
-        () => {
-          const result =
-            String(
-              reader.result || ""
-            );
-
-          const base64 =
-            result.includes(",")
-              ? result.split(",")[1]
-              : result;
-
-          resolve(base64);
-        };
-
-      reader.onerror =
-        () => {
-          reject(
-            new Error(
-              "Could not prepare the PDF."
-            )
-          );
-        };
-
-      reader.readAsDataURL(blob);
-    }
-  );
-}
-
-async function savePdfTemporarily(
-  record
+function applyDocumentFilter(
+  canvas,
+  filter
 ) {
-  const base64 =
-    await blobToBase64(
-      record.pdf
-    );
-
-  const result =
-    await Filesystem.writeFile({
-      path:
-        `test-pdfs/${record.filename}`,
-
-      data:
-        base64,
-
-      directory:
-        Directory.Cache,
-
-      recursive:
-        true
-    });
-
-  return result.uri;
-}
-
-async function viewRecord(id) {
-  try {
-    const record =
-      await dbGet(id);
-
-    if (!record) {
-      throw new Error(
-        "PDF not found."
-      );
-    }
-
-    const uri =
-      await savePdfTemporarily(
-        record
-      );
-
-    await Share.share({
-      title:
-        record.filename,
-
-      text:
-        "Open this generated PDF",
-
-      url:
-        uri,
-
-      dialogTitle:
-        "Open PDF with"
-    });
-
-  } catch (err) {
-    console.error(
-      "View PDF failed:",
-      err
-    );
-
-    alert(
-      err?.message ||
-      "Could not open this PDF."
-    );
-  }
-}
-
-async function downloadRecord(id) {
-  try {
-    const record =
-      await dbGet(id);
-
-    if (!record) {
-      throw new Error(
-        "PDF not found."
-      );
-    }
-
-    const base64 =
-      await blobToBase64(
-        record.pdf
-      );
-
-    const result =
-      await Filesystem.writeFile({
-        path:
-          record.filename,
-
-        data:
-          base64,
-
-        directory:
-          Directory.Documents,
-
-        recursive:
-          true
-      });
-
-    alert(
-      `PDF saved successfully.\n\n${record.filename}`
-    );
-
-    console.log(
-      "Saved PDF:",
-      result.uri
-    );
-
-  } catch (err) {
-    console.error(
-      "Download PDF failed:",
-      err
-    );
-
-    try {
-      const record =
-        await dbGet(id);
-
-      if (!record) {
-        throw new Error(
-          "PDF not found."
-        );
-      }
-
-      const uri =
-        await savePdfTemporarily(
-          record
-        );
-
-      await Share.share({
-        title:
-          record.filename,
-
-        text:
-          "Save this generated PDF",
-
-        url:
-          uri,
-
-        dialogTitle:
-          "Save or share PDF"
-      });
-
-    } catch (fallbackErr) {
-      console.error(
-        "PDF fallback failed:",
-        fallbackErr
-      );
-
-      alert(
-        fallbackErr?.message ||
-        "Could not save this PDF."
-      );
-    }
-  }
-}
-
-
-/* ==============================
-   LIBRARY
-   ============================== */
-
-async function renderLibrary() {
-  const rows =
-    (await dbGetAll())
-      .sort(
-        (a, b) =>
-          new Date(
-            b.uploadedAt
-          ) -
-          new Date(
-            a.uploadedAt
-          )
-      );
-
-  if (!rows.length) {
-    $("libraryGrid").innerHTML =
-      `
-        <div class="empty-library">
-          No test PDFs yet.
-        </div>
-      `;
-
+  if (
+    filter === "original"
+  ) {
     return;
   }
 
-  $("libraryGrid").innerHTML =
-    rows
-      .map(
-        (r) => `
-          <article
-            class="card"
-            data-id="${r.id}"
-          >
 
-            <div class="subject">
-              ${r.subject}
-            </div>
-
-            <h3>
-              ${r.filename}
-            </h3>
-
-            <div class="meta">
-              ${r.type}
-              ·
-              ${r.year}
-              ·
-              ${bytesLabel(r.size)}
-            </div>
-
-            <div class="meta">
-              Uploaded by
-              ${r.uploadedBy}
-            </div>
-
-            <div class="card-actions">
-
-              <button
-                type="button"
-                data-act="view"
-              >
-                View PDF
-              </button>
-
-              <button
-                type="button"
-                data-act="download"
-              >
-                Download PDF
-              </button>
-
-              <button
-                type="button"
-                data-act="delete"
-              >
-                Delete
-              </button>
-
-            </div>
-
-          </article>
-        `
-      )
-      .join("");
-}
-
-
-/* ==============================
-   PHOTO SOURCE SHEET
-   ============================== */
-
-function showSource() {
-  $("sourceSheet").hidden =
-    false;
-}
-
-function hideSource() {
-  $("sourceSheet").hidden =
-    true;
-}
-
-
-/* ==============================
-   BUTTON EVENTS
-   ============================== */
-
-$("addPhotosBtn").onclick =
-  showSource;
-
-$("firstAddBtn").onclick =
-  showSource;
-
-$("cancelSourceBtn").onclick =
-  hideSource;
-
-
-/* CAMERA */
-
-$("cameraBtn").onclick =
-  async () => {
-    hideSource();
-
-    try {
-      await pickPhoto(
-        CameraSource.Camera
-      );
-
-    } catch (e) {
-      if (
-        !String(
-          e?.message || ""
-        )
-          .toLowerCase()
-          .includes("cancel")
-      ) {
-        setError(
-          e?.message ||
-          "Camera failed."
-        );
-      }
-    }
-  };
-
-
-/* GALLERY */
-
-$("galleryBtn").onclick =
-  async () => {
-    hideSource();
-
-    try {
-      await pickPhoto(
-        CameraSource.Photos
-      );
-
-    } catch (e) {
-      if (
-        !String(
-          e?.message || ""
-        )
-          .toLowerCase()
-          .includes("cancel")
-      ) {
-        setError(
-          e?.message ||
-          "Gallery failed."
-        );
-      }
-    }
-  };
-
-
-/* THUMBNAIL ACTIONS */
-
-$("thumbStrip")
-  .addEventListener(
-    "click",
-    async (e) => {
-      const thumb =
-        e.target.closest(
-          ".thumb"
-        );
-
-      if (!thumb) {
-        return;
-      }
-
-      const id =
-        thumb.dataset.id;
-
-      if (
-        e.target.closest(
-          '[data-act="delete"]'
-        )
-      ) {
-        const idx =
-          state.pages.findIndex(
-            (p) =>
-              p.id === id
-          );
-
-        if (idx >= 0) {
-          URL.revokeObjectURL(
-            state.pages[idx].url
-          );
-
-          state.pages.splice(
-            idx,
-            1
-          );
-
-          renderPages();
-        }
-
-      } else if (
-        e.target.closest(
-          '[data-act="retake"]'
-        )
-      ) {
-        try {
-          await retake(id);
-
-        } catch (err) {
-          if (
-            !String(
-              err?.message || ""
-            )
-              .toLowerCase()
-              .includes("cancel")
-          ) {
-            setError(
-              err?.message ||
-              "Retake failed."
-            );
-          }
-        }
-      }
-    }
-  );
-
-
-/* GENERATE */
-
-$("generateBtn").onclick =
-  generatePdf;
-
-
-/* ADD ANOTHER */
-
-$("addAnotherBtn").onclick =
-  resetComposer;
-
-
-/* VIEW LIBRARY */
-
-$("viewLibraryBtn").onclick =
-  () => {
-    $("libraryPanel")
-      .scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-  };
-
-
-/* DOWNLOAD LATEST */
-
-$("downloadLatestBtn").onclick =
-  () => {
-    if (state.latestId) {
-      downloadRecord(
-        state.latestId
-      );
-    }
-  };
-
-
-/* LIBRARY CARD ACTIONS */
-
-$("libraryGrid")
-  .addEventListener(
-    "click",
-    async (e) => {
-      const card =
-        e.target.closest(
-          ".card"
-        );
-
-      if (!card) {
-        return;
-      }
-
-      const id =
-        card.dataset.id;
-
-      if (
-        e.target.closest(
-          '[data-act="view"]'
-        )
-      ) {
-        await viewRecord(id);
-        return;
-      }
-
-      if (
-        e.target.closest(
-          '[data-act="download"]'
-        )
-      ) {
-        await downloadRecord(id);
-        return;
-      }
-
-      if (
-        e.target.closest(
-          '[data-act="delete"]'
-        )
-      ) {
-        await dbDelete(id);
-
-        await renderLibrary();
-      }
-    }
-  );
-
-
-/* CLEAR TEST LIBRARY */
-
-$("clearLibraryBtn").onclick =
-  async () => {
-    if (
-      !confirm(
-        "Delete every PDF from this local TEST library?"
-      )
-    ) {
-      return;
-    }
-
-    await dbClear();
-
-    await renderLibrary();
-  };
-
-
-/* ==============================
-   INITIAL LOAD
-   ============================== */
-
-renderLibrary();
+  const ctx =
+    canvas.getContext(
+      "2d",
+      {
+    

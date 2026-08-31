@@ -1,6 +1,7 @@
 import "./style.css";
 import { Camera, MediaTypeSelection } from "@capacitor/camera";
 import { Filesystem, Directory } from "@capacitor/filesystem";
+import { FileViewer } from "@capacitor/file-viewer";
 import { Share } from "@capacitor/share";
 import { PDFDocument } from "pdf-lib";
 import Sortable from "sortablejs";
@@ -9,7 +10,8 @@ const $ = (id) => document.getElementById(id);
 const DB_NAME = "statArchiveCreateEntryTest";
 const DB_VERSION = 1;
 const STORE = "entries";
-const EDITOR_MAX_EDGE = 900;
+const EDITOR_MAX_EDGE = 720;
+const FINAL_MAX_EDGE = 1600;
 
 const state = {
   pages: [],
@@ -17,7 +19,25 @@ const state = {
   sortable: null,
   latestId: null,
   editor: null,
+  editorRedrawTimer: null,
 };
+
+const DEMO_SUBJECTS = [
+  "Advanced Machine Learning",
+  "Mathematical Statistics",
+  "Probability Theory",
+  "Sampling Theory",
+  "Linear Models",
+  "Statistical Inference",
+  "Multivariate Analysis",
+  "Design of Experiments",
+  "Time Series",
+  "Econometrics",
+];
+
+/* ============================================================
+   LOCAL TEST LIBRARY
+   ============================================================ */
 
 function openDb() {
   return new Promise((resolve, reject) => {
@@ -44,9 +64,13 @@ async function withStore(mode, fn) {
   try {
     return await new Promise((resolve, reject) => {
       const tx = db.transaction(STORE, mode);
-      const store = tx.objectStore(STORE);
 
-      fn(store, resolve, reject);
+      fn(
+        tx.objectStore(STORE),
+        resolve,
+        reject,
+        tx
+      );
 
       tx.onerror = () => reject(tx.error);
     });
@@ -58,11 +82,11 @@ async function withStore(mode, fn) {
 async function dbPut(record) {
   return withStore(
     "readwrite",
-    (store, resolve) => {
+    (store, resolve, reject, tx) => {
       store.put(record);
 
-      store.transaction.oncomplete =
-        () => resolve();
+      tx.oncomplete = () => resolve();
+      tx.onabort = () => reject(tx.error);
     }
   );
 }
@@ -73,11 +97,11 @@ async function dbGetAll() {
     (store, resolve, reject) => {
       const req = store.getAll();
 
-      req.onsuccess =
-        () => resolve(req.result || []);
+      req.onsuccess = () =>
+        resolve(req.result || []);
 
-      req.onerror =
-        () => reject(req.error);
+      req.onerror = () =>
+        reject(req.error);
     }
   );
 }
@@ -88,14 +112,11 @@ async function dbGet(id) {
     (store, resolve, reject) => {
       const req = store.get(id);
 
-      req.onsuccess =
-        () =>
-          resolve(
-            req.result || null
-          );
+      req.onsuccess = () =>
+        resolve(req.result || null);
 
-      req.onerror =
-        () => reject(req.error);
+      req.onerror = () =>
+        reject(req.error);
     }
   );
 }
@@ -103,11 +124,11 @@ async function dbGet(id) {
 async function dbDelete(id) {
   return withStore(
     "readwrite",
-    (store, resolve) => {
+    (store, resolve, reject, tx) => {
       store.delete(id);
 
-      store.transaction.oncomplete =
-        () => resolve();
+      tx.oncomplete = () => resolve();
+      tx.onabort = () => reject(tx.error);
     }
   );
 }
@@ -115,41 +136,34 @@ async function dbDelete(id) {
 async function dbClear() {
   return withStore(
     "readwrite",
-    (store, resolve) => {
+    (store, resolve, reject, tx) => {
       store.clear();
 
-      store.transaction.oncomplete =
-        () => resolve();
+      tx.oncomplete = () => resolve();
+      tx.onabort = () => reject(tx.error);
     }
   );
 }
 
-function setError(msg = "") {
-  $("errorBox").textContent =
-    msg;
+/* ============================================================
+   GENERAL HELPERS
+   ============================================================ */
 
-  $("errorBox").hidden =
-    !msg;
+function setError(msg = "") {
+  $("errorBox").textContent = msg;
+  $("errorBox").hidden = !msg;
 }
 
-function setProgress(
-  percent,
-  msg
-) {
-  $("progressWrap").hidden =
-    false;
+function setProgress(percent, msg) {
+  $("progressWrap").hidden = false;
 
   $("progressBar").style.width =
     `${Math.max(
       0,
-      Math.min(
-        100,
-        percent
-      )
+      Math.min(100, percent)
     )}%`;
 
-  $("progressText").textContent =
-    msg;
+  $("progressText").textContent = msg;
 }
 
 function newId() {
@@ -164,23 +178,11 @@ function slug(value) {
   return String(value || "")
     .trim()
     .normalize("NFKD")
-    .replace(
-      /[^\w\s-]/g,
-      ""
-    )
+    .replace(/[^\w\s-]/g, "")
     .replace(/_/g, "-")
-    .replace(
-      /\s+/g,
-      "-"
-    )
-    .replace(
-      /-+/g,
-      "-"
-    )
-    .replace(
-      /^-|-$/g,
-      ""
-    );
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 function filenameFor(
@@ -189,17 +191,12 @@ function filenameFor(
   year
 ) {
   return [
-    slug(subject) ||
-      "Document",
-
-    slug(type) ||
-      "Paper",
-
+    slug(subject) || "Document",
+    slug(type) || "Paper",
     year,
   ]
     .filter(Boolean)
-    .join("_") +
-    ".pdf";
+    .join("_") + ".pdf";
 }
 
 function bytesLabel(n) {
@@ -207,10 +204,7 @@ function bytesLabel(n) {
     return `${n} B`;
   }
 
-  if (
-    n <
-    1024 * 1024
-  ) {
+  if (n < 1024 * 1024) {
     return `${Math.round(
       n / 1024
     )} KB`;
@@ -225,21 +219,19 @@ function bytesLabel(n) {
 
 function validateForm() {
   const subject =
-    $("subjectInput")
-      .value
-      .trim();
+    String(
+      $("subjectInput").value || ""
+    ).trim();
 
   const type =
     $("typeInput").value;
 
   const year =
-    $("yearInput")
-      .value
-      .trim();
+    $("yearInput").value.trim();
 
   if (!subject) {
     throw new Error(
-      "Choose or enter a subject."
+      "Choose a subject."
     );
   }
 
@@ -250,9 +242,7 @@ function validateForm() {
   }
 
   if (
-    !/^(19|20)\d{2}$/.test(
-      year
-    )
+    !/^(19|20)\d{2}$/.test(year)
   ) {
     throw new Error(
       "Enter a valid 4-digit year."
@@ -272,12 +262,156 @@ function validateForm() {
   };
 }
 
+function nextPaint() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() =>
+      requestAnimationFrame(resolve)
+    );
+  });
+}
+
+/* ============================================================
+   SUBJECT SELECTOR
+
+   Test mode uses demo subjects.
+   During Stat Archive integration,
+   replace DEMO_SUBJECTS with live subjects.
+   ============================================================ */
+
+function ensureSubjectSelector() {
+  const current =
+    $("subjectInput");
+
+  if (!current) {
+    return;
+  }
+
+  const existingNames =
+    Array.isArray(
+      window.statArchiveSubjects
+    )
+      ? window.statArchiveSubjects
+          .map((s) =>
+            String(
+              s?.name || ""
+            ).trim()
+          )
+          .filter(Boolean)
+      : DEMO_SUBJECTS;
+
+  if (
+    current.tagName === "SELECT" &&
+    current.dataset.scannerReady ===
+      "true"
+  ) {
+    return;
+  }
+
+  const select =
+    document.createElement("select");
+
+  select.id =
+    "subjectInput";
+
+  select.dataset.scannerReady =
+    "true";
+
+  const names =
+    [
+      ...new Set(existingNames),
+    ].sort((a, b) =>
+      a.localeCompare(b)
+    );
+
+  names.forEach((name) => {
+    const option =
+      document.createElement(
+        "option"
+      );
+
+    option.value = name;
+    option.textContent = name;
+
+    select.appendChild(option);
+  });
+
+  const custom =
+    document.createElement(
+      "option"
+    );
+
+  custom.value =
+    "__custom__";
+
+  custom.textContent =
+    "Other / custom subject…";
+
+  select.appendChild(custom);
+
+  const oldValue =
+    String(
+      current.value || ""
+    ).trim();
+
+  current.replaceWith(select);
+
+  if (
+    oldValue &&
+    names.includes(oldValue)
+  ) {
+    select.value = oldValue;
+  }
+
+  select.addEventListener(
+    "change",
+    () => {
+      if (
+        select.value !==
+        "__custom__"
+      ) {
+        return;
+      }
+
+      const name =
+        prompt(
+          "Enter subject name:",
+          ""
+        );
+
+      if (!name?.trim()) {
+        select.selectedIndex = 0;
+        return;
+      }
+
+      const clean =
+        name.trim();
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value = clean;
+      option.textContent = clean;
+
+      select.insertBefore(
+        option,
+        custom
+      );
+
+      select.value = clean;
+    }
+  );
+}
+
+/* ============================================================
+   CAMERA / GALLERY
+   ============================================================ */
+
 async function mediaResultToBlob(
   result
 ) {
-  if (
-    !result?.webPath
-  ) {
+  if (!result?.webPath) {
     throw new Error(
       "The selected image could not be read."
     );
@@ -297,6 +431,31 @@ async function mediaResultToBlob(
   return response.blob();
 }
 
+function defaultEdit() {
+  return {
+    rotation: 0,
+
+    filter:
+      "original",
+
+    magicIntensity:
+      88,
+
+    brightness:
+      0,
+
+    contrast:
+      18,
+
+    crop: {
+      x: 0.02,
+      y: 0.02,
+      w: 0.96,
+      h: 0.96,
+    },
+  };
+}
+
 function makePage(blob) {
   return {
     id: newId(),
@@ -304,26 +463,11 @@ function makePage(blob) {
     originalBlob:
       blob,
 
-    blob,
+    thumbUrl:
+      URL.createObjectURL(blob),
 
-    url:
-      URL.createObjectURL(
-        blob
-      ),
-
-    edit: {
-      rotation: 0,
-
-      filter:
-        "original",
-
-      crop: {
-        x: 0.03,
-        y: 0.03,
-        w: 0.94,
-        h: 0.94,
-      },
-    },
+    edit:
+      defaultEdit(),
   };
 }
 
@@ -335,10 +479,10 @@ async function capturePhoto() {
       quality: 90,
 
       targetWidth:
-        2200,
+        1800,
 
       targetHeight:
-        2200,
+        1800,
 
       correctOrientation:
         true,
@@ -360,9 +504,7 @@ async function capturePhoto() {
       )
     );
 
-  state.pages.push(
-    page
-  );
+  state.pages.push(page);
 
   renderPages();
 
@@ -377,42 +519,40 @@ async function chooseMultiplePhotos() {
   const {
     results,
   } =
-    await Camera.chooseFromGallery(
-      {
-        mediaType:
-          MediaTypeSelection.Photo,
+    await Camera.chooseFromGallery({
+      mediaType:
+        MediaTypeSelection.Photo,
 
-        allowMultipleSelection:
-          true,
+      allowMultipleSelection:
+        true,
 
-        limit: 20,
+      limit:
+        30,
 
-        quality: 90,
+      quality:
+        90,
 
-        targetWidth:
-          2200,
+      targetWidth:
+        1800,
 
-        targetHeight:
-          2200,
+      targetHeight:
+        1800,
 
-        correctOrientation:
-          true,
+      correctOrientation:
+        true,
 
-        includeMetadata:
-          true,
+      includeMetadata:
+        true,
 
-        editable:
-          "no",
-      }
-    );
+      editable:
+        "no",
+    });
 
-  if (
-    !results?.length
-  ) {
+  if (!results?.length) {
     return;
   }
 
-  const ids = [];
+  const added = [];
 
   for (
     const result
@@ -425,520 +565,25 @@ async function chooseMultiplePhotos() {
         )
       );
 
-    state.pages.push(
-      page
-    );
+    state.pages.push(page);
 
-    ids.push(
+    added.push(
       page.id
     );
   }
 
   renderPages();
 
-  await openEditor(
-    ids[0]
-  );
-}
-
-function installEditor() {
-  if (
-    $("pageEditorOverlay")
-  ) {
-    return;
+  if (added.length) {
+    await openEditor(
+      added[0]
+    );
   }
-
-  const style =
-    document.createElement(
-      "style"
-    );
-
-  style.textContent = `
-    .page-editor-backdrop[hidden],
-    .sheet-backdrop[hidden] {
-      display:none!important;
-    }
-
-    .page-editor-backdrop {
-      position:fixed;
-      inset:0;
-      z-index:100000;
-      background:#05080de8;
-      display:flex;
-      justify-content:center;
-    }
-
-    .page-editor {
-      width:min(760px,100%);
-      height:100dvh;
-      background:#0c131c;
-      color:#edf4fb;
-      display:flex;
-      flex-direction:column;
-      padding-bottom:env(safe-area-inset-bottom);
-    }
-
-    .pe-head,
-    .pe-controls {
-      flex:0 0 auto;
-      padding:10px 12px;
-      background:#101923;
-    }
-
-    .pe-head {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      border-bottom:1px solid #263343;
-    }
-
-    .pe-stage {
-      position:relative;
-      flex:1;
-      min-height:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:10px;
-      overflow:hidden;
-      background:#070b10;
-      touch-action:none;
-    }
-
-    #peCanvas {
-      display:block;
-      max-width:100%;
-      max-height:100%;
-      box-shadow:0 10px 30px #0008;
-    }
-
-    #cropBox {
-      position:absolute;
-      border:2px solid #7de3f5;
-      box-shadow:0 0 0 9999px #0007;
-      touch-action:none;
-    }
-
-    .crop-handle {
-      position:absolute;
-      width:24px;
-      height:24px;
-      border-radius:50%;
-      background:white;
-      border:3px solid #7de3f5;
-      z-index:2;
-      touch-action:none;
-    }
-
-    [data-handle="nw"] {
-      left:-13px;
-      top:-13px;
-    }
-
-    [data-handle="ne"] {
-      right:-13px;
-      top:-13px;
-    }
-
-    [data-handle="sw"] {
-      left:-13px;
-      bottom:-13px;
-    }
-
-    [data-handle="se"] {
-      right:-13px;
-      bottom:-13px;
-    }
-
-    .pe-controls {
-      border-top:1px solid #263343;
-    }
-
-    .pe-row {
-      display:flex;
-      gap:8px;
-      overflow-x:auto;
-      margin-bottom:8px;
-    }
-
-    .pe-row:last-child {
-      margin-bottom:0;
-    }
-
-    .pe-row button {
-      white-space:nowrap;
-      padding:9px 11px;
-    }
-
-    .pe-filter.active,
-    .pe-apply {
-      background:#7de3f5!important;
-      color:#041015!important;
-      border-color:transparent!important;
-      font-weight:800;
-    }
-  `;
-
-  document.head.appendChild(
-    style
-  );
-
-  const overlay =
-    document.createElement(
-      "div"
-    );
-
-  overlay.id =
-    "pageEditorOverlay";
-
-  overlay.className =
-    "page-editor-backdrop";
-
-  overlay.hidden =
-    true;
-
-  overlay.innerHTML = `
-    <div
-      class="page-editor"
-      role="dialog"
-      aria-modal="true"
-    >
-
-      <div class="pe-head">
-
-        <div>
-          <strong id="peTitle">
-            Edit page
-          </strong>
-
-          <div
-            style="
-              font-size:11px;
-              color:#9aabba;
-            "
-          >
-            Crop, rotate and enhance
-          </div>
-        </div>
-
-        <button
-          id="peCancel"
-          type="button"
-        >
-          Cancel
-        </button>
-
-      </div>
-
-      <div
-        class="pe-stage"
-        id="peStage"
-      >
-
-        <canvas
-          id="peCanvas"
-        ></canvas>
-
-        <div id="cropBox">
-
-          <span
-            class="crop-handle"
-            data-handle="nw"
-          ></span>
-
-          <span
-            class="crop-handle"
-            data-handle="ne"
-          ></span>
-
-          <span
-            class="crop-handle"
-            data-handle="sw"
-          ></span>
-
-          <span
-            class="crop-handle"
-            data-handle="se"
-          ></span>
-
-        </div>
-
-      </div>
-
-      <div class="pe-controls">
-
-        <div class="pe-row">
-
-          <button
-            id="rotL"
-            type="button"
-          >
-            ↶ Left
-          </button>
-
-          <button
-            id="rotR"
-            type="button"
-          >
-            ↷ Right
-          </button>
-
-          <button
-            id="peReset"
-            type="button"
-          >
-            Reset
-          </button>
-
-        </div>
-
-        <div
-          class="pe-row"
-          id="filterRow"
-        >
-
-          <button
-            class="pe-filter"
-            data-filter="original"
-            type="button"
-          >
-            Original
-          </button>
-
-          <button
-            class="pe-filter"
-            data-filter="magic"
-            type="button"
-          >
-            ✨ Magic
-          </button>
-
-          <button
-            class="pe-filter"
-            data-filter="grayscale"
-            type="button"
-          >
-            Grayscale
-          </button>
-
-          <button
-            class="pe-filter"
-            data-filter="bw"
-            type="button"
-          >
-            B&W
-          </button>
-
-        </div>
-
-        <div class="pe-row">
-
-          <button
-            class="pe-apply"
-            id="peApply"
-            type="button"
-          >
-            Apply
-          </button>
-
-          <button
-            class="pe-apply"
-            id="peApplyNext"
-            type="button"
-          >
-            Apply & next
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-  `;
-
-  document.body.appendChild(
-    overlay
-  );
-
-  $("peCancel").onclick =
-    closeEditor;
-
-  $("rotL").onclick =
-    () =>
-      rotateEditor(-90);
-
-  $("rotR").onclick =
-    () =>
-      rotateEditor(90);
-
-  $("peReset").onclick =
-    resetEditor;
-
-  $("peApply").onclick =
-    () =>
-      applyEditor(false);
-
-  $("peApplyNext").onclick =
-    () =>
-      applyEditor(true);
-
-  $("filterRow").onclick =
-    (e) => {
-      const btn =
-        e.target.closest(
-          "[data-filter]"
-        );
-
-      if (
-        !btn ||
-        !state.editor
-      ) {
-        return;
-      }
-
-      state.editor.filter =
-        btn.dataset.filter;
-
-      redrawEditor();
-    };
-
-  setupCropGestures();
 }
 
-async function openEditor(
-  pageId
-) {
-  installEditor();
-
-  const page =
-    state.pages.find(
-      (p) =>
-        p.id === pageId
-    );
-
-  if (!page) {
-    return;
-  }
-
-  state.editor?.bitmap
-    ?.close?.();
-
-  const bitmap =
-    await createImageBitmap(
-      page.originalBlob
-    );
-
-  state.editor = {
-    pageId,
-
-    bitmap,
-
-    rotation:
-      page.edit.rotation ||
-      0,
-
-    filter:
-      page.edit.filter ||
-      "original",
-
-    crop: {
-      ...(
-        page.edit.crop || {
-          x: 0.03,
-          y: 0.03,
-          w: 0.94,
-          h: 0.94,
-        }
-      ),
-    },
-  };
-
-  const index =
-    state.pages.findIndex(
-      (p) =>
-        p.id === pageId
-    );
-
-  $("peTitle").textContent =
-    `Edit page ${
-      index + 1
-    }`;
-
-  $("peApplyNext").style.display =
-    index <
-    state.pages.length - 1
-      ? "inline-flex"
-      : "none";
-
-  $("pageEditorOverlay")
-    .hidden =
-      false;
-
-  document.body.style.overflow =
-    "hidden";
-
-  redrawEditor();
-}
-
-function closeEditor() {
-  state.editor?.bitmap
-    ?.close?.();
-
-  state.editor =
-    null;
-
-  $("pageEditorOverlay")
-    .hidden =
-      true;
-
-  document.body.style.overflow =
-    "";
-}
-
-function rotateEditor(
-  delta
-) {
-  if (!state.editor) {
-    return;
-  }
-
-  state.editor.rotation =
-    (
-      state.editor.rotation +
-      delta +
-      360
-    ) % 360;
-
-  state.editor.crop = {
-    x: 0.03,
-    y: 0.03,
-    w: 0.94,
-    h: 0.94,
-  };
-
-  redrawEditor();
-}
-
-function resetEditor() {
-  if (!state.editor) {
-    return;
-  }
-
-  state.editor.rotation =
-    0;
-
-  state.editor.filter =
-    "original";
-
-  state.editor.crop = {
-    x: 0.03,
-    y: 0.03,
-    w: 0.94,
-    h: 0.94,
-  };
-
-  redrawEditor();
-}
+/* ============================================================
+   IMAGE RENDERING
+   ============================================================ */
 
 function drawRotated(
   ctx,
@@ -949,9 +594,7 @@ function drawRotated(
 ) {
   ctx.save();
 
-  if (
-    rotation === 90
-  ) {
+  if (rotation === 90) {
     ctx.translate(
       w,
       0
@@ -1022,13 +665,50 @@ function drawRotated(
   ctx.restore();
 }
 
-function applyFilter(
+function clampByte(value) {
+  return Math.max(
+    0,
+    Math.min(
+      255,
+      value
+    )
+  );
+}
+
+function applyAdjustments(
   canvas,
-  filter
+  edit
 ) {
+  const filter =
+    edit.filter ||
+    "original";
+
+  const brightness =
+    Number(
+      edit.brightness || 0
+    );
+
+  const contrastAmount =
+    Number(
+      edit.contrast || 0
+    );
+
+  const magicIntensity =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Number(
+          edit.magicIntensity ??
+          88
+        )
+      )
+    );
+
   if (
-    filter ===
-    "original"
+    filter === "original" &&
+    brightness === 0 &&
+    contrastAmount === 0
   ) {
     return;
   }
@@ -1053,116 +733,20 @@ function applyFilter(
   const d =
     image.data;
 
+  let low = 0;
+  let high = 255;
+
+  let bwThreshold =
+    160;
+
   if (
-    filter ===
-    "grayscale"
-  ) {
-    for (
-      let i = 0;
-      i < d.length;
-      i += 4
-    ) {
-      const lum =
-        0.299 * d[i] +
-        0.587 *
-          d[i + 1] +
-        0.114 *
-          d[i + 2];
-
-      d[i] =
-        lum;
-
-      d[i + 1] =
-        lum;
-
-      d[i + 2] =
-        lum;
-    }
-
-  } else if (
-    filter === "bw"
-  ) {
-    let sum = 0;
-    let count = 0;
-
-    for (
-      let i = 0;
-      i < d.length;
-      i += 16
-    ) {
-      sum +=
-        0.299 * d[i] +
-        0.587 *
-          d[i + 1] +
-        0.114 *
-          d[i + 2];
-
-      count++;
-    }
-
-    const threshold =
-      Math.max(
-        125,
-        Math.min(
-          200,
-          (
-            sum /
-            Math.max(
-              1,
-              count
-            )
-          ) * 0.96
-        )
-      );
-
-    for (
-      let i = 0;
-      i < d.length;
-      i += 4
-    ) {
-      const lum =
-        0.299 * d[i] +
-        0.587 *
-          d[i + 1] +
-        0.114 *
-          d[i + 2];
-
-      const v =
-        lum >=
-        threshold
-          ? 255
-          : 0;
-
-      d[i] =
-        v;
-
-      d[i + 1] =
-        v;
-
-      d[i + 2] =
-        v;
-    }
-
-  } else if (
     filter ===
     "magic"
   ) {
-    /*
-     * STRONGER DOCUMENT MAGIC FILTER
-     *
-     * - stronger white-paper cleanup
-     * - darker writing
-     * - reduced yellow/grey colour cast
-     * - higher contrast
-     */
-
     const histogram =
-      new Uint32Array(
-        256
-      );
+      new Uint32Array(256);
 
-    let samples =
-      0;
+    let samples = 0;
 
     for (
       let i = 0;
@@ -1170,17 +754,14 @@ function applyFilter(
       i += 16
     ) {
       const lum =
-        Math.max(
-          0,
-          Math.min(
-            255,
-            Math.round(
-              0.299 * d[i] +
-              0.587 *
-                d[i + 1] +
-              0.114 *
-                d[i + 2]
-            )
+        clampByte(
+          Math.round(
+            0.299 *
+              d[i] +
+            0.587 *
+              d[i + 1] +
+            0.114 *
+              d[i + 2]
           )
         );
 
@@ -1189,22 +770,27 @@ function applyFilter(
       samples++;
     }
 
+    const strength =
+      magicIntensity /
+      100;
+
     const lowTarget =
       samples *
-      0.02;
+      (
+        0.015 +
+        0.015 *
+        strength
+      );
 
     const highTarget =
       samples *
-      0.97;
+      (
+        0.985 -
+        0.025 *
+        strength
+      );
 
-    let low =
-      0;
-
-    let high =
-      255;
-
-    let count =
-      0;
+    let count = 0;
 
     for (
       let i = 0;
@@ -1218,15 +804,12 @@ function applyFilter(
         count >=
         lowTarget
       ) {
-        low =
-          i;
-
+        low = i;
         break;
       }
     }
 
-    count =
-      0;
+    count = 0;
 
     for (
       let i = 0;
@@ -1240,16 +823,14 @@ function applyFilter(
         count >=
         highTarget
       ) {
-        high =
-          i;
-
+        high = i;
         break;
       }
     }
 
     if (
       high - low <
-      45
+      40
     ) {
       low =
         Math.max(
@@ -1263,79 +844,160 @@ function applyFilter(
           high + 25
         );
     }
+  }
 
-    const range =
-      Math.max(
-        1,
-        high - low
-      );
+  if (
+    filter ===
+    "bw"
+  ) {
+    let sum = 0;
+    let count = 0;
 
     for (
       let i = 0;
       i < d.length;
-      i += 4
+      i += 16
     ) {
-      const r =
-        d[i];
+      sum +=
+        0.299 *
+          d[i] +
+        0.587 *
+          d[i + 1] +
+        0.114 *
+          d[i + 2];
 
-      const g =
-        d[i + 1];
+      count++;
+    }
 
-      const b =
-        d[i + 2];
+    bwThreshold =
+      Math.max(
+        120,
+        Math.min(
+          205,
+          (
+            sum /
+            Math.max(
+              1,
+              count
+            )
+          ) *
+          0.96
+        )
+      );
+  }
 
-      const lum =
-        Math.max(
-          1,
-          0.299 * r +
-          0.587 * g +
-          0.114 * b
-        );
+  const contrastFactor =
+    (
+      259 *
+      (
+        contrastAmount +
+        255
+      )
+    ) /
+    (
+      255 *
+      (
+        259 -
+        contrastAmount
+      )
+    );
 
+  const magicStrength =
+    magicIntensity /
+    100;
+
+  const range =
+    Math.max(
+      1,
+      high - low
+    );
+
+  for (
+    let i = 0;
+    i < d.length;
+    i += 4
+  ) {
+    let r = d[i];
+    let g = d[i + 1];
+    let b = d[i + 2];
+
+    const lum =
+      Math.max(
+        1,
+        0.299 * r +
+        0.587 * g +
+        0.114 * b
+      );
+
+    if (
+      filter ===
+      "grayscale"
+    ) {
+      r = g = b = lum;
+
+    } else if (
+      filter ===
+      "bw"
+    ) {
+      const v =
+        lum >=
+        bwThreshold
+          ? 255
+          : 0;
+
+      r = g = b = v;
+
+    } else if (
+      filter ===
+      "magic"
+    ) {
       let mapped =
         (
           (
-            lum -
-            low
+            lum - low
           ) *
           255
         ) /
         range;
 
       mapped =
-        Math.max(
-          0,
-          Math.min(
-            255,
-            mapped
-          )
-        );
+        clampByte(mapped);
 
-      /*
-       * Whiten paper strongly.
-       */
+      const paperStart =
+        200 -
+        30 *
+        magicStrength;
+
       if (
         mapped >
-        185
+        paperStart
       ) {
         mapped =
-          185 +
+          paperStart +
           (
             mapped -
-            185
+            paperStart
           ) *
-          1.9;
+          (
+            1.35 +
+            1.05 *
+            magicStrength
+          );
       }
 
-      /*
-       * Darken handwriting / text.
-       */
+      const textLimit =
+        115 +
+        20 *
+        magicStrength;
+
       if (
         mapped <
-        105
+        textLimit
       ) {
         mapped *=
-          0.72;
+          1 -
+          0.42 *
+          magicStrength;
       }
 
       if (
@@ -1343,126 +1005,120 @@ function applyFilter(
         55
       ) {
         mapped *=
-          0.72;
+          1 -
+          0.18 *
+          magicStrength;
       }
 
       mapped =
-        Math.max(
-          0,
-          Math.min(
-            255,
-            mapped
-          )
-        );
+        clampByte(mapped);
 
       const scale =
         mapped /
         lum;
 
-      let nr =
-        r *
-        scale;
+      r *= scale;
+      g *= scale;
+      b *= scale;
 
-      let ng =
-        g *
-        scale;
-
-      let nb =
-        b *
-        scale;
-
-      /*
-       * Stronger desaturation.
-       */
       const gray =
         (
-          nr +
-          ng +
-          nb
-        ) /
-        3;
+          r +
+          g +
+          b
+        ) / 3;
 
-      nr =
+      const saturation =
+        1 -
+        0.72 *
+        magicStrength;
+
+      r =
         gray +
         (
-          nr -
-          gray
+          r - gray
         ) *
-        0.38;
+        saturation;
 
-      ng =
+      g =
         gray +
         (
-          ng -
-          gray
+          g - gray
         ) *
-        0.38;
+        saturation;
 
-      nb =
+      b =
         gray +
         (
-          nb -
-          gray
+          b - gray
         ) *
-        0.38;
+        saturation;
 
-      /*
-       * Final contrast boost.
-       */
-      const contrast =
-        1.18;
+      const extraContrast =
+        1 +
+        0.42 *
+        magicStrength;
 
-      nr =
+      r =
         (
-          nr -
-          128
+          r - 128
         ) *
-        contrast +
+        extraContrast +
         128;
 
-      ng =
+      g =
         (
-          ng -
-          128
+          g - 128
         ) *
-        contrast +
+        extraContrast +
         128;
 
-      nb =
+      b =
         (
-          nb -
-          128
+          b - 128
         ) *
-        contrast +
+        extraContrast +
         128;
-
-      d[i] =
-        Math.max(
-          0,
-          Math.min(
-            255,
-            nr
-          )
-        );
-
-      d[i + 1] =
-        Math.max(
-          0,
-          Math.min(
-            255,
-            ng
-          )
-        );
-
-      d[i + 2] =
-        Math.max(
-          0,
-          Math.min(
-            255,
-            nb
-          )
-        );
     }
+
+    r += brightness;
+    g += brightness;
+    b += brightness;
+
+    if (
+      contrastAmount !==
+      0
+    ) {
+      r =
+        contrastFactor *
+        (
+          r - 128
+        ) +
+        128;
+
+      g =
+        contrastFactor *
+        (
+          g - 128
+        ) +
+        128;
+
+      b =
+        contrastFactor *
+        (
+          b - 128
+        ) +
+        128;
+    }
+
+    d[i] =
+      clampByte(r);
+
+    d[i + 1] =
+      clampByte(g);
+
+    d[i + 2] =
+      clampByte(b);
   }
 
   ctx.putImageData(
@@ -1472,111 +1128,894 @@ function applyFilter(
   );
 }
 
-function redrawEditor() {
+async function renderEditedCanvas(
+  page,
+  maxEdge,
+  includeCrop = true
+) {
+  const bitmap =
+    await createImageBitmap(
+      page.originalBlob
+    );
+
+  try {
+    const rotation =
+      Number(
+        page.edit.rotation ||
+        0
+      );
+
+    const rotated =
+      rotation === 90 ||
+      rotation === 270;
+
+    const naturalW =
+      rotated
+        ? bitmap.height
+        : bitmap.width;
+
+    const naturalH =
+      rotated
+        ? bitmap.width
+        : bitmap.height;
+
+    const scale =
+      Math.min(
+        1,
+        maxEdge /
+        Math.max(
+          naturalW,
+          naturalH
+        )
+      );
+
+    const w =
+      Math.max(
+        1,
+        Math.round(
+          naturalW *
+          scale
+        )
+      );
+
+    const h =
+      Math.max(
+        1,
+        Math.round(
+          naturalH *
+          scale
+        )
+      );
+
+    const canvas =
+      document.createElement(
+        "canvas"
+      );
+
+    canvas.width = w;
+    canvas.height = h;
+
+    const ctx =
+      canvas.getContext(
+        "2d",
+        {
+          alpha:
+            false,
+
+          willReadFrequently:
+            true,
+        }
+      );
+
+    ctx.fillStyle =
+      "#fff";
+
+    ctx.fillRect(
+      0,
+      0,
+      w,
+      h
+    );
+
+    drawRotated(
+      ctx,
+      bitmap,
+      rotation,
+      w,
+      h
+    );
+
+    applyAdjustments(
+      canvas,
+      page.edit
+    );
+
+    if (!includeCrop) {
+      return canvas;
+    }
+
+    const c =
+      page.edit.crop || {
+        x: 0,
+        y: 0,
+        w: 1,
+        h: 1,
+      };
+
+    const sx =
+      Math.max(
+        0,
+        Math.round(
+          c.x *
+          canvas.width
+        )
+      );
+
+    const sy =
+      Math.max(
+        0,
+        Math.round(
+          c.y *
+          canvas.height
+        )
+      );
+
+    const sw =
+      Math.max(
+        1,
+        Math.min(
+          canvas.width -
+          sx,
+
+          Math.round(
+            c.w *
+            canvas.width
+          )
+        )
+      );
+
+    const sh =
+      Math.max(
+        1,
+        Math.min(
+          canvas.height -
+          sy,
+
+          Math.round(
+            c.h *
+            canvas.height
+          )
+        )
+      );
+
+    const out =
+      document.createElement(
+        "canvas"
+      );
+
+    out.width = sw;
+    out.height = sh;
+
+    const outCtx =
+      out.getContext(
+        "2d",
+        {
+          alpha:
+            false,
+        }
+      );
+
+    outCtx.fillStyle =
+      "#fff";
+
+    outCtx.fillRect(
+      0,
+      0,
+      sw,
+      sh
+    );
+
+    outCtx.drawImage(
+      canvas,
+
+      sx,
+      sy,
+      sw,
+      sh,
+
+      0,
+      0,
+      sw,
+      sh
+    );
+
+    return out;
+
+  } finally {
+    bitmap.close?.();
+  }
+}
+
+function canvasToJpeg(
+  canvas,
+  quality = 0.8
+) {
+  return new Promise(
+    (
+      resolve,
+      reject
+    ) => {
+      canvas.toBlob(
+        (blob) =>
+          blob
+            ? resolve(blob)
+            : reject(
+                new Error(
+                  "Could not save image."
+                )
+              ),
+
+        "image/jpeg",
+
+        quality
+      );
+    }
+  );
+}
+
+/* ============================================================
+   EDITOR UI
+   ============================================================ */
+
+function installEditor() {
+  if (
+    $("pageEditorOverlay")
+  ) {
+    return;
+  }
+
+  const style =
+    document.createElement(
+      "style"
+    );
+
+  style.textContent = `
+    .sheet-backdrop[hidden],
+    .page-editor-backdrop[hidden]{
+      display:none!important
+    }
+
+    .page-editor-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:100000;
+      background:#05080dec;
+      display:flex;
+      justify-content:center
+    }
+
+    .page-editor{
+      width:min(760px,100%);
+      height:100dvh;
+      background:#0c131c;
+      color:#edf4fb;
+      display:flex;
+      flex-direction:column;
+      padding-bottom:env(safe-area-inset-bottom)
+    }
+
+    .pe-head,
+    .pe-controls{
+      flex:0 0 auto;
+      background:#101923;
+      padding:10px 12px
+    }
+
+    .pe-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom:1px solid #263343
+    }
+
+    .pe-stage{
+      position:relative;
+      flex:1;
+      min-height:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px;
+      overflow:hidden;
+      background:#070b10;
+      touch-action:none
+    }
+
+    #peCanvas{
+      display:block;
+      max-width:100%;
+      max-height:100%;
+      box-shadow:0 10px 30px #0008
+    }
+
+    #cropBox{
+      position:absolute;
+      border:2px solid #7de3f5;
+      box-shadow:0 0 0 9999px #0007;
+      touch-action:none
+    }
+
+    #cropBox:before,
+    #cropBox:after{
+      content:"";
+      position:absolute;
+      pointer-events:none
+    }
+
+    #cropBox:before{
+      left:33.333%;
+      right:33.333%;
+      top:0;
+      bottom:0;
+      border-left:1px solid #7de3f599;
+      border-right:1px solid #7de3f599
+    }
+
+    #cropBox:after{
+      top:33.333%;
+      bottom:33.333%;
+      left:0;
+      right:0;
+      border-top:1px solid #7de3f599;
+      border-bottom:1px solid #7de3f599
+    }
+
+    .crop-handle{
+      position:absolute;
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      background:white;
+      border:3px solid #7de3f5;
+      z-index:2;
+      touch-action:none
+    }
+
+    [data-handle="nw"]{
+      left:-13px;
+      top:-13px
+    }
+
+    [data-handle="ne"]{
+      right:-13px;
+      top:-13px
+    }
+
+    [data-handle="sw"]{
+      left:-13px;
+      bottom:-13px
+    }
+
+    [data-handle="se"]{
+      right:-13px;
+      bottom:-13px
+    }
+
+    .pe-controls{
+      border-top:1px solid #263343;
+      max-height:44dvh;
+      overflow:auto
+    }
+
+    .pe-row{
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      margin-bottom:8px;
+      align-items:center
+    }
+
+    .pe-row:last-child{
+      margin-bottom:0
+    }
+
+    .pe-row button{
+      white-space:nowrap;
+      padding:9px 11px
+    }
+
+    .pe-filter.active,
+    .pe-apply{
+      background:#7de3f5!important;
+      color:#041015!important;
+      border-color:transparent!important;
+      font-weight:800
+    }
+
+    .pe-slider{
+      display:grid;
+      grid-template-columns:88px 1fr 42px;
+      gap:8px;
+      align-items:center;
+      margin:8px 0;
+      font-size:12px;
+      color:#9aabba
+    }
+
+    .pe-slider input{
+      width:100%;
+      padding:0
+    }
+
+    .pe-slider output{
+      text-align:right;
+      color:#edf4fb
+    }
+
+    .thumb-actions{
+      max-width:94px;
+      flex-wrap:wrap;
+      justify-content:flex-end
+    }
+
+    .thumb-actions button{
+      flex:0 0 26px
+    }
+  `;
+
+  document.head.appendChild(
+    style
+  );
+
+  const overlay =
+    document.createElement(
+      "div"
+    );
+
+  overlay.id =
+    "pageEditorOverlay";
+
+  overlay.className =
+    "page-editor-backdrop";
+
+  overlay.hidden =
+    true;
+
+  overlay.innerHTML = `
+    <div
+      class="page-editor"
+      role="dialog"
+      aria-modal="true"
+    >
+
+      <div class="pe-head">
+
+        <div>
+          <strong id="peTitle">
+            Edit page
+          </strong>
+
+          <div
+            style="
+              font-size:11px;
+              color:#9aabba;
+              margin-top:2px
+            "
+          >
+            Crop · rotate · enhance
+          </div>
+        </div>
+
+        <button
+          id="peCancel"
+          type="button"
+        >
+          Cancel
+        </button>
+
+      </div>
+
+      <div
+        class="pe-stage"
+        id="peStage"
+      >
+
+        <canvas
+          id="peCanvas"
+        ></canvas>
+
+        <div id="cropBox">
+
+          <span
+            class="crop-handle"
+            data-handle="nw"
+          ></span>
+
+          <span
+            class="crop-handle"
+            data-handle="ne"
+          ></span>
+
+          <span
+            class="crop-handle"
+            data-handle="sw"
+          ></span>
+
+          <span
+            class="crop-handle"
+            data-handle="se"
+          ></span>
+
+        </div>
+
+      </div>
+
+      <div class="pe-controls">
+
+        <div class="pe-row">
+
+          <button
+            id="rotL"
+            type="button"
+          >
+            ↶ Rotate left
+          </button>
+
+          <button
+            id="rotR"
+            type="button"
+          >
+            ↷ Rotate right
+          </button>
+
+          <button
+            id="peResetCrop"
+            type="button"
+          >
+            Full crop
+          </button>
+
+          <button
+            id="peReset"
+            type="button"
+          >
+            Reset all
+          </button>
+
+        </div>
+
+        <div
+          class="pe-row"
+          id="filterRow"
+        >
+
+          <button
+            class="pe-filter"
+            data-filter="original"
+            type="button"
+          >
+            Original
+          </button>
+
+          <button
+            class="pe-filter"
+            data-filter="magic"
+            type="button"
+          >
+            ✨ Magic
+          </button>
+
+          <button
+            class="pe-filter"
+            data-filter="grayscale"
+            type="button"
+          >
+            Grayscale
+          </button>
+
+          <button
+            class="pe-filter"
+            data-filter="bw"
+            type="button"
+          >
+            B&amp;W
+          </button>
+
+        </div>
+
+        <label
+          class="pe-slider"
+          id="magicSliderRow"
+        >
+          <span>
+            Magic strength
+          </span>
+
+          <input
+            id="magicIntensity"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+          >
+
+          <output
+            id="magicIntensityOut"
+          ></output>
+        </label>
+
+        <label class="pe-slider">
+
+          <span>
+            Brightness
+          </span>
+
+          <input
+            id="brightnessSlider"
+            type="range"
+            min="-40"
+            max="40"
+            step="1"
+          >
+
+          <output
+            id="brightnessOut"
+          ></output>
+        </label>
+
+        <label class="pe-slider">
+
+          <span>
+            Contrast
+          </span>
+
+          <input
+            id="contrastSlider"
+            type="range"
+            min="-20"
+            max="60"
+            step="1"
+          >
+
+          <output
+            id="contrastOut"
+          ></output>
+        </label>
+
+        <div class="pe-row">
+
+          <button
+            class="pe-apply"
+            id="peApply"
+            type="button"
+          >
+            Apply
+          </button>
+
+          <button
+            class="pe-apply"
+            id="peApplyNext"
+            type="button"
+          >
+            Apply &amp; next
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(
+    overlay
+  );
+
+  $("peCancel").onclick =
+    closeEditor;
+
+  $("rotL").onclick =
+    () =>
+      rotateEditor(-90);
+
+  $("rotR").onclick =
+    () =>
+      rotateEditor(90);
+
+  $("peResetCrop").onclick =
+    resetCrop;
+
+  $("peReset").onclick =
+    resetEditor;
+
+  $("peApply").onclick =
+    () =>
+      applyEditor(false);
+
+  $("peApplyNext").onclick =
+    () =>
+      applyEditor(true);
+
+  $("filterRow")
+    .addEventListener(
+      "click",
+      (event) => {
+        const btn =
+          event.target.closest(
+            "[data-filter]"
+          );
+
+        if (
+          !btn ||
+          !state.editor
+        ) {
+          return;
+        }
+
+        state.editor.edit.filter =
+          btn.dataset.filter ||
+          "original";
+
+        syncEditorControls();
+
+        scheduleEditorRedraw();
+      }
+    );
+
+  [
+    [
+      "magicIntensity",
+      "magicIntensity",
+    ],
+
+    [
+      "brightnessSlider",
+      "brightness",
+    ],
+
+    [
+      "contrastSlider",
+      "contrast",
+    ],
+  ].forEach(
+    ([id, key]) => {
+      $(id)
+        .addEventListener(
+          "input",
+          () => {
+            if (
+              !state.editor
+            ) {
+              return;
+            }
+
+            state.editor.edit[key] =
+              Number(
+                $(id).value
+              );
+
+            syncEditorControls(
+              false
+            );
+
+            scheduleEditorRedraw();
+          }
+        );
+    }
+  );
+
+  setupCropGestures();
+
+  window.addEventListener(
+    "resize",
+    () => {
+      if (
+        state.editor &&
+        !$(
+          "pageEditorOverlay"
+        ).hidden
+      ) {
+        positionCropBox();
+      }
+    }
+  );
+}
+
+function scheduleEditorRedraw() {
+  clearTimeout(
+    state.editorRedrawTimer
+  );
+
+  state.editorRedrawTimer =
+    setTimeout(
+      redrawEditor,
+      55
+    );
+}
+
+async function openEditor(
+  pageId
+) {
+  installEditor();
+
+  const page =
+    state.pages.find(
+      (p) =>
+        p.id === pageId
+    );
+
+  if (!page) {
+    return;
+  }
+
+  state.editor = {
+    pageId,
+
+    edit:
+      JSON.parse(
+        JSON.stringify(
+          page.edit ||
+          defaultEdit()
+        )
+      ),
+  };
+
+  const index =
+    state.pages.findIndex(
+      (p) =>
+        p.id === pageId
+    );
+
+  $("peTitle").textContent =
+    `Edit page ${
+      index + 1
+    }`;
+
+  $("peApplyNext")
+    .style.display =
+      index <
+      state.pages.length - 1
+        ? "inline-flex"
+        : "none";
+
+  $("pageEditorOverlay")
+    .hidden =
+      false;
+
+  document.body.style.overflow =
+    "hidden";
+
+  syncEditorControls();
+
+  await redrawEditor();
+}
+
+function closeEditor() {
+  clearTimeout(
+    state.editorRedrawTimer
+  );
+
+  state.editor = null;
+
+  $("pageEditorOverlay")
+    .hidden =
+      true;
+
+  document.body.style.overflow =
+    "";
+}
+
+function syncEditorControls(
+  updateInputs = true
+) {
   if (
     !state.editor
   ) {
     return;
   }
 
-  const {
-    bitmap,
-    rotation,
-    filter,
-  } =
-    state.editor;
-
-  const rotated =
-    rotation === 90 ||
-    rotation === 270;
-
-  const naturalW =
-    rotated
-      ? bitmap.height
-      : bitmap.width;
-
-  const naturalH =
-    rotated
-      ? bitmap.width
-      : bitmap.height;
-
-  /*
-   * Faster editing preview.
-   *
-   * Final PDF still uses
-   * the normal 1600px compression.
-   */
-  const scale =
-    Math.min(
-      1,
-      EDITOR_MAX_EDGE /
-        Math.max(
-          naturalW,
-          naturalH
-        )
-    );
-
-  const w =
-    Math.max(
-      1,
-      Math.round(
-        naturalW *
-        scale
-      )
-    );
-
-  const h =
-    Math.max(
-      1,
-      Math.round(
-        naturalH *
-        scale
-      )
-    );
-
-  const canvas =
-    $("peCanvas");
-
-  canvas.width =
-    w;
-
-  canvas.height =
-    h;
-
-  const ctx =
-    canvas.getContext(
-      "2d",
-      {
-        alpha:
-          false,
-
-        willReadFrequently:
-          true,
-      }
-    );
-
-  ctx.fillStyle =
-    "#fff";
-
-  ctx.fillRect(
-    0,
-    0,
-    w,
-    h
-  );
-
-  drawRotated(
-    ctx,
-    bitmap,
-    rotation,
-    w,
-    h
-  );
-
-  applyFilter(
-    canvas,
-    filter
-  );
+  const edit =
+    state.editor.edit;
 
   document
     .querySelectorAll(
@@ -1586,11 +2025,192 @@ function redrawEditor() {
       (btn) => {
         btn.classList.toggle(
           "active",
-          btn.dataset
-            .filter ===
-            filter
+          btn.dataset.filter ===
+          edit.filter
         );
       }
+    );
+
+  $("magicSliderRow")
+    .style.display =
+      edit.filter ===
+      "magic"
+        ? "grid"
+        : "none";
+
+  if (
+    updateInputs
+  ) {
+    $("magicIntensity").value =
+      String(
+        edit.magicIntensity ??
+        88
+      );
+
+    $("brightnessSlider").value =
+      String(
+        edit.brightness ??
+        0
+      );
+
+    $("contrastSlider").value =
+      String(
+        edit.contrast ??
+        18
+      );
+  }
+
+  $("magicIntensityOut")
+    .textContent =
+      `${Math.round(
+        edit.magicIntensity ??
+        88
+      )}%`;
+
+  $("brightnessOut")
+    .textContent =
+      `${
+        Number(
+          edit.brightness || 0
+        ) > 0
+          ? "+"
+          : ""
+      }${
+        edit.brightness || 0
+      }`;
+
+  $("contrastOut")
+    .textContent =
+      `${
+        Number(
+          edit.contrast || 0
+        ) > 0
+          ? "+"
+          : ""
+      }${
+        edit.contrast || 0
+      }`;
+}
+
+function rotateEditor(delta) {
+  if (
+    !state.editor
+  ) {
+    return;
+  }
+
+  state.editor.edit.rotation =
+    (
+      Number(
+        state.editor.edit.rotation ||
+        0
+      ) +
+      delta +
+      360
+    ) % 360;
+
+  resetCrop(false);
+
+  redrawEditor();
+}
+
+function resetCrop(
+  redraw = true
+) {
+  if (
+    !state.editor
+  ) {
+    return;
+  }
+
+  state.editor.edit.crop = {
+    x: 0.02,
+    y: 0.02,
+    w: 0.96,
+    h: 0.96,
+  };
+
+  if (redraw) {
+    positionCropBox();
+  }
+}
+
+function resetEditor() {
+  if (
+    !state.editor
+  ) {
+    return;
+  }
+
+  state.editor.edit =
+    defaultEdit();
+
+  syncEditorControls();
+
+  redrawEditor();
+}
+
+async function redrawEditor() {
+  if (
+    !state.editor
+  ) {
+    return;
+  }
+
+  const page =
+    state.pages.find(
+      (p) =>
+        p.id ===
+        state.editor.pageId
+    );
+
+  if (!page) {
+    return;
+  }
+
+  const temp = {
+    ...page,
+
+    edit:
+      state.editor.edit,
+  };
+
+  const rendered =
+    await renderEditedCanvas(
+      temp,
+      EDITOR_MAX_EDGE,
+      false
+    );
+
+  if (
+    !state.editor ||
+    state.editor.pageId !==
+    page.id
+  ) {
+    return;
+  }
+
+  const canvas =
+    $("peCanvas");
+
+  canvas.width =
+    rendered.width;
+
+  canvas.height =
+    rendered.height;
+
+  canvas
+    .getContext(
+      "2d",
+      {
+        alpha:
+          false,
+      }
+    )
+    .drawImage(
+      rendered,
+      0,
+      0
     );
 
   requestAnimationFrame(
@@ -1614,7 +2234,7 @@ function positionCropBox() {
       .getBoundingClientRect();
 
   const c =
-    state.editor.crop;
+    state.editor.edit.crop;
 
   const box =
     $("cropBox");
@@ -1624,7 +2244,7 @@ function positionCropBox() {
       canvasRect.left -
       stageRect.left +
       c.x *
-        canvasRect.width
+      canvasRect.width
     }px`;
 
   box.style.top =
@@ -1632,7 +2252,7 @@ function positionCropBox() {
       canvasRect.top -
       stageRect.top +
       c.y *
-        canvasRect.height
+      canvasRect.height
     }px`;
 
   box.style.width =
@@ -1657,25 +2277,25 @@ function setupCropGestures() {
 
   box.addEventListener(
     "pointerdown",
-    (e) => {
+    (event) => {
       if (
         !state.editor
       ) {
         return;
       }
 
-      e.preventDefault();
+      event.preventDefault();
 
-      const rect =
+      const canvasRect =
         $("peCanvas")
           .getBoundingClientRect();
 
       drag = {
         id:
-          e.pointerId,
+          event.pointerId,
 
         handle:
-          e.target
+          event.target
             .closest(
               "[data-handle]"
             )
@@ -1683,61 +2303,61 @@ function setupCropGestures() {
             .handle ||
           "move",
 
-        x:
-          e.clientX,
+        startX:
+          event.clientX,
 
-        y:
-          e.clientY,
+        startY:
+          event.clientY,
 
         crop: {
-          ...state.editor.crop,
+          ...state.editor.edit.crop,
         },
 
-        w:
-          rect.width,
+        canvasW:
+          canvasRect.width,
 
-        h:
-          rect.height,
+        canvasH:
+          canvasRect.height,
       };
 
       box.setPointerCapture?.(
-        e.pointerId
+        event.pointerId
       );
     }
   );
 
   box.addEventListener(
     "pointermove",
-    (e) => {
+    (event) => {
       if (
         !drag ||
         !state.editor ||
-        e.pointerId !==
-          drag.id
+        event.pointerId !==
+        drag.id
       ) {
         return;
       }
 
-      e.preventDefault();
+      event.preventDefault();
 
       const dx =
         (
-          e.clientX -
-          drag.x
+          event.clientX -
+          drag.startX
         ) /
         Math.max(
           1,
-          drag.w
+          drag.canvasW
         );
 
       const dy =
         (
-          e.clientY -
-          drag.y
+          event.clientY -
+          drag.startY
         ) /
         Math.max(
           1,
-          drag.h
+          drag.canvasH
         );
 
       const s =
@@ -1789,8 +2409,8 @@ function setupCropGestures() {
                 s.x +
                   s.w -
                   min,
-                s.x +
-                  dx
+
+                s.x + dx
               )
             );
 
@@ -1812,10 +2432,8 @@ function setupCropGestures() {
             Math.max(
               min,
               Math.min(
-                1 -
-                  s.x,
-                s.w +
-                  dx
+                1 - s.x,
+                s.w + dx
               )
             );
         }
@@ -1832,8 +2450,8 @@ function setupCropGestures() {
                 s.y +
                   s.h -
                   min,
-                s.y +
-                  dy
+
+                s.y + dy
               )
             );
 
@@ -1855,16 +2473,14 @@ function setupCropGestures() {
             Math.max(
               min,
               Math.min(
-                1 -
-                  s.y,
-                s.h +
-                  dy
+                1 - s.y,
+                s.h + dy
               )
             );
         }
       }
 
-      state.editor.crop = {
+      state.editor.edit.crop = {
         x,
         y,
         w,
@@ -1876,11 +2492,11 @@ function setupCropGestures() {
   );
 
   const stop =
-    (e) => {
+    (event) => {
       if (
         drag &&
-        e.pointerId ===
-          drag.id
+        event.pointerId ===
+        drag.id
       ) {
         drag =
           null;
@@ -1898,38 +2514,30 @@ function setupCropGestures() {
   );
 }
 
-async function canvasToJpeg(
-  canvas,
-  quality = 0.82
+async function refreshThumbnail(
+  page
 ) {
-  return new Promise(
-    (
-      resolve,
-      reject
-    ) => {
-      canvas.toBlob(
-        (blob) => {
-          if (
-            blob
-          ) {
-            resolve(
-              blob
-            );
-          } else {
-            reject(
-              new Error(
-                "Could not save edited page."
-              )
-            );
-          }
-        },
+  const canvas =
+    await renderEditedCanvas(
+      page,
+      360,
+      true
+    );
 
-        "image/jpeg",
+  const blob =
+    await canvasToJpeg(
+      canvas,
+      0.72
+    );
 
-        quality
-      );
-    }
+  URL.revokeObjectURL(
+    page.thumbUrl
   );
+
+  page.thumbUrl =
+    URL.createObjectURL(
+      blob
+    );
 }
 
 async function applyEditor(
@@ -1949,134 +2557,25 @@ async function applyEditor(
     );
 
   if (
-    index <
-    0
+    index < 0
   ) {
     return;
   }
 
-  const canvas =
-    $("peCanvas");
-
-  const c =
-    state.editor.crop;
-
-  const sx =
-    Math.round(
-      c.x *
-      canvas.width
-    );
-
-  const sy =
-    Math.round(
-      c.y *
-      canvas.height
-    );
-
-  const sw =
-    Math.max(
-      1,
-      Math.round(
-        c.w *
-        canvas.width
-      )
-    );
-
-  const sh =
-    Math.max(
-      1,
-      Math.round(
-        c.h *
-        canvas.height
-      )
-    );
-
-  const out =
-    document.createElement(
-      "canvas"
-    );
-
-  out.width =
-    sw;
-
-  out.height =
-    sh;
-
-  const ctx =
-    out.getContext(
-      "2d",
-      {
-        alpha:
-          false,
-      }
-    );
-
-  ctx.fillStyle =
-    "#fff";
-
-  ctx.fillRect(
-    0,
-    0,
-    sw,
-    sh
-  );
-
-  ctx.drawImage(
-    canvas,
-
-    sx,
-    sy,
-    sw,
-    sh,
-
-    0,
-    0,
-    sw,
-    sh
-  );
-
-  /*
-   * Lower quality than before
-   * to make Apply & next faster.
-   */
-  const edited =
-    await canvasToJpeg(
-      out,
-      0.82
-    );
-
   const page =
     state.pages[index];
 
-  URL.revokeObjectURL(
-    page.url
-  );
-
-  page.blob =
-    edited;
-
-  page.url =
-    URL.createObjectURL(
-      edited
+  page.edit =
+    JSON.parse(
+      JSON.stringify(
+        state.editor.edit
+      )
     );
-
-  page.edit = {
-    rotation:
-      state.editor.rotation,
-
-    filter:
-      state.editor.filter,
-
-    crop: {
-      ...state.editor.crop,
-    },
-  };
 
   const nextId =
     openNext &&
     index <
-      state.pages.length -
-        1
+      state.pages.length - 1
       ? state.pages[
           index + 1
         ].id
@@ -2086,27 +2585,19 @@ async function applyEditor(
 
   renderPages();
 
+  /*
+   * Small thumbnail only.
+   * Heavy 1600px processing
+   * happens during Generate PDF.
+   */
+  refreshThumbnail(page)
+    .then(renderPages)
+    .catch(console.warn);
+
   if (
     nextId
   ) {
-    /*
-     * Allow Android/WebView to repaint
-     * before decoding the next image.
-     *
-     * This makes Apply & next feel
-     * much less frozen.
-     */
-    await new Promise(
-      (resolve) => {
-        requestAnimationFrame(
-          () => {
-            requestAnimationFrame(
-              resolve
-            );
-          }
-        );
-      }
-    );
+    await nextPaint();
 
     await openEditor(
       nextId
@@ -2114,110 +2605,111 @@ async function applyEditor(
   }
 }
 
+/* ============================================================
+   THUMBNAILS / PAGE ACTIONS
+   ============================================================ */
+
 function renderPages() {
-  $("pageCount")
-    .textContent =
-      `${
-        state.pages.length
-      } ${
-        state.pages.length ===
-        1
-          ? "page"
-          : "pages"
-      }`;
+  $("pageCount").textContent =
+    `${state.pages.length} ${
+      state.pages.length === 1
+        ? "page"
+        : "pages"
+    }`;
 
-  $("generateBtn")
-    .disabled =
-      state.busy ||
-      !state.pages.length;
+  $("generateBtn").disabled =
+    state.busy ||
+    !state.pages.length;
 
-  $("thumbStrip")
-    .innerHTML =
-      state.pages
-        .map(
-          (p, i) => `
-            <div
-              class="thumb"
-              data-id="${p.id}"
+  $("thumbStrip").innerHTML =
+    state.pages
+      .map(
+        (
+          page,
+          index
+        ) => `
+          <div
+            class="thumb"
+            data-id="${page.id}"
+          >
+
+            <img
+              src="${page.thumbUrl}"
+              alt="Page ${index + 1}"
             >
 
-              <img
-                src="${p.url}"
-                alt="Page ${
-                  i + 1
-                }"
+            <div
+              class="page-no"
+            >
+              ${index + 1}
+            </div>
+
+            <div
+              class="thumb-actions"
+            >
+
+              <button
+                type="button"
+                data-act="edit"
+                aria-label="Edit"
               >
+                ✎
+              </button>
 
-              <div
-                class="page-no"
+              <button
+                type="button"
+                data-act="retake"
+                aria-label="Retake"
               >
-                ${i + 1}
-              </div>
+                ↻
+              </button>
 
-              <div
-                class="thumb-actions"
+              <button
+                type="button"
+                data-act="delete"
+                aria-label="Delete"
               >
-
-                <button
-                  type="button"
-                  data-act="edit"
-                >
-                  ✎
-                </button>
-
-                <button
-                  type="button"
-                  data-act="retake"
-                >
-                  ↻
-                </button>
-
-                <button
-                  type="button"
-                  data-act="delete"
-                >
-                  ✕
-                </button>
-
-              </div>
-
-              <div
-                class="drag"
-              >
-                ☰
-              </div>
+                ✕
+              </button>
 
             </div>
-          `
-        )
-        .join("") +
 
-      `
-        <button
-          type="button"
-          id="addMoreBtn"
-          class="add-more"
-        >
-          ＋
-          <span>
-            Add page
-          </span>
-        </button>
-      `;
+            <div
+              class="drag"
+              aria-label="Drag to reorder"
+            >
+              ☰
+            </div>
 
-  $("addMoreBtn")
-    .onclick =
-      showSource;
+          </div>
+        `
+      )
+      .join("") +
 
-  state.sortable
-    ?.destroy();
+    `
+      <button
+        type="button"
+        id="addMoreBtn"
+        class="add-more"
+      >
+        ＋
+        <span>
+          Add page
+        </span>
+      </button>
+    `;
+
+  $("addMoreBtn").onclick =
+    showSource;
+
+  state.sortable?.destroy();
 
   state.sortable =
     new Sortable(
       $("thumbStrip"),
       {
         animation:
-          160,
+          150,
 
         draggable:
           ".thumb",
@@ -2231,31 +2723,29 @@ function renderPages() {
         chosenClass:
           "chosen",
 
-        onEnd(evt) {
-          const a =
-            evt.oldDraggableIndex;
+        onEnd(event) {
+          const from =
+            event.oldDraggableIndex;
 
-          const b =
-            evt.newDraggableIndex;
+          const to =
+            event.newDraggableIndex;
 
           if (
-            a == null ||
-            b == null ||
-            a === b
+            from == null ||
+            to == null ||
+            from === to
           ) {
             return;
           }
 
-          const [
-            moved,
-          ] =
+          const [moved] =
             state.pages.splice(
-              a,
+              from,
               1
             );
 
           state.pages.splice(
-            b,
+            to,
             0,
             moved
           );
@@ -2266,9 +2756,7 @@ function renderPages() {
     );
 }
 
-async function retake(
-  id
-) {
+async function retake(id) {
   const index =
     state.pages.findIndex(
       (p) =>
@@ -2276,21 +2764,21 @@ async function retake(
     );
 
   if (
-    index <
-    0
+    index < 0
   ) {
     return;
   }
 
   const result =
     await Camera.takePhoto({
-      quality: 90,
+      quality:
+        90,
 
       targetWidth:
-        2200,
+        1800,
 
       targetHeight:
-        2200,
+        1800,
 
       correctOrientation:
         true,
@@ -2314,33 +2802,19 @@ async function retake(
     state.pages[index];
 
   URL.revokeObjectURL(
-    page.url
+    page.thumbUrl
   );
 
   page.originalBlob =
     blob;
 
-  page.blob =
-    blob;
-
-  page.url =
+  page.thumbUrl =
     URL.createObjectURL(
       blob
     );
 
-  page.edit = {
-    rotation: 0,
-
-    filter:
-      "original",
-
-    crop: {
-      x: 0.03,
-      y: 0.03,
-      w: 0.94,
-      h: 0.94,
-    },
-  };
+  page.edit =
+    defaultEdit();
 
   renderPages();
 
@@ -2351,121 +2825,35 @@ async function retake(
 
 function resetComposer() {
   state.pages.forEach(
-    (p) =>
+    (page) =>
       URL.revokeObjectURL(
-        p.url
+        page.thumbUrl
       )
   );
 
   state.pages =
     [];
 
-  $("progressWrap")
-    .hidden =
-      true;
+  $("progressWrap").hidden =
+    true;
 
-  $("progressBar")
-    .style.width =
-      "0%";
+  $("progressBar").style.width =
+    "0%";
 
   setError("");
 
-  $("createPanel")
-    .hidden =
-      false;
+  $("createPanel").hidden =
+    false;
 
-  $("successPanel")
-    .hidden =
-      true;
+  $("successPanel").hidden =
+    true;
 
   renderPages();
 }
 
-async function compress(
-  blob,
-  maxWidth = 1600,
-  quality = 0.7
-) {
-  const bitmap =
-    await createImageBitmap(
-      blob
-    );
-
-  try {
-    let w =
-      bitmap.width;
-
-    let h =
-      bitmap.height;
-
-    if (
-      w >
-      maxWidth
-    ) {
-      const r =
-        maxWidth /
-        w;
-
-      w =
-        Math.round(
-          w *
-          r
-        );
-
-      h =
-        Math.round(
-          h *
-          r
-        );
-    }
-
-    const canvas =
-      document.createElement(
-        "canvas"
-      );
-
-    canvas.width =
-      w;
-
-    canvas.height =
-      h;
-
-    const ctx =
-      canvas.getContext(
-        "2d",
-        {
-          alpha:
-            false,
-        }
-      );
-
-    ctx.fillStyle =
-      "#fff";
-
-    ctx.fillRect(
-      0,
-      0,
-      w,
-      h
-    );
-
-    ctx.drawImage(
-      bitmap,
-      0,
-      0,
-      w,
-      h
-    );
-
-    return canvasToJpeg(
-      canvas,
-      quality
-    );
-
-  } finally {
-    bitmap.close?.();
-  }
-}
+/* ============================================================
+   PDF GENERATION
+   ============================================================ */
 
 async function generatePdf() {
   if (
@@ -2487,9 +2875,8 @@ async function generatePdf() {
     state.busy =
       true;
 
-    $("generateBtn")
-      .disabled =
-        true;
+    $("generateBtn").disabled =
+      true;
 
     const pdf =
       await PDFDocument.create();
@@ -2532,29 +2919,35 @@ async function generatePdf() {
     ) {
       setProgress(
         5 +
-          (
-            i /
-            state.pages.length
-          ) *
-          55,
+        (
+          i /
+          state.pages.length
+        ) *
+        66,
 
-        `Compressing page ${
+        `Processing page ${
           i + 1
         } of ${
           state.pages.length
         }…`
       );
 
+      const canvas =
+        await renderEditedCanvas(
+          state.pages[i],
+          FINAL_MAX_EDGE,
+          true
+        );
+
       const jpg =
-        await compress(
-          state.pages[i]
-            .blob
+        await canvasToJpeg(
+          canvas,
+          0.72
         );
 
       const image =
         await pdf.embedJpg(
-          await jpg
-            .arrayBuffer()
+          await jpg.arrayBuffer()
         );
 
       const pageW =
@@ -2565,13 +2958,13 @@ async function generatePdf() {
         image.height /
         image.width;
 
-      const page =
+      const pdfPage =
         pdf.addPage([
           pageW,
           pageH,
         ]);
 
-      page.drawImage(
+      pdfPage.drawImage(
         image,
         {
           x: 0,
@@ -2584,10 +2977,12 @@ async function generatePdf() {
             pageH,
         }
       );
+
+      await nextPaint();
     }
 
     setProgress(
-      72,
+      76,
       "Finalizing PDF…"
     );
 
@@ -2611,13 +3006,9 @@ async function generatePdf() {
 
     const record = {
       id,
-
       subject,
-
       type,
-
       year,
-
       filename,
 
       uploadedBy:
@@ -2635,7 +3026,7 @@ async function generatePdf() {
     };
 
     setProgress(
-      88,
+      92,
       "Saving to local test library…"
     );
 
@@ -2651,30 +3042,25 @@ async function generatePdf() {
       "Saved locally"
     );
 
-    $("createPanel")
-      .hidden =
-        true;
+    $("createPanel").hidden =
+      true;
 
-    $("successPanel")
-      .hidden =
-        false;
+    $("successPanel").hidden =
+      false;
 
-    $("successText")
-      .textContent =
-        `${filename} · ${
-          bytesLabel(
-            blob.size
-          )
-        } · ${
-          state.pages.length
-        } pages`;
+    $("successText").textContent =
+      `${filename} · ${
+        bytesLabel(
+          blob.size
+        )
+      } · ${
+        state.pages.length
+      } pages`;
 
     await renderLibrary();
 
   } catch (err) {
-    console.error(
-      err
-    );
+    console.error(err);
 
     setError(
       err?.message ||
@@ -2685,15 +3071,16 @@ async function generatePdf() {
     state.busy =
       false;
 
-    $("generateBtn")
-      .disabled =
-        !state.pages.length;
+    $("generateBtn").disabled =
+      !state.pages.length;
   }
 }
 
-function blobToBase64(
-  blob
-) {
+/* ============================================================
+   NATIVE PDF VIEW / DOWNLOAD
+   ============================================================ */
+
+function blobToBase64(blob) {
   return new Promise(
     (
       resolve,
@@ -2704,18 +3091,15 @@ function blobToBase64(
 
       reader.onloadend =
         () => {
-          const s =
+          const value =
             String(
-              reader.result ||
-              ""
+              reader.result || ""
             );
 
           resolve(
-            s.includes(",")
-              ? s.split(
-                  ","
-                )[1]
-              : s
+            value.includes(",")
+              ? value.split(",")[1]
+              : value
           );
         };
 
@@ -2738,37 +3122,31 @@ async function savePdfTemporarily(
   record
 ) {
   const result =
-    await Filesystem.writeFile(
-      {
-        path:
-          `test-pdfs/${record.filename}`,
+    await Filesystem.writeFile({
+      path:
+        `test-pdfs/${record.filename}`,
 
-        data:
-          await blobToBase64(
-            record.pdf
-          ),
+      data:
+        await blobToBase64(
+          record.pdf
+        ),
 
-        directory:
-          Directory.Cache,
+      directory:
+        Directory.Cache,
 
-        recursive:
-          true,
-      }
-    );
+      recursive:
+        true,
+    });
 
   return result.uri;
 }
 
-async function viewRecord(
-  id
-) {
+async function viewRecord(id) {
   try {
     const record =
       await dbGet(id);
 
-    if (
-      !record
-    ) {
+    if (!record) {
       throw new Error(
         "PDF not found."
       );
@@ -2779,19 +3157,35 @@ async function viewRecord(
         record
       );
 
-    await Share.share({
-      title:
-        record.filename,
+    try {
+      await FileViewer
+        .openDocumentFromLocalPath({
+          path:
+            uri,
+        });
 
-      text:
-        "Open this generated PDF",
+    } catch (
+      viewerError
+    ) {
+      console.warn(
+        "FileViewer fallback:",
+        viewerError
+      );
 
-      url:
-        uri,
+      await Share.share({
+        title:
+          record.filename,
 
-      dialogTitle:
-        "Open PDF with",
-    });
+        text:
+          "Open this generated PDF",
+
+        url:
+          uri,
+
+        dialogTitle:
+          "Open PDF with",
+      });
+    }
 
   } catch (err) {
     alert(
@@ -2801,38 +3195,32 @@ async function viewRecord(
   }
 }
 
-async function downloadRecord(
-  id
-) {
+async function downloadRecord(id) {
   try {
     const record =
       await dbGet(id);
 
-    if (
-      !record
-    ) {
+    if (!record) {
       throw new Error(
         "PDF not found."
       );
     }
 
-    await Filesystem.writeFile(
-      {
-        path:
-          record.filename,
+    await Filesystem.writeFile({
+      path:
+        record.filename,
 
-        data:
-          await blobToBase64(
-            record.pdf
-          ),
+      data:
+        await blobToBase64(
+          record.pdf
+        ),
 
-        directory:
-          Directory.Documents,
+      directory:
+        Directory.Documents,
 
-        recursive:
-          true,
-      }
-    );
+      recursive:
+        true,
+    });
 
     alert(
       `PDF saved successfully.\n\n${record.filename}`
@@ -2843,9 +3231,7 @@ async function downloadRecord(
       const record =
         await dbGet(id);
 
-      if (
-        !record
-      ) {
+      if (!record) {
         throw new Error(
           "PDF not found."
         );
@@ -2870,14 +3256,20 @@ async function downloadRecord(
           "Save or share PDF",
       });
 
-    } catch (e) {
+    } catch (
+      fallbackError
+    ) {
       alert(
-        e?.message ||
+        fallbackError?.message ||
         "Could not save this PDF."
       );
     }
   }
 }
+
+/* ============================================================
+   MOCK LIBRARY
+   ============================================================ */
 
 async function renderLibrary() {
   const rows =
@@ -2893,178 +3285,166 @@ async function renderLibrary() {
         )
     );
 
-  if (
-    !rows.length
-  ) {
-    $("libraryGrid")
-      .innerHTML =
-        `
-          <div
-            class="empty-library"
-          >
-            No test PDFs yet.
-          </div>
-        `;
+  if (!rows.length) {
+    $("libraryGrid").innerHTML =
+      `
+        <div
+          class="empty-library"
+        >
+          No test PDFs yet.
+        </div>
+      `;
 
     return;
   }
 
-  $("libraryGrid")
-    .innerHTML =
-      rows
-        .map(
-          (r) => `
-            <article
-              class="card"
-              data-id="${r.id}"
+  $("libraryGrid").innerHTML =
+    rows
+      .map(
+        (record) => `
+          <article
+            class="card"
+            data-id="${record.id}"
+          >
+
+            <div class="subject">
+              ${record.subject}
+            </div>
+
+            <h3>
+              ${record.filename}
+            </h3>
+
+            <div class="meta">
+              ${record.type}
+              ·
+              ${record.year}
+              ·
+              ${bytesLabel(
+                record.size
+              )}
+            </div>
+
+            <div class="meta">
+              Uploaded by
+              ${record.uploadedBy}
+            </div>
+
+            <div
+              class="card-actions"
             >
 
-              <div class="subject">
-                ${r.subject}
-              </div>
+              <button
+                type="button"
+                data-act="view"
+              >
+                View PDF
+              </button>
 
-              <h3>
-                ${r.filename}
-              </h3>
+              <button
+                type="button"
+                data-act="download"
+              >
+                Download PDF
+              </button>
 
-              <div class="meta">
-                ${r.type}
-                ·
-                ${r.year}
-                ·
-                ${bytesLabel(
-                  r.size
-                )}
-              </div>
+              <button
+                type="button"
+                data-act="delete"
+              >
+                Delete
+              </button>
 
-              <div class="meta">
-                Uploaded by
-                ${r.uploadedBy}
-              </div>
+            </div>
 
-              <div class="card-actions">
-
-                <button
-                  type="button"
-                  data-act="view"
-                >
-                  View PDF
-                </button>
-
-                <button
-                  type="button"
-                  data-act="download"
-                >
-                  Download PDF
-                </button>
-
-                <button
-                  type="button"
-                  data-act="delete"
-                >
-                  Delete
-                </button>
-
-              </div>
-
-            </article>
-          `
-        )
-        .join("");
+          </article>
+        `
+      )
+      .join("");
 }
 
+/* ============================================================
+   EVENTS
+   ============================================================ */
+
 function showSource() {
-  $("sourceSheet")
-    .hidden =
-      false;
+  $("sourceSheet").hidden =
+    false;
 }
 
 function hideSource() {
-  $("sourceSheet")
-    .hidden =
-      true;
+  $("sourceSheet").hidden =
+    true;
 }
 
+ensureSubjectSelector();
 installEditor();
 
-$("addPhotosBtn")
-  .onclick =
-    showSource;
+$("addPhotosBtn").onclick =
+  showSource;
 
-$("firstAddBtn")
-  .onclick =
-    showSource;
+$("firstAddBtn").onclick =
+  showSource;
 
-$("cancelSourceBtn")
-  .onclick =
-    hideSource;
+$("cancelSourceBtn").onclick =
+  hideSource;
 
-$("cameraBtn")
-  .onclick =
-    async () => {
-      hideSource();
+$("cameraBtn").onclick =
+  async () => {
+    hideSource();
 
-      try {
-        await capturePhoto();
+    try {
+      await capturePhoto();
 
-      } catch (e) {
-        if (
-          !String(
-            e?.message ||
-            ""
-          )
-            .toLowerCase()
-            .includes(
-              "cancel"
-            )
-        ) {
-          setError(
-            e?.message ||
-            "Camera failed."
-          );
-        }
+    } catch (err) {
+      if (
+        !String(
+          err?.message || ""
+        )
+          .toLowerCase()
+          .includes("cancel")
+      ) {
+        setError(
+          err?.message ||
+          "Camera failed."
+        );
       }
-    };
+    }
+  };
 
-$("galleryBtn")
-  .onclick =
-    async () => {
-      hideSource();
+$("galleryBtn").onclick =
+  async () => {
+    hideSource();
 
-      try {
-        await chooseMultiplePhotos();
+    try {
+      await chooseMultiplePhotos();
 
-      } catch (e) {
-        if (
-          !String(
-            e?.message ||
-            ""
-          )
-            .toLowerCase()
-            .includes(
-              "cancel"
-            )
-        ) {
-          setError(
-            e?.message ||
-            "Gallery selection failed."
-          );
-        }
+    } catch (err) {
+      if (
+        !String(
+          err?.message || ""
+        )
+          .toLowerCase()
+          .includes("cancel")
+      ) {
+        setError(
+          err?.message ||
+          "Gallery selection failed."
+        );
       }
-    };
+    }
+  };
 
 $("thumbStrip")
   .addEventListener(
     "click",
-    async (e) => {
+    async (event) => {
       const thumb =
-        e.target.closest(
+        event.target.closest(
           ".thumb"
         );
 
-      if (
-        !thumb
-      ) {
+      if (!thumb) {
         return;
       }
 
@@ -3072,38 +3452,35 @@ $("thumbStrip")
         thumb.dataset.id;
 
       if (
-        e.target.closest(
+        event.target.closest(
           '[data-act="edit"]'
         )
       ) {
-        await openEditor(
-          id
-        );
-
+        await openEditor(id);
         return;
       }
 
       if (
-        e.target.closest(
+        event.target.closest(
           '[data-act="delete"]'
         )
       ) {
-        const i =
+        const index =
           state.pages.findIndex(
-            (p) =>
-              p.id === id
+            (page) =>
+              page.id === id
           );
 
         if (
-          i >= 0
+          index >= 0
         ) {
           URL.revokeObjectURL(
-            state.pages[i]
-              .url
+            state.pages[index]
+              .thumbUrl
           );
 
           state.pages.splice(
-            i,
+            index,
             1
           );
 
@@ -3114,25 +3491,20 @@ $("thumbStrip")
       }
 
       if (
-        e.target.closest(
+        event.target.closest(
           '[data-act="retake"]'
         )
       ) {
         try {
-          await retake(
-            id
-          );
+          await retake(id);
 
         } catch (err) {
           if (
             !String(
-              err?.message ||
-              ""
+              err?.message || ""
             )
               .toLowerCase()
-              .includes(
-                "cancel"
-              )
+              .includes("cancel")
           ) {
             setError(
               err?.message ||
@@ -3144,104 +3516,39 @@ $("thumbStrip")
     }
   );
 
-$("generateBtn")
-  .onclick =
-    generatePdf;
+$("generateBtn").onclick =
+  generatePdf;
 
-$("addAnotherBtn")
-  .onclick =
-    resetComposer;
+$("addAnotherBtn").onclick =
+  resetComposer;
 
-$("viewLibraryBtn")
-  .onclick =
-    () =>
-      $("libraryPanel")
-        .scrollIntoView({
-          behavior:
-            "smooth",
+$("viewLibraryBtn").onclick =
+  () =>
+    $("libraryPanel")
+      .scrollIntoView({
+        behavior:
+          "smooth",
 
-          block:
-            "start",
-        });
+        block:
+          "start",
+      });
 
-$("downloadLatestBtn")
-  .onclick =
-    () =>
-      state.latestId &&
-      downloadRecord(
-        state.latestId
-      );
+$("downloadLatestBtn").onclick =
+  () =>
+    state.latestId &&
+    downloadRecord(
+      state.latestId
+    );
 
 $("libraryGrid")
   .addEventListener(
     "click",
-    async (e) => {
+    async (event) => {
       const card =
-        e.target.closest(
+        event.target.closest(
           ".card"
         );
 
-      if (
-        !card
-      ) {
+      if (!card) {
         return;
       }
-
-      const id =
-        card.dataset.id;
-
-      if (
-        e.target.closest(
-          '[data-act="view"]'
-        )
-      ) {
-        await viewRecord(
-          id
-        );
-
-        return;
-      }
-
-      if (
-        e.target.closest(
-          '[data-act="download"]'
-        )
-      ) {
-        await downloadRecord(
-          id
-        );
-
-        return;
-      }
-
-      if (
-        e.target.closest(
-          '[data-act="delete"]'
-        )
-      ) {
-        await dbDelete(
-          id
-        );
-
-        await renderLibrary();
-      }
-    }
-  );
-
-$("clearLibraryBtn")
-  .onclick =
-    async () => {
-      if (
-        !confirm(
-          "Delete every PDF from this local TEST library?"
-        )
-      ) {
-        return;
-      }
-
-      await dbClear();
-
-      await renderLibrary();
-    };
-
-renderLibrary();

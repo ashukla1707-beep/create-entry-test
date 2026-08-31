@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d131d" />
+  <title>Create Entry Test</title>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">STAT ARCHIVE · SAFE TEST BUILD</div>
+        <h1>Create entry</h1>
+        <p>Camera → reorder pages → compress → PDF → local mock library. Nothing is uploaded anywhere.</p>
+      </div>
+      <div class="safe-pill">LOCAL ONLY</div>
+    </header>
+
+    <section class="panel" id="createPanel">
+      <div class="grid3">
+        <label>
+          <span>Subject</span>
+          <input id="subjectInput" list="subjectOptions" placeholder="Search / choose subject" value="Advanced Machine Learning" />
+          <datalist id="subjectOptions">
+            <option value="Advanced Machine Learning"></option>
+            <option value="Mathematical Statistics"></option>
+            <option value="Probability Theory"></option>
+            <option value="Sampling Theory"></option>
+            <option value="Linear Models"></option>
+          </datalist>
+        </label>
+
+        <label>
+          <span>Paper Type</span>
+          <select id="typeInput">
+            <option value="PYQ">PYQ</option>
+            <option value="Mid-Term" selected>Mid-Term</option>
+            <option value="Notes">Notes</option>
+            <option value="Book">Book</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Year</span>
+          <input id="yearInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="2026" />
+        </label>
+      </div>
+
+      <div id="errorBox" class="error" hidden></div>
+
+      <div class="pages-head">
+        <div>
+          <strong>Pages</strong>
+          <span id="pageCount">0 pages</span>
+        </div>
+        <button id="addPhotosBtn" class="primary" type="button">📷 Add photos</button>
+      </div>
+
+      <div id="thumbStrip" class="thumb-strip" aria-label="Captured pages">
+        <button id="firstAddBtn" type="button" class="empty-add">＋<span>Add first page</span></button>
+      </div>
+
+      <div id="progressWrap" class="progress-wrap" hidden>
+        <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+        <div id="progressText" class="progress-text"></div>
+      </div>
+
+      <button id="generateBtn" type="button" class="primary generate" disabled>Generate PDF</button>
+    </section>
+
+    <section class="panel success-panel" id="successPanel" hidden>
+      <div class="success-icon">✓</div>
+      <h2>PDF created locally</h2>
+      <p id="successText"></p>
+      <div class="actions">
+        <button id="viewLibraryBtn" type="button" class="primary">View in mock library</button>
+        <button id="downloadLatestBtn" type="button">Download PDF</button>
+        <button id="addAnotherBtn" type="button">Add another</button>
+      </div>
+    </section>
+
+    <section class="library panel" id="libraryPanel">
+      <div class="section-title">
+        <div>
+          <div class="eyebrow">TEST LIBRARY</div>
+          <h2>Local entries</h2>
+        </div>
+        <button id="clearLibraryBtn" type="button">Clear test library</button>
+      </div>
+      <div id="libraryGrid" class="library-grid"></div>
+    </section>
+  </main>
+
+  <div id="sourceSheet" class="sheet-backdrop" hidden>
+    <div class="sheet">
+      <h3>Add a page</h3>
+      <button id="cameraBtn" type="button" class="source-btn">📷 <span><strong>Take photo</strong><small>Open native camera</small></span></button>
+      <button id="galleryBtn" type="button" class="source-btn">🖼️ <span><strong>Choose from gallery</strong><small>Select an existing image</small></span></button>
+      <button id="cancelSourceBtn" type="button">Cancel</button>
+    </div>
+  </div>
+</body>
+</html>

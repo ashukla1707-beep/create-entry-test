@@ -9,6 +9,7 @@ const $ = (id) => document.getElementById(id);
 const DB_NAME = "statArchiveCreateEntryTest";
 const DB_VERSION = 1;
 const STORE = "entries";
+const EDITOR_MAX_EDGE = 900;
 
 const state = {
   pages: [],
@@ -327,6 +328,8 @@ function makePage(blob) {
 }
 
 async function capturePhoto() {
+  setError("");
+
   const result =
     await Camera.takePhoto({
       quality: 90,
@@ -369,6 +372,8 @@ async function capturePhoto() {
 }
 
 async function chooseMultiplePhotos() {
+  setError("");
+
   const {
     results,
   } =
@@ -771,15 +776,11 @@ function installEditor() {
 
   $("peApply").onclick =
     () =>
-      applyEditor(
-        false
-      );
+      applyEditor(false);
 
   $("peApplyNext").onclick =
     () =>
-      applyEditor(
-        true
-      );
+      applyEditor(true);
 
   $("filterRow").onclick =
     (e) => {
@@ -967,6 +968,7 @@ function drawRotated(
       h,
       w
     );
+
   } else if (
     rotation === 180
   ) {
@@ -986,6 +988,7 @@ function drawRotated(
       w,
       h
     );
+
   } else if (
     rotation === 270
   ) {
@@ -1005,6 +1008,7 @@ function drawRotated(
       h,
       w
     );
+
   } else {
     ctx.drawImage(
       bitmap,
@@ -1074,6 +1078,7 @@ function applyFilter(
       d[i + 2] =
         lum;
     }
+
   } else if (
     filter === "bw"
   ) {
@@ -1137,12 +1142,27 @@ function applyFilter(
       d[i + 2] =
         v;
     }
+
   } else if (
     filter ===
     "magic"
   ) {
-    let min = 255;
-    let max = 0;
+    /*
+     * STRONGER DOCUMENT MAGIC FILTER
+     *
+     * - stronger white-paper cleanup
+     * - darker writing
+     * - reduced yellow/grey colour cast
+     * - higher contrast
+     */
+
+    const histogram =
+      new Uint32Array(
+        256
+      );
+
+    let samples =
+      0;
 
     for (
       let i = 0;
@@ -1150,29 +1170,104 @@ function applyFilter(
       i += 16
     ) {
       const lum =
-        0.299 * d[i] +
-        0.587 *
-          d[i + 1] +
-        0.114 *
-          d[i + 2];
-
-      min =
-        Math.min(
-          min,
-          lum
+        Math.max(
+          0,
+          Math.min(
+            255,
+            Math.round(
+              0.299 * d[i] +
+              0.587 *
+                d[i + 1] +
+              0.114 *
+                d[i + 2]
+            )
+          )
         );
 
-      max =
+      histogram[lum]++;
+
+      samples++;
+    }
+
+    const lowTarget =
+      samples *
+      0.02;
+
+    const highTarget =
+      samples *
+      0.97;
+
+    let low =
+      0;
+
+    let high =
+      255;
+
+    let count =
+      0;
+
+    for (
+      let i = 0;
+      i < 256;
+      i++
+    ) {
+      count +=
+        histogram[i];
+
+      if (
+        count >=
+        lowTarget
+      ) {
+        low =
+          i;
+
+        break;
+      }
+    }
+
+    count =
+      0;
+
+    for (
+      let i = 0;
+      i < 256;
+      i++
+    ) {
+      count +=
+        histogram[i];
+
+      if (
+        count >=
+        highTarget
+      ) {
+        high =
+          i;
+
+        break;
+      }
+    }
+
+    if (
+      high - low <
+      45
+    ) {
+      low =
         Math.max(
-          max,
-          lum
+          0,
+          low - 25
+        );
+
+      high =
+        Math.min(
+          255,
+          high + 25
         );
     }
 
     const range =
       Math.max(
-        40,
-        max - min
+        1,
+        high - low
       );
 
     for (
@@ -1193,15 +1288,15 @@ function applyFilter(
         Math.max(
           1,
           0.299 * r +
-            0.587 * g +
-            0.114 * b
+          0.587 * g +
+          0.114 * b
         );
 
       let mapped =
         (
           (
             lum -
-            min
+            low
           ) *
           255
         ) /
@@ -1216,48 +1311,76 @@ function applyFilter(
           )
         );
 
+      /*
+       * Whiten paper strongly.
+       */
       if (
         mapped >
-        205
+        185
       ) {
         mapped =
-          Math.min(
-            255,
-            205 +
-              (
-                mapped -
-                205
-              ) *
-                1.5
-          );
+          185 +
+          (
+            mapped -
+            185
+          ) *
+          1.9;
+      }
+
+      /*
+       * Darken handwriting / text.
+       */
+      if (
+        mapped <
+        105
+      ) {
+        mapped *=
+          0.72;
       }
 
       if (
         mapped <
-        75
+        55
       ) {
         mapped *=
-          0.85;
+          0.72;
       }
 
+      mapped =
+        Math.max(
+          0,
+          Math.min(
+            255,
+            mapped
+          )
+        );
+
       const scale =
-        mapped / lum;
+        mapped /
+        lum;
 
       let nr =
-        r * scale;
+        r *
+        scale;
 
       let ng =
-        g * scale;
+        g *
+        scale;
 
       let nb =
-        b * scale;
+        b *
+        scale;
 
+      /*
+       * Stronger desaturation.
+       */
       const gray =
         (
           nr +
           ng +
           nb
-        ) / 3;
+        ) /
+        3;
 
       nr =
         gray +
@@ -1265,7 +1388,7 @@ function applyFilter(
           nr -
           gray
         ) *
-          0.7;
+        0.38;
 
       ng =
         gray +
@@ -1273,7 +1396,7 @@ function applyFilter(
           ng -
           gray
         ) *
-          0.7;
+        0.38;
 
       nb =
         gray +
@@ -1281,7 +1404,37 @@ function applyFilter(
           nb -
           gray
         ) *
-          0.7;
+        0.38;
+
+      /*
+       * Final contrast boost.
+       */
+      const contrast =
+        1.18;
+
+      nr =
+        (
+          nr -
+          128
+        ) *
+        contrast +
+        128;
+
+      ng =
+        (
+          ng -
+          128
+        ) *
+        contrast +
+        128;
+
+      nb =
+        (
+          nb -
+          128
+        ) *
+        contrast +
+        128;
 
       d[i] =
         Math.max(
@@ -1320,7 +1473,9 @@ function applyFilter(
 }
 
 function redrawEditor() {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -1345,10 +1500,16 @@ function redrawEditor() {
       ? bitmap.width
       : bitmap.height;
 
+  /*
+   * Faster editing preview.
+   *
+   * Final PDF still uses
+   * the normal 1600px compression.
+   */
   const scale =
     Math.min(
       1,
-      1600 /
+      EDITOR_MAX_EDGE /
         Math.max(
           naturalW,
           naturalH
@@ -1360,7 +1521,7 @@ function redrawEditor() {
       1,
       Math.round(
         naturalW *
-          scale
+        scale
       )
     );
 
@@ -1369,7 +1530,7 @@ function redrawEditor() {
       1,
       Math.round(
         naturalH *
-          scale
+        scale
       )
     );
 
@@ -1386,7 +1547,8 @@ function redrawEditor() {
     canvas.getContext(
       "2d",
       {
-        alpha: false,
+        alpha:
+          false,
 
         willReadFrequently:
           true,
@@ -1437,7 +1599,9 @@ function redrawEditor() {
 }
 
 function positionCropBox() {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -1494,7 +1658,9 @@ function setupCropGestures() {
   box.addEventListener(
     "pointerdown",
     (e) => {
-      if (!state.editor) {
+      if (
+        !state.editor
+      ) {
         return;
       }
 
@@ -1552,6 +1718,8 @@ function setupCropGestures() {
         return;
       }
 
+      e.preventDefault();
+
       const dx =
         (
           e.clientX -
@@ -1606,7 +1774,9 @@ function setupCropGestures() {
               s.y + dy
             )
           );
+
       } else {
+
         if (
           drag.handle.includes(
             "w"
@@ -1619,7 +1789,8 @@ function setupCropGestures() {
                 s.x +
                   s.w -
                   min,
-                s.x + dx
+                s.x +
+                  dx
               )
             );
 
@@ -1641,8 +1812,10 @@ function setupCropGestures() {
             Math.max(
               min,
               Math.min(
-                1 - s.x,
-                s.w + dx
+                1 -
+                  s.x,
+                s.w +
+                  dx
               )
             );
         }
@@ -1659,7 +1832,8 @@ function setupCropGestures() {
                 s.y +
                   s.h -
                   min,
-                s.y + dy
+                s.y +
+                  dy
               )
             );
 
@@ -1681,8 +1855,10 @@ function setupCropGestures() {
             Math.max(
               min,
               Math.min(
-                1 - s.y,
-                s.h + dy
+                1 -
+                  s.y,
+                s.h +
+                  dy
               )
             );
         }
@@ -1724,7 +1900,7 @@ function setupCropGestures() {
 
 async function canvasToJpeg(
   canvas,
-  quality = 0.9
+  quality = 0.82
 ) {
   return new Promise(
     (
@@ -1733,8 +1909,12 @@ async function canvasToJpeg(
     ) => {
       canvas.toBlob(
         (blob) => {
-          if (blob) {
-            resolve(blob);
+          if (
+            blob
+          ) {
+            resolve(
+              blob
+            );
           } else {
             reject(
               new Error(
@@ -1743,7 +1923,9 @@ async function canvasToJpeg(
             );
           }
         },
+
         "image/jpeg",
+
         quality
       );
     }
@@ -1753,7 +1935,9 @@ async function canvasToJpeg(
 async function applyEditor(
   openNext
 ) {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -1765,7 +1949,8 @@ async function applyEditor(
     );
 
   if (
-    index < 0
+    index <
+    0
   ) {
     return;
   }
@@ -1779,13 +1964,13 @@ async function applyEditor(
   const sx =
     Math.round(
       c.x *
-        canvas.width
+      canvas.width
     );
 
   const sy =
     Math.round(
       c.y *
-        canvas.height
+      canvas.height
     );
 
   const sw =
@@ -1793,7 +1978,7 @@ async function applyEditor(
       1,
       Math.round(
         c.w *
-          canvas.width
+        canvas.width
       )
     );
 
@@ -1802,7 +1987,7 @@ async function applyEditor(
       1,
       Math.round(
         c.h *
-          canvas.height
+        canvas.height
       )
     );
 
@@ -1821,7 +2006,8 @@ async function applyEditor(
     out.getContext(
       "2d",
       {
-        alpha: false,
+        alpha:
+          false,
       }
     );
 
@@ -1849,10 +2035,14 @@ async function applyEditor(
     sh
   );
 
+  /*
+   * Lower quality than before
+   * to make Apply & next faster.
+   */
   const edited =
     await canvasToJpeg(
       out,
-      0.92
+      0.82
     );
 
   const page =
@@ -1885,7 +2075,8 @@ async function applyEditor(
   const nextId =
     openNext &&
     index <
-      state.pages.length - 1
+      state.pages.length -
+        1
       ? state.pages[
           index + 1
         ].id
@@ -1895,7 +2086,28 @@ async function applyEditor(
 
   renderPages();
 
-  if (nextId) {
+  if (
+    nextId
+  ) {
+    /*
+     * Allow Android/WebView to repaint
+     * before decoding the next image.
+     *
+     * This makes Apply & next feel
+     * much less frozen.
+     */
+    await new Promise(
+      (resolve) => {
+        requestAnimationFrame(
+          () => {
+            requestAnimationFrame(
+              resolve
+            );
+          }
+        );
+      }
+    );
+
     await openEditor(
       nextId
     );
@@ -1905,7 +2117,9 @@ async function applyEditor(
 function renderPages() {
   $("pageCount")
     .textContent =
-      `${state.pages.length} ${
+      `${
+        state.pages.length
+      } ${
         state.pages.length ===
         1
           ? "page"
@@ -1991,10 +2205,12 @@ function renderPages() {
         </button>
       `;
 
-  $("addMoreBtn").onclick =
-    showSource;
+  $("addMoreBtn")
+    .onclick =
+      showSource;
 
-  state.sortable?.destroy();
+  state.sortable
+    ?.destroy();
 
   state.sortable =
     new Sortable(
@@ -2060,7 +2276,8 @@ async function retake(
     );
 
   if (
-    index < 0
+    index <
+    0
   ) {
     return;
   }
@@ -2143,19 +2360,23 @@ function resetComposer() {
   state.pages =
     [];
 
-  $("progressWrap").hidden =
-    true;
+  $("progressWrap")
+    .hidden =
+      true;
 
-  $("progressBar").style.width =
-    "0%";
+  $("progressBar")
+    .style.width =
+      "0%";
 
   setError("");
 
-  $("createPanel").hidden =
-    false;
+  $("createPanel")
+    .hidden =
+      false;
 
-  $("successPanel").hidden =
-    true;
+  $("successPanel")
+    .hidden =
+      true;
 
   renderPages();
 }
@@ -2187,12 +2408,14 @@ async function compress(
 
       w =
         Math.round(
-          w * r
+          w *
+          r
         );
 
       h =
         Math.round(
-          h * r
+          h *
+          r
         );
     }
 
@@ -2238,6 +2461,7 @@ async function compress(
       canvas,
       quality
     );
+
   } finally {
     bitmap.close?.();
   }
@@ -2312,7 +2536,7 @@ async function generatePdf() {
             i /
             state.pages.length
           ) *
-            55,
+          55,
 
         `Compressing page ${
           i + 1
@@ -2329,7 +2553,8 @@ async function generatePdf() {
 
       const image =
         await pdf.embedJpg(
-          await jpg.arrayBuffer()
+          await jpg
+            .arrayBuffer()
         );
 
       const pageW =
@@ -2351,8 +2576,10 @@ async function generatePdf() {
         {
           x: 0,
           y: 0,
+
           width:
             pageW,
+
           height:
             pageH,
         }
@@ -2384,9 +2611,13 @@ async function generatePdf() {
 
     const record = {
       id,
+
       subject,
+
       type,
+
       year,
+
       filename,
 
       uploadedBy:
@@ -2420,11 +2651,13 @@ async function generatePdf() {
       "Saved locally"
     );
 
-    $("createPanel").hidden =
-      true;
+    $("createPanel")
+      .hidden =
+        true;
 
-    $("successPanel").hidden =
-      false;
+    $("successPanel")
+      .hidden =
+        false;
 
     $("successText")
       .textContent =
@@ -2437,6 +2670,7 @@ async function generatePdf() {
         } pages`;
 
     await renderLibrary();
+
   } catch (err) {
     console.error(
       err
@@ -2446,6 +2680,7 @@ async function generatePdf() {
       err?.message ||
       "Could not generate PDF."
     );
+
   } finally {
     state.busy =
       false;
@@ -2531,7 +2766,9 @@ async function viewRecord(
     const record =
       await dbGet(id);
 
-    if (!record) {
+    if (
+      !record
+    ) {
       throw new Error(
         "PDF not found."
       );
@@ -2555,6 +2792,7 @@ async function viewRecord(
       dialogTitle:
         "Open PDF with",
     });
+
   } catch (err) {
     alert(
       err?.message ||
@@ -2570,7 +2808,9 @@ async function downloadRecord(
     const record =
       await dbGet(id);
 
-    if (!record) {
+    if (
+      !record
+    ) {
       throw new Error(
         "PDF not found."
       );
@@ -2597,12 +2837,15 @@ async function downloadRecord(
     alert(
       `PDF saved successfully.\n\n${record.filename}`
     );
+
   } catch (err) {
     try {
       const record =
         await dbGet(id);
 
-      if (!record) {
+      if (
+        !record
+      ) {
         throw new Error(
           "PDF not found."
         );
@@ -2626,6 +2869,7 @@ async function downloadRecord(
         dialogTitle:
           "Save or share PDF",
       });
+
     } catch (e) {
       alert(
         e?.message ||
@@ -2649,7 +2893,9 @@ async function renderLibrary() {
         )
     );
 
-  if (!rows.length) {
+  if (
+    !rows.length
+  ) {
     $("libraryGrid")
       .innerHTML =
         `
@@ -2741,64 +2987,71 @@ function hideSource() {
 
 installEditor();
 
-$("addPhotosBtn").onclick =
-  showSource;
+$("addPhotosBtn")
+  .onclick =
+    showSource;
 
-$("firstAddBtn").onclick =
-  showSource;
+$("firstAddBtn")
+  .onclick =
+    showSource;
 
-$("cancelSourceBtn").onclick =
-  hideSource;
+$("cancelSourceBtn")
+  .onclick =
+    hideSource;
 
-$("cameraBtn").onclick =
-  async () => {
-    hideSource();
+$("cameraBtn")
+  .onclick =
+    async () => {
+      hideSource();
 
-    try {
-      await capturePhoto();
-    } catch (e) {
-      if (
-        !String(
-          e?.message ||
-          ""
-        )
-          .toLowerCase()
-          .includes(
-            "cancel"
+      try {
+        await capturePhoto();
+
+      } catch (e) {
+        if (
+          !String(
+            e?.message ||
+            ""
           )
-      ) {
-        setError(
-          e?.message ||
-          "Camera failed."
-        );
+            .toLowerCase()
+            .includes(
+              "cancel"
+            )
+        ) {
+          setError(
+            e?.message ||
+            "Camera failed."
+          );
+        }
       }
-    }
-  };
+    };
 
-$("galleryBtn").onclick =
-  async () => {
-    hideSource();
+$("galleryBtn")
+  .onclick =
+    async () => {
+      hideSource();
 
-    try {
-      await chooseMultiplePhotos();
-    } catch (e) {
-      if (
-        !String(
-          e?.message ||
-          ""
-        )
-          .toLowerCase()
-          .includes(
-            "cancel"
+      try {
+        await chooseMultiplePhotos();
+
+      } catch (e) {
+        if (
+          !String(
+            e?.message ||
+            ""
           )
-      ) {
-        setError(
-          e?.message ||
-          "Gallery selection failed."
-        );
+            .toLowerCase()
+            .includes(
+              "cancel"
+            )
+        ) {
+          setError(
+            e?.message ||
+            "Gallery selection failed."
+          );
+        }
       }
-    }
-  };
+    };
 
 $("thumbStrip")
   .addEventListener(
@@ -2809,7 +3062,9 @@ $("thumbStrip")
           ".thumb"
         );
 
-      if (!thumb) {
+      if (
+        !thumb
+      ) {
         return;
       }
 
@@ -2821,9 +3076,11 @@ $("thumbStrip")
           '[data-act="edit"]'
         )
       ) {
-        return openEditor(
+        await openEditor(
           id
         );
+
+        return;
       }
 
       if (
@@ -2865,6 +3122,7 @@ $("thumbStrip")
           await retake(
             id
           );
+
         } catch (err) {
           if (
             !String(
@@ -2886,29 +3144,33 @@ $("thumbStrip")
     }
   );
 
-$("generateBtn").onclick =
-  generatePdf;
+$("generateBtn")
+  .onclick =
+    generatePdf;
 
-$("addAnotherBtn").onclick =
-  resetComposer;
+$("addAnotherBtn")
+  .onclick =
+    resetComposer;
 
-$("viewLibraryBtn").onclick =
-  () =>
-    $("libraryPanel")
-      .scrollIntoView({
-        behavior:
-          "smooth",
+$("viewLibraryBtn")
+  .onclick =
+    () =>
+      $("libraryPanel")
+        .scrollIntoView({
+          behavior:
+            "smooth",
 
-        block:
-          "start",
-      });
+          block:
+            "start",
+        });
 
-$("downloadLatestBtn").onclick =
-  () =>
-    state.latestId &&
-    downloadRecord(
-      state.latestId
-    );
+$("downloadLatestBtn")
+  .onclick =
+    () =>
+      state.latestId &&
+      downloadRecord(
+        state.latestId
+      );
 
 $("libraryGrid")
   .addEventListener(
@@ -2919,7 +3181,9 @@ $("libraryGrid")
           ".card"
         );
 
-      if (!card) {
+      if (
+        !card
+      ) {
         return;
       }
 
@@ -2931,9 +3195,11 @@ $("libraryGrid")
           '[data-act="view"]'
         )
       ) {
-        return viewRecord(
+        await viewRecord(
           id
         );
+
+        return;
       }
 
       if (
@@ -2941,9 +3207,11 @@ $("libraryGrid")
           '[data-act="download"]'
         )
       ) {
-        return downloadRecord(
+        await downloadRecord(
           id
         );
+
+        return;
       }
 
       if (
@@ -2960,19 +3228,20 @@ $("libraryGrid")
     }
   );
 
-$("clearLibraryBtn").onclick =
-  async () => {
-    if (
-      !confirm(
-        "Delete every PDF from this local TEST library?"
-      )
-    ) {
-      return;
-    }
+$("clearLibraryBtn")
+  .onclick =
+    async () => {
+      if (
+        !confirm(
+          "Delete every PDF from this local TEST library?"
+        )
+      ) {
+        return;
+      }
 
-    await dbClear();
+      await dbClear();
 
-    await renderLibrary();
-  };
+      await renderLibrary();
+    };
 
 renderLibrary();

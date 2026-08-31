@@ -328,7 +328,7 @@ async function generatePdf() {
   }
 }
 
-async function downloadRecord(id) {
+
   const r = await dbGet(id);
   if (!r) return;
   const url = URL.createObjectURL(r.pdf);
@@ -341,7 +341,134 @@ async function downloadRecord(id) {
   setTimeout(() => URL.revokeObjectURL(url), 15000);
 }
 
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const result = String(reader.result || "");
+      const base64 = result.includes(",")
+        ? result.split(",")[1]
+        : result;
+
+      resolve(base64);
+    };
+
+    reader.onerror = () => {
+      reject(new Error("Could not prepare the PDF."));
+    };
+
+    reader.readAsDataURL(blob);
+  });
+}
+
+
+async function savePdfTemporarily(record) {
+  const base64 = await blobToBase64(record.pdf);
+
+  const result = await Filesystem.writeFile({
+    path: `test-pdfs/${record.filename}`,
+    data: base64,
+    directory: Directory.Cache,
+    recursive: true
+  });
+
+  return result.uri;
+}
+
+
 async function viewRecord(id) {
+  try {
+    const record = await dbGet(id);
+
+    if (!record) {
+      throw new Error("PDF not found.");
+    }
+
+    const uri = await savePdfTemporarily(record);
+
+    await Share.share({
+      title: record.filename,
+      text: "Open this generated PDF",
+      url: uri,
+      dialogTitle: "Open PDF with"
+    });
+
+  } catch (err) {
+    console.error("View PDF failed:", err);
+
+    alert(
+      err?.message ||
+      "Could not open this PDF."
+    );
+  }
+}
+
+
+async function downloadRecord(id) {
+  try {
+    const record = await dbGet(id);
+
+    if (!record) {
+      throw new Error("PDF not found.");
+    }
+
+    const base64 = await blobToBase64(record.pdf);
+
+    const result = await Filesystem.writeFile({
+      path: record.filename,
+      data: base64,
+      directory: Directory.Documents,
+      recursive: true
+    });
+
+    alert(
+      `PDF saved successfully.\n\n${record.filename}`
+    );
+
+    console.log(
+      "Saved PDF:",
+      result.uri
+    );
+
+  } catch (err) {
+    console.error("Download PDF failed:", err);
+
+    /*
+     * Some Android versions restrict direct writes
+     * to Documents. If that happens, fall back to
+     * Android's native Share / Save interface.
+     */
+    try {
+      const record = await dbGet(id);
+
+      if (!record) {
+        throw new Error("PDF not found.");
+      }
+
+      const uri =
+        await savePdfTemporarily(record);
+
+      await Share.share({
+        title: record.filename,
+        text: "Save this generated PDF",
+        url: uri,
+        dialogTitle: "Save or share PDF"
+      });
+
+    } catch (fallbackErr) {
+      console.error(
+        "PDF fallback failed:",
+        fallbackErr
+      );
+
+      alert(
+        fallbackErr?.message ||
+        "Could not save this PDF."
+      );
+    }
+  }
+}
   const r = await dbGet(id);
   if (!r) return;
   const url = URL.createObjectURL(r.pdf);

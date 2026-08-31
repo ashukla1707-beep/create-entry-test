@@ -1,8 +1,25 @@
 import "./style.css";
-import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
-import { PDFDocument } from "pdf-lib";
-import Sortable from "sortablejs";
 
+import {
+  Camera,
+  CameraResultType,
+  CameraSource
+} from "@capacitor/camera";
+
+import {
+  Filesystem,
+  Directory
+} from "@capacitor/filesystem";
+
+import {
+  Share
+} from "@capacitor/share";
+
+import {
+  PDFDocument
+} from "pdf-lib";
+
+import Sortable from "sortablejs";
 const $ = (id) => document.getElementById(id);
 
 const state = {

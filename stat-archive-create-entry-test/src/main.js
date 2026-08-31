@@ -7,11 +7,13 @@ import { PDFDocument } from "pdf-lib";
 import Sortable from "sortablejs";
 
 const $ = (id) => document.getElementById(id);
+
 const DB_NAME = "statArchiveCreateEntryTest";
 const DB_VERSION = 1;
 const STORE = "entries";
-const EDITOR_MAX_EDGE = 720;
-const FINAL_MAX_EDGE = 1600;
+
+const EDITOR_MAX_EDGE = 1200;
+const FINAL_MAX_EDGE = 2000;
 
 const state = {
   pages: [],
@@ -41,210 +43,610 @@ const DEMO_SUBJECTS = [
 
 function openDb() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = () => {
-      const db = req.result;
-      if (!db.objectStoreNames.contains(STORE)) {
-        db.createObjectStore(STORE, { keyPath: "id" });
-      }
-    };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
+    const req =
+      indexedDB.open(
+        DB_NAME,
+        DB_VERSION
+      );
+
+    req.onupgradeneeded =
+      () => {
+        const db =
+          req.result;
+
+        if (
+          !db.objectStoreNames.contains(
+            STORE
+          )
+        ) {
+          db.createObjectStore(
+            STORE,
+            {
+              keyPath: "id",
+            }
+          );
+        }
+      };
+
+    req.onsuccess =
+      () =>
+        resolve(
+          req.result
+        );
+
+    req.onerror =
+      () =>
+        reject(
+          req.error
+        );
   });
 }
 
-async function withStore(mode, fn) {
-  const db = await openDb();
+async function withStore(
+  mode,
+  fn
+) {
+  const db =
+    await openDb();
+
   try {
-    return await new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE, mode);
-      fn(tx.objectStore(STORE), resolve, reject, tx);
-      tx.onerror = () => reject(tx.error);
-    });
+    return await new Promise(
+      (
+        resolve,
+        reject
+      ) => {
+        const tx =
+          db.transaction(
+            STORE,
+            mode
+          );
+
+        fn(
+          tx.objectStore(
+            STORE
+          ),
+          resolve,
+          reject,
+          tx
+        );
+
+        tx.onerror =
+          () =>
+            reject(
+              tx.error
+            );
+      }
+    );
+
   } finally {
     db.close();
   }
 }
 
-async function dbPut(record) {
-  return withStore("readwrite", (store, resolve, reject, tx) => {
-    store.put(record);
-    tx.oncomplete = () => resolve();
-    tx.onabort = () => reject(tx.error);
-  });
+async function dbPut(
+  record
+) {
+  return withStore(
+    "readwrite",
+    (
+      store,
+      resolve,
+      reject,
+      tx
+    ) => {
+      store.put(
+        record
+      );
+
+      tx.oncomplete =
+        () =>
+          resolve();
+
+      tx.onabort =
+        () =>
+          reject(
+            tx.error
+          );
+    }
+  );
 }
 
 async function dbGetAll() {
-  return withStore("readonly", (store, resolve, reject) => {
-    const req = store.getAll();
-    req.onsuccess = () => resolve(req.result || []);
-    req.onerror = () => reject(req.error);
-  });
+  return withStore(
+    "readonly",
+    (
+      store,
+      resolve,
+      reject
+    ) => {
+      const req =
+        store.getAll();
+
+      req.onsuccess =
+        () =>
+          resolve(
+            req.result ||
+              []
+          );
+
+      req.onerror =
+        () =>
+          reject(
+            req.error
+          );
+    }
+  );
 }
 
 async function dbGet(id) {
-  return withStore("readonly", (store, resolve, reject) => {
-    const req = store.get(id);
-    req.onsuccess = () => resolve(req.result || null);
-    req.onerror = () => reject(req.error);
-  });
+  return withStore(
+    "readonly",
+    (
+      store,
+      resolve,
+      reject
+    ) => {
+      const req =
+        store.get(id);
+
+      req.onsuccess =
+        () =>
+          resolve(
+            req.result ||
+              null
+          );
+
+      req.onerror =
+        () =>
+          reject(
+            req.error
+          );
+    }
+  );
 }
 
 async function dbDelete(id) {
-  return withStore("readwrite", (store, resolve, reject, tx) => {
-    store.delete(id);
-    tx.oncomplete = () => resolve();
-    tx.onabort = () => reject(tx.error);
-  });
+  return withStore(
+    "readwrite",
+    (
+      store,
+      resolve,
+      reject,
+      tx
+    ) => {
+      store.delete(id);
+
+      tx.oncomplete =
+        () =>
+          resolve();
+
+      tx.onabort =
+        () =>
+          reject(
+            tx.error
+          );
+    }
+  );
 }
 
 async function dbClear() {
-  return withStore("readwrite", (store, resolve, reject, tx) => {
-    store.clear();
-    tx.oncomplete = () => resolve();
-    tx.onabort = () => reject(tx.error);
-  });
+  return withStore(
+    "readwrite",
+    (
+      store,
+      resolve,
+      reject,
+      tx
+    ) => {
+      store.clear();
+
+      tx.oncomplete =
+        () =>
+          resolve();
+
+      tx.onabort =
+        () =>
+          reject(
+            tx.error
+          );
+    }
+  );
 }
 
 /* ============================================================
    GENERAL HELPERS
    ============================================================ */
 
-function setError(msg = "") {
-  $("errorBox").textContent = msg;
-  $("errorBox").hidden = !msg;
+function setError(
+  msg = ""
+) {
+  $("errorBox")
+    .textContent =
+      msg;
+
+  $("errorBox")
+    .hidden =
+      !msg;
 }
 
-function setProgress(percent, msg) {
-  $("progressWrap").hidden = false;
-  $("progressBar").style.width = `${Math.max(0, Math.min(100, percent))}%`;
-  $("progressText").textContent = msg;
+function setProgress(
+  percent,
+  msg
+) {
+  $("progressWrap")
+    .hidden =
+      false;
+
+  $("progressBar")
+    .style.width =
+      `${
+        Math.max(
+          0,
+          Math.min(
+            100,
+            percent
+          )
+        )
+      }%`;
+
+  $("progressText")
+    .textContent =
+      msg;
 }
 
 function newId() {
   return crypto.randomUUID
     ? crypto.randomUUID()
-    : `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    : `${Date.now()}_${Math.random()
+        .toString(36)
+        .slice(2)}`;
 }
 
-function slug(value) {
-  return String(value || "")
+function slug(
+  value
+) {
+  return String(
+    value || ""
+  )
     .trim()
-    .normalize("NFKD")
-    .replace(/[^\w\s-]/g, "")
-    .replace(/_/g, "-")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+    .normalize(
+      "NFKD"
+    )
+    .replace(
+      /[^\w\s-]/g,
+      ""
+    )
+    .replace(
+      /_/g,
+      "-"
+    )
+    .replace(
+      /\s+/g,
+      "-"
+    )
+    .replace(
+      /-+/g,
+      "-"
+    )
+    .replace(
+      /^-|-$/g,
+      ""
+    );
 }
 
-function filenameFor(subject, type, year) {
-  return [slug(subject) || "Document", slug(type) || "Paper", year]
+function filenameFor(
+  subject,
+  type,
+  year
+) {
+  return [
+    slug(subject) ||
+      "Document",
+
+    slug(type) ||
+      "Paper",
+
+    year,
+  ]
     .filter(Boolean)
-    .join("_") + ".pdf";
+    .join("_") +
+    ".pdf";
 }
 
 function bytesLabel(n) {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${Math.round(n / 1024)} KB`;
-  return `${(n / 1024 / 1024).toFixed(1)} MB`;
+  if (
+    n < 1024
+  ) {
+    return `${n} B`;
+  }
+
+  if (
+    n <
+    1024 * 1024
+  ) {
+    return `${
+      Math.round(
+        n / 1024
+      )
+    } KB`;
+  }
+
+  return `${
+    (
+      n /
+      1024 /
+      1024
+    ).toFixed(1)
+  } MB`;
 }
 
 function validateForm() {
-  const subject = String($("subjectInput").value || "").trim();
-  const type = $("typeInput").value;
-  const year = $("yearInput").value.trim();
+  const subject =
+    String(
+      $("subjectInput")
+        .value ||
+      ""
+    ).trim();
 
-  if (!subject) throw new Error("Choose a subject.");
-  if (!type) throw new Error("Choose a paper type.");
-  if (!/^(19|20)\d{2}$/.test(year)) throw new Error("Enter a valid 4-digit year.");
-  if (!state.pages.length) throw new Error("Add at least one photo.");
+  const type =
+    $("typeInput")
+      .value;
 
-  return { subject, type, year };
+  const year =
+    $("yearInput")
+      .value
+      .trim();
+
+  if (!subject) {
+    throw new Error(
+      "Choose a subject."
+    );
+  }
+
+  if (!type) {
+    throw new Error(
+      "Choose a paper type."
+    );
+  }
+
+  if (
+    !/^(19|20)\d{2}$/
+      .test(year)
+  ) {
+    throw new Error(
+      "Enter a valid 4-digit year."
+    );
+  }
+
+  if (
+    !state.pages.length
+  ) {
+    throw new Error(
+      "Add at least one photo."
+    );
+  }
+
+  return {
+    subject,
+    type,
+    year,
+  };
 }
 
 function nextPaint() {
-  return new Promise((resolve) => {
-    requestAnimationFrame(() => requestAnimationFrame(resolve));
-  });
+  return new Promise(
+    (resolve) => {
+      requestAnimationFrame(
+        () =>
+          requestAnimationFrame(
+            resolve
+          )
+      );
+    }
+  );
 }
 
 /* ============================================================
    SUBJECT SELECTOR
-
-   Test mode uses demo subjects. During Stat Archive integration,
-   replace DEMO_SUBJECTS with the live subjects array / Worker data.
    ============================================================ */
 
 function ensureSubjectSelector() {
-  const current = $("subjectInput");
-  if (!current) return;
+  const current =
+    $("subjectInput");
 
-  const existingNames = Array.isArray(window.statArchiveSubjects)
-    ? window.statArchiveSubjects.map((s) => String(s?.name || "").trim()).filter(Boolean)
-    : DEMO_SUBJECTS;
-
-  if (current.tagName === "SELECT" && current.dataset.scannerReady === "true") return;
-
-  const select = document.createElement("select");
-  select.id = "subjectInput";
-  select.dataset.scannerReady = "true";
-
-  const names = [...new Set(existingNames)].sort((a, b) => a.localeCompare(b));
-
-  names.forEach((name) => {
-    const option = document.createElement("option");
-    option.value = name;
-    option.textContent = name;
-    select.appendChild(option);
-  });
-
-  const custom = document.createElement("option");
-  custom.value = "__custom__";
-  custom.textContent = "Other / custom subject…";
-  select.appendChild(custom);
-
-  const oldValue = String(current.value || "").trim();
-  current.replaceWith(select);
-
-  if (oldValue && names.includes(oldValue)) {
-    select.value = oldValue;
+  if (!current) {
+    return;
   }
 
-  select.addEventListener("change", () => {
-    if (select.value !== "__custom__") return;
+  const existingNames =
+    Array.isArray(
+      window
+        .statArchiveSubjects
+    )
+      ? window
+          .statArchiveSubjects
+          .map(
+            (s) =>
+              String(
+                s?.name ||
+                ""
+              )
+                .trim()
+          )
+          .filter(
+            Boolean
+          )
+      : DEMO_SUBJECTS;
 
-    const name = prompt("Enter subject name:", "");
+  if (
+    current.tagName ===
+      "SELECT" &&
+    current.dataset
+      .scannerReady ===
+      "true"
+  ) {
+    return;
+  }
 
-    if (!name?.trim()) {
-      select.selectedIndex = 0;
-      return;
+  const select =
+    document.createElement(
+      "select"
+    );
+
+  select.id =
+    "subjectInput";
+
+  select.dataset
+    .scannerReady =
+      "true";
+
+  const names =
+    [
+      ...new Set(
+        existingNames
+      ),
+    ]
+      .sort(
+        (a, b) =>
+          a.localeCompare(
+            b
+          )
+      );
+
+  names.forEach(
+    (name) => {
+      const option =
+        document
+          .createElement(
+            "option"
+          );
+
+      option.value =
+        name;
+
+      option.textContent =
+        name;
+
+      select
+        .appendChild(
+          option
+        );
     }
+  );
 
-    const clean = name.trim();
-    const option = document.createElement("option");
+  const custom =
+    document
+      .createElement(
+        "option"
+      );
 
-    option.value = clean;
-    option.textContent = clean;
+  custom.value =
+    "__custom__";
 
-    select.insertBefore(option, custom);
-    select.value = clean;
-  });
+  custom.textContent =
+    "Other / custom subject…";
+
+  select.appendChild(
+    custom
+  );
+
+  const oldValue =
+    String(
+      current.value ||
+      ""
+    ).trim();
+
+  current.replaceWith(
+    select
+  );
+
+  if (
+    oldValue &&
+    names.includes(
+      oldValue
+    )
+  ) {
+    select.value =
+      oldValue;
+  }
+
+  select.addEventListener(
+    "change",
+    () => {
+      if (
+        select.value !==
+        "__custom__"
+      ) {
+        return;
+      }
+
+      const name =
+        prompt(
+          "Enter subject name:",
+          ""
+        );
+
+      if (
+        !name?.trim()
+      ) {
+        select.selectedIndex =
+          0;
+
+        return;
+      }
+
+      const clean =
+        name.trim();
+
+      const option =
+        document
+          .createElement(
+            "option"
+          );
+
+      option.value =
+        clean;
+
+      option.textContent =
+        clean;
+
+      select.insertBefore(
+        option,
+        custom
+      );
+
+      select.value =
+        clean;
+    }
+  );
 }
 
 /* ============================================================
    CAMERA / GALLERY
    ============================================================ */
 
-async function mediaResultToBlob(result) {
-  if (!result?.webPath) {
-    throw new Error("The selected image could not be read.");
+async function mediaResultToBlob(
+  result
+) {
+  if (
+    !result?.webPath
+  ) {
+    throw new Error(
+      "The selected image could not be read."
+    );
   }
 
-  const response = await fetch(result.webPath);
+  const response =
+    await fetch(
+      result.webPath
+    );
 
-  if (!response.ok) {
-    throw new Error("Couldn't read the selected photo.");
+  if (
+    !response.ok
+  ) {
+    throw new Error(
+      "Couldn't read the selected photo."
+    );
   }
 
   return response.blob();
@@ -252,81 +654,171 @@ async function mediaResultToBlob(result) {
 
 function defaultEdit() {
   return {
-    rotation: 0,
-    filter: "original",
-    magicIntensity: 88,
-    brightness: 0,
-    contrast: 18,
+    rotation:
+      0,
+
+    filter:
+      "magic",
+
     crop: {
-      x: 0.02,
-      y: 0.02,
-      w: 0.96,
-      h: 0.96,
+      x:
+        0.02,
+
+      y:
+        0.02,
+
+      w:
+        0.96,
+
+      h:
+        0.96,
     },
   };
 }
 
-function makePage(blob) {
+function makePage(
+  blob
+) {
   return {
-    id: newId(),
-    originalBlob: blob,
-    thumbUrl: URL.createObjectURL(blob),
-    edit: defaultEdit(),
+    id:
+      newId(),
+
+    originalBlob:
+      blob,
+
+    thumbUrl:
+      URL.createObjectURL(
+        blob
+      ),
+
+    edit:
+      defaultEdit(),
   };
 }
 
 async function capturePhoto() {
   setError("");
 
-  const result = await Camera.takePhoto({
-    quality: 90,
-    targetWidth: 1800,
-    targetHeight: 1800,
-    correctOrientation: true,
-    saveToGallery: false,
-    includeMetadata: true,
-    editable: "no",
-  });
+  const result =
+    await Camera.takePhoto(
+      {
+        quality:
+          90,
 
-  const page = makePage(await mediaResultToBlob(result));
+        targetWidth:
+          2600,
 
-  state.pages.push(page);
+        targetHeight:
+          2600,
+
+        correctOrientation:
+          true,
+
+        saveToGallery:
+          false,
+
+        includeMetadata:
+          true,
+
+        editable:
+          "no",
+      }
+    );
+
+  const page =
+    makePage(
+      await mediaResultToBlob(
+        result
+      )
+    );
+
+  state.pages.push(
+    page
+  );
 
   renderPages();
 
-  await openEditor(page.id);
+  await openEditor(
+    page.id
+  );
 }
 
 async function chooseMultiplePhotos() {
   setError("");
 
-  const { results } = await Camera.chooseFromGallery({
-    mediaType: MediaTypeSelection.Photo,
-    allowMultipleSelection: true,
-    limit: 30,
-    quality: 90,
-    targetWidth: 1800,
-    targetHeight: 1800,
-    correctOrientation: true,
-    includeMetadata: true,
-    editable: "no",
-  });
+  const {
+    results,
+  } =
+    await Camera
+      .chooseFromGallery(
+        {
+          mediaType:
+            MediaTypeSelection
+              .Photo,
 
-  if (!results?.length) return;
+          allowMultipleSelection:
+            true,
 
-  const added = [];
+          limit:
+            30,
 
-  for (const result of results) {
-    const page = makePage(await mediaResultToBlob(result));
+          quality:
+            90,
 
-    state.pages.push(page);
-    added.push(page.id);
+          targetWidth:
+            2600,
+
+          targetHeight:
+            2600,
+
+          correctOrientation:
+            true,
+
+          includeMetadata:
+            true,
+
+          editable:
+            "no",
+        }
+      );
+
+  if (
+    !results?.length
+  ) {
+    return;
+  }
+
+  const added =
+    [];
+
+  for (
+    const result
+    of results
+  ) {
+    const page =
+      makePage(
+        await mediaResultToBlob(
+          result
+        )
+      );
+
+    state.pages.push(
+      page
+    );
+
+    added.push(
+      page.id
+    );
   }
 
   renderPages();
 
-  if (added.length) {
-    await openEditor(added[0]);
+  if (
+    added.length
+  ) {
+    await openEditor(
+      added[0]
+    );
   }
 }
 
@@ -334,264 +826,625 @@ async function chooseMultiplePhotos() {
    IMAGE RENDERING
    ============================================================ */
 
-function drawRotated(ctx, bitmap, rotation, w, h) {
+function drawRotated(
+  ctx,
+  bitmap,
+  rotation,
+  w,
+  h
+) {
   ctx.save();
 
-  if (rotation === 90) {
-    ctx.translate(w, 0);
-    ctx.rotate(Math.PI / 2);
-    ctx.drawImage(bitmap, 0, 0, h, w);
-  } else if (rotation === 180) {
-    ctx.translate(w, h);
-    ctx.rotate(Math.PI);
-    ctx.drawImage(bitmap, 0, 0, w, h);
-  } else if (rotation === 270) {
-    ctx.translate(0, h);
-    ctx.rotate(-Math.PI / 2);
-    ctx.drawImage(bitmap, 0, 0, h, w);
+  if (
+    rotation === 90
+  ) {
+    ctx.translate(
+      w,
+      0
+    );
+
+    ctx.rotate(
+      Math.PI / 2
+    );
+
+    ctx.drawImage(
+      bitmap,
+      0,
+      0,
+      h,
+      w
+    );
+
+  } else if (
+    rotation === 180
+  ) {
+    ctx.translate(
+      w,
+      h
+    );
+
+    ctx.rotate(
+      Math.PI
+    );
+
+    ctx.drawImage(
+      bitmap,
+      0,
+      0,
+      w,
+      h
+    );
+
+  } else if (
+    rotation === 270
+  ) {
+    ctx.translate(
+      0,
+      h
+    );
+
+    ctx.rotate(
+      -Math.PI / 2
+    );
+
+    ctx.drawImage(
+      bitmap,
+      0,
+      0,
+      h,
+      w
+    );
+
   } else {
-    ctx.drawImage(bitmap, 0, 0, w, h);
+    ctx.drawImage(
+      bitmap,
+      0,
+      0,
+      w,
+      h
+    );
   }
 
   ctx.restore();
 }
 
-function clampByte(value) {
-  return Math.max(0, Math.min(255, value));
+function clampByte(
+  value
+) {
+  return Math.max(
+    0,
+    Math.min(
+      255,
+      value
+    )
+  );
 }
 
-function applyAdjustments(canvas, edit) {
-  const filter = edit.filter || "original";
-  const brightness = Number(edit.brightness || 0);
-  const contrastAmount = Number(edit.contrast || 0);
+/* ============================================================
+   MAGIC FILTER
 
-  const magicIntensity = Math.max(
-    0,
-    Math.min(100, Number(edit.magicIntensity ?? 88))
-  );
+   Only two modes:
+   ORIGINAL
+   MAGIC
 
+   Magic is default.
+   ============================================================ */
+
+function applyAdjustments(
+  canvas,
+  edit
+) {
+  const filter =
+    edit.filter ||
+    "magic";
+
+  /*
+   * Original means truly original.
+   */
   if (
-    filter === "original" &&
-    brightness === 0 &&
-    contrastAmount === 0
+    filter ===
+    "original"
   ) {
     return;
   }
 
-  const ctx = canvas.getContext("2d", {
-    willReadFrequently: true,
-  });
+  const ctx =
+    canvas.getContext(
+      "2d",
+      {
+        willReadFrequently:
+          true,
+      }
+    );
 
-  const image = ctx.getImageData(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
+  const image =
+    ctx.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
 
-  const d = image.data;
+  const d =
+    image.data;
 
-  let low = 0;
-  let high = 255;
-  let bwThreshold = 160;
+  /*
+   * Build histogram.
+   */
 
-  if (filter === "magic") {
-    const histogram = new Uint32Array(256);
+  const histogram =
+    new Uint32Array(
+      256
+    );
 
-    let samples = 0;
+  let samples =
+    0;
 
-    for (let i = 0; i < d.length; i += 16) {
-      const lum = clampByte(
-        Math.round(
-          0.299 * d[i] +
-          0.587 * d[i + 1] +
-          0.114 * d[i + 2]
-        )
+  for (
+    let i = 0;
+    i < d.length;
+    i += 16
+  ) {
+    const lum =
+      Math.round(
+        0.299 *
+          d[i] +
+
+        0.587 *
+          d[i + 1] +
+
+        0.114 *
+          d[i + 2]
       );
 
-      histogram[lum]++;
-      samples++;
-    }
-
-    const strength = magicIntensity / 100;
-
-    const lowTarget =
-      samples * (0.015 + 0.015 * strength);
-
-    const highTarget =
-      samples * (0.985 - 0.025 * strength);
-
-    let count = 0;
-
-    for (let i = 0; i < 256; i++) {
-      count += histogram[i];
-
-      if (count >= lowTarget) {
-        low = i;
-        break;
-      }
-    }
-
-    count = 0;
-
-    for (let i = 0; i < 256; i++) {
-      count += histogram[i];
-
-      if (count >= highTarget) {
-        high = i;
-        break;
-      }
-    }
-
-    if (high - low < 40) {
-      low = Math.max(0, low - 25);
-      high = Math.min(255, high + 25);
-    }
-  }
-
-  if (filter === "bw") {
-    let sum = 0;
-    let count = 0;
-
-    for (let i = 0; i < d.length; i += 16) {
-      sum +=
-        0.299 * d[i] +
-        0.587 * d[i + 1] +
-        0.114 * d[i + 2];
-
-      count++;
-    }
-
-    bwThreshold = Math.max(
-      120,
-      Math.min(
-        205,
-        (sum / Math.max(1, count)) * 0.96
+    histogram[
+      clampByte(
+        lum
       )
-    );
+    ]++;
+
+    samples++;
   }
 
-  const contrastFactor =
-    (259 * (contrastAmount + 255)) /
-    (255 * (259 - contrastAmount));
+  /*
+   * Ignore very dark shadows
+   * and very bright glare.
+   */
 
-  const magicStrength = magicIntensity / 100;
-  const range = Math.max(1, high - low);
+  const lowTarget =
+    samples *
+    0.025;
 
-  for (let i = 0; i < d.length; i += 4) {
-    let r = d[i];
-    let g = d[i + 1];
-    let b = d[i + 2];
+  const highTarget =
+    samples *
+    0.965;
 
-    const lum = Math.max(
+  let low =
+    0;
+
+  let high =
+    255;
+
+  let running =
+    0;
+
+  for (
+    let i = 0;
+    i < 256;
+    i++
+  ) {
+    running +=
+      histogram[i];
+
+    if (
+      running >=
+      lowTarget
+    ) {
+      low = i;
+      break;
+    }
+  }
+
+  running =
+    0;
+
+  for (
+    let i = 0;
+    i < 256;
+    i++
+  ) {
+    running +=
+      histogram[i];
+
+    if (
+      running >=
+      highTarget
+    ) {
+      high = i;
+      break;
+    }
+  }
+
+  if (
+    high - low <
+    55
+  ) {
+    low =
+      Math.max(
+        0,
+        low - 30
+      );
+
+    high =
+      Math.min(
+        255,
+        high + 30
+      );
+  }
+
+  const range =
+    Math.max(
       1,
-      0.299 * r +
-      0.587 * g +
-      0.114 * b
+      high - low
     );
 
-    if (filter === "grayscale") {
-      r = g = b = lum;
-    } else if (filter === "bw") {
-      const v =
-        lum >= bwThreshold
-          ? 255
-          : 0;
+  /*
+   * Scanner-style enhancement.
+   */
 
-      r = g = b = v;
-    } else if (filter === "magic") {
-      let mapped =
-        ((lum - low) * 255) / range;
+  for (
+    let i = 0;
+    i < d.length;
+    i += 4
+  ) {
+    const originalR =
+      d[i];
 
-      mapped = clampByte(mapped);
+    const originalG =
+      d[i + 1];
 
-      const paperStart =
-        200 - 30 * magicStrength;
+    const originalB =
+      d[i + 2];
 
-      if (mapped > paperStart) {
-        mapped =
-          paperStart +
-          (mapped - paperStart) *
-          (1.35 + 1.05 * magicStrength);
-      }
+    const lum =
+      Math.max(
+        1,
 
-      const textLimit =
-        115 + 20 * magicStrength;
+        0.299 *
+          originalR +
 
-      if (mapped < textLimit) {
-        mapped *=
-          1 - 0.42 * magicStrength;
-      }
+        0.587 *
+          originalG +
 
-      if (mapped < 55) {
-        mapped *=
-          1 - 0.18 * magicStrength;
-      }
+        0.114 *
+          originalB
+      );
 
-      mapped = clampByte(mapped);
+    let mapped =
+      (
+        (
+          lum -
+          low
+        ) *
+        255
+      ) /
+      range;
 
-      const scale = mapped / lum;
+    mapped =
+      clampByte(
+        mapped
+      );
 
-      r *= scale;
-      g *= scale;
-      b *= scale;
+    /*
+     * Whiten paper.
+     */
 
-      const gray = (r + g + b) / 3;
+    if (
+      mapped >
+      170
+    ) {
+      const t =
+        (
+          mapped -
+          170
+        ) /
+        85;
 
-      const saturation =
-        1 - 0.72 * magicStrength;
+      mapped +=
+        (
+          255 -
+          mapped
+        ) *
+        Math.min(
+          1,
+          t * 1.8
+        );
 
-      r = gray + (r - gray) * saturation;
-      g = gray + (g - gray) * saturation;
-      b = gray + (b - gray) * saturation;
-
-      const extraContrast =
-        1 + 0.42 * magicStrength;
-
-      r =
-        (r - 128) *
-        extraContrast +
-        128;
-
-      g =
-        (g - 128) *
-        extraContrast +
-        128;
-
-      b =
-        (b - 128) *
-        extraContrast +
-        128;
+    } else if (
+      mapped >
+      125
+    ) {
+      /*
+       * Lift mid-light areas.
+       * Helps remove grey shadows.
+       */
+      mapped +=
+        (
+          mapped -
+          125
+        ) *
+        0.34;
     }
 
-    r += brightness;
-    g += brightness;
-    b += brightness;
+    /*
+     * Darken text.
+     */
 
-    if (contrastAmount !== 0) {
-      r =
-        contrastFactor *
-        (r - 128) +
-        128;
-
-      g =
-        contrastFactor *
-        (g - 128) +
-        128;
-
-      b =
-        contrastFactor *
-        (b - 128) +
-        128;
+    if (
+      mapped <
+      125
+    ) {
+      mapped *=
+        0.70;
     }
 
-    d[i] = clampByte(r);
-    d[i + 1] = clampByte(g);
-    d[i + 2] = clampByte(b);
+    if (
+      mapped <
+      70
+    ) {
+      mapped *=
+        0.78;
+    }
+
+    mapped =
+      clampByte(
+        mapped
+      );
+
+    /*
+     * Preserve some pen colour.
+     */
+
+    const scale =
+      mapped /
+      lum;
+
+    let r =
+      originalR *
+      scale;
+
+    let g =
+      originalG *
+      scale;
+
+    let b =
+      originalB *
+      scale;
+
+    /*
+     * Remove paper colour cast,
+     * but retain blue/red pen.
+     */
+
+    const gray =
+      (
+        r +
+        g +
+        b
+      ) /
+      3;
+
+    const saturation =
+      0.48;
+
+    r =
+      gray +
+      (
+        r -
+        gray
+      ) *
+      saturation;
+
+    g =
+      gray +
+      (
+        g -
+        gray
+      ) *
+      saturation;
+
+    b =
+      gray +
+      (
+        b -
+        gray
+      ) *
+      saturation;
+
+    /*
+     * Final document contrast.
+     */
+
+    const contrast =
+      1.20;
+
+    r =
+      (
+        r -
+        128
+      ) *
+      contrast +
+      128;
+
+    g =
+      (
+        g -
+        128
+      ) *
+      contrast +
+      128;
+
+    b =
+      (
+        b -
+        128
+      ) *
+      contrast +
+      128;
+
+    d[i] =
+      clampByte(r);
+
+    d[i + 1] =
+      clampByte(g);
+
+    d[i + 2] =
+      clampByte(b);
   }
 
-  ctx.putImageData(image, 0, 0);
+  ctx.putImageData(
+    image,
+    0,
+    0
+  );
+
+  /*
+   * Mild sharpening.
+   */
+
+  const source =
+    ctx.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+  const src =
+    source.data;
+
+  const sharpened =
+    ctx.createImageData(
+      canvas.width,
+      canvas.height
+    );
+
+  const dst =
+    sharpened.data;
+
+  const width =
+    canvas.width;
+
+  const height =
+    canvas.height;
+
+  /*
+   * Copy original processed pixels first.
+   * This preserves border pixels.
+   */
+
+  dst.set(src);
+
+  for (
+    let y = 1;
+    y < height - 1;
+    y++
+  ) {
+    for (
+      let x = 1;
+      x < width - 1;
+      x++
+    ) {
+      const p =
+        (
+          y *
+          width +
+          x
+        ) *
+        4;
+
+      const left =
+        p - 4;
+
+      const right =
+        p + 4;
+
+      const up =
+        p -
+        width *
+        4;
+
+      const down =
+        p +
+        width *
+        4;
+
+      for (
+        let channel = 0;
+        channel < 3;
+        channel++
+      ) {
+        const center =
+          src[
+            p +
+            channel
+          ];
+
+        const neighbours =
+          (
+            src[
+              left +
+              channel
+            ] +
+
+            src[
+              right +
+              channel
+            ] +
+
+            src[
+              up +
+              channel
+            ] +
+
+            src[
+              down +
+              channel
+            ]
+          ) /
+          4;
+
+        dst[
+          p +
+          channel
+        ] =
+          clampByte(
+            center +
+            (
+              center -
+              neighbours
+            ) *
+            0.28
+          );
+      }
+
+      dst[
+        p + 3
+      ] =
+        255;
+    }
+  }
+
+  ctx.putImageData(
+    sharpened,
+    0,
+    0
+  );
 }
+
+/* ============================================================
+   RENDER EDITED IMAGE
+   ============================================================ */
 
 async function renderEditedCanvas(
   page,
@@ -599,11 +1452,16 @@ async function renderEditedCanvas(
   includeCrop = true
 ) {
   const bitmap =
-    await createImageBitmap(page.originalBlob);
+    await createImageBitmap(
+      page.originalBlob
+    );
 
   try {
     const rotation =
-      Number(page.edit.rotation || 0);
+      Number(
+        page.edit.rotation ||
+        0
+      );
 
     const rotated =
       rotation === 90 ||
@@ -623,35 +1481,62 @@ async function renderEditedCanvas(
       Math.min(
         1,
         maxEdge /
-        Math.max(naturalW, naturalH)
+        Math.max(
+          naturalW,
+          naturalH
+        )
       );
 
     const w =
       Math.max(
         1,
-        Math.round(naturalW * scale)
+        Math.round(
+          naturalW *
+          scale
+        )
       );
 
     const h =
       Math.max(
         1,
-        Math.round(naturalH * scale)
+        Math.round(
+          naturalH *
+          scale
+        )
       );
 
     const canvas =
-      document.createElement("canvas");
+      document.createElement(
+        "canvas"
+      );
 
-    canvas.width = w;
-    canvas.height = h;
+    canvas.width =
+      w;
+
+    canvas.height =
+      h;
 
     const ctx =
-      canvas.getContext("2d", {
-        alpha: false,
-        willReadFrequently: true,
-      });
+      canvas.getContext(
+        "2d",
+        {
+          alpha:
+            false,
 
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, w, h);
+          willReadFrequently:
+            true,
+        }
+      );
+
+    ctx.fillStyle =
+      "#fff";
+
+    ctx.fillRect(
+      0,
+      0,
+      w,
+      h
+    );
 
     drawRotated(
       ctx,
@@ -666,7 +1551,9 @@ async function renderEditedCanvas(
       page.edit
     );
 
-    if (!includeCrop) {
+    if (
+      !includeCrop
+    ) {
       return canvas;
     }
 
@@ -681,21 +1568,32 @@ async function renderEditedCanvas(
     const sx =
       Math.max(
         0,
-        Math.round(c.x * canvas.width)
+        Math.round(
+          c.x *
+          canvas.width
+        )
       );
 
     const sy =
       Math.max(
         0,
-        Math.round(c.y * canvas.height)
+        Math.round(
+          c.y *
+          canvas.height
+        )
       );
 
     const sw =
       Math.max(
         1,
         Math.min(
-          canvas.width - sx,
-          Math.round(c.w * canvas.width)
+          canvas.width -
+          sx,
+
+          Math.round(
+            c.w *
+            canvas.width
+          )
         )
       );
 
@@ -703,23 +1601,39 @@ async function renderEditedCanvas(
       Math.max(
         1,
         Math.min(
-          canvas.height - sy,
-          Math.round(c.h * canvas.height)
+          canvas.height -
+          sy,
+
+          Math.round(
+            c.h *
+            canvas.height
+          )
         )
       );
 
     const out =
-      document.createElement("canvas");
+      document.createElement(
+        "canvas"
+      );
 
-    out.width = sw;
-    out.height = sh;
+    out.width =
+      sw;
+
+    out.height =
+      sh;
 
     const outCtx =
-      out.getContext("2d", {
-        alpha: false,
-      });
+      out.getContext(
+        "2d",
+        {
+          alpha:
+            false,
+        }
+      );
 
-    outCtx.fillStyle = "#fff";
+    outCtx.fillStyle =
+      "#fff";
+
     outCtx.fillRect(
       0,
       0,
@@ -729,10 +1643,12 @@ async function renderEditedCanvas(
 
     outCtx.drawImage(
       canvas,
+
       sx,
       sy,
       sw,
       sh,
+
       0,
       0,
       sw,
@@ -740,6 +1656,7 @@ async function renderEditedCanvas(
     );
 
     return out;
+
   } finally {
     bitmap.close?.();
   }
@@ -750,17 +1667,24 @@ function canvasToJpeg(
   quality = 0.8
 ) {
   return new Promise(
-    (resolve, reject) => {
+    (
+      resolve,
+      reject
+    ) => {
       canvas.toBlob(
         (blob) =>
           blob
-            ? resolve(blob)
+            ? resolve(
+                blob
+              )
             : reject(
                 new Error(
                   "Could not save image."
                 )
               ),
+
         "image/jpeg",
+
         quality
       );
     }
@@ -772,12 +1696,16 @@ function canvasToJpeg(
    ============================================================ */
 
 function installEditor() {
-  if ($("pageEditorOverlay")) {
+  if (
+    $("pageEditorOverlay")
+  ) {
     return;
   }
 
   const style =
-    document.createElement("style");
+    document.createElement(
+      "style"
+    );
 
   style.textContent = `
     .sheet-backdrop[hidden],
@@ -932,26 +1860,6 @@ function installEditor() {
       font-weight:800
     }
 
-    .pe-slider{
-      display:grid;
-      grid-template-columns:88px 1fr 42px;
-      gap:8px;
-      align-items:center;
-      margin:8px 0;
-      font-size:12px;
-      color:#9aabba
-    }
-
-    .pe-slider input{
-      width:100%;
-      padding:0
-    }
-
-    .pe-slider output{
-      text-align:right;
-      color:#edf4fb
-    }
-
     .thumb-actions{
       max-width:94px;
       flex-wrap:wrap;
@@ -963,10 +1871,14 @@ function installEditor() {
     }
   `;
 
-  document.head.appendChild(style);
+  document.head.appendChild(
+    style
+  );
 
   const overlay =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   overlay.id =
     "pageEditorOverlay";
@@ -974,7 +1886,8 @@ function installEditor() {
   overlay.className =
     "page-editor-backdrop";
 
-  overlay.hidden = true;
+  overlay.hidden =
+    true;
 
   overlay.innerHTML = `
     <div
@@ -982,9 +1895,13 @@ function installEditor() {
       role="dialog"
       aria-modal="true"
     >
+
       <div class="pe-head">
+
         <div>
-          <strong id="peTitle">
+          <strong
+            id="peTitle"
+          >
             Edit page
           </strong>
 
@@ -1005,17 +1922,22 @@ function installEditor() {
         >
           Cancel
         </button>
+
       </div>
 
       <div
         class="pe-stage"
         id="peStage"
       >
+
         <canvas
           id="peCanvas"
         ></canvas>
 
-        <div id="cropBox">
+        <div
+          id="cropBox"
+        >
+
           <span
             class="crop-handle"
             data-handle="nw"
@@ -1035,11 +1957,18 @@ function installEditor() {
             class="crop-handle"
             data-handle="se"
           ></span>
+
         </div>
       </div>
 
-      <div class="pe-controls">
-        <div class="pe-row">
+      <div
+        class="pe-controls"
+      >
+
+        <div
+          class="pe-row"
+        >
+
           <button
             id="rotL"
             type="button"
@@ -1067,12 +1996,14 @@ function installEditor() {
           >
             Reset all
           </button>
+
         </div>
 
         <div
           class="pe-row"
           id="filterRow"
         >
+
           <button
             class="pe-filter"
             data-filter="original"
@@ -1089,81 +2020,12 @@ function installEditor() {
             ✨ Magic
           </button>
 
-          <button
-            class="pe-filter"
-            data-filter="grayscale"
-            type="button"
-          >
-            Grayscale
-          </button>
-
-          <button
-            class="pe-filter"
-            data-filter="bw"
-            type="button"
-          >
-            B&amp;W
-          </button>
         </div>
 
-        <label
-          class="pe-slider"
-          id="magicSliderRow"
+        <div
+          class="pe-row"
         >
-          <span>
-            Magic strength
-          </span>
 
-          <input
-            id="magicIntensity"
-            type="range"
-            min="0"
-            max="100"
-            step="1"
-          >
-
-          <output
-            id="magicIntensityOut"
-          ></output>
-        </label>
-
-        <label class="pe-slider">
-          <span>
-            Brightness
-          </span>
-
-          <input
-            id="brightnessSlider"
-            type="range"
-            min="-40"
-            max="40"
-            step="1"
-          >
-
-          <output
-            id="brightnessOut"
-          ></output>
-        </label>
-
-        <label class="pe-slider">
-          <span>
-            Contrast
-          </span>
-
-          <input
-            id="contrastSlider"
-            type="range"
-            min="-20"
-            max="60"
-            step="1"
-          >
-
-          <output
-            id="contrastOut"
-          ></output>
-        </label>
-
-        <div class="pe-row">
           <button
             class="pe-apply"
             id="peApply"
@@ -1179,77 +2041,86 @@ function installEditor() {
           >
             Apply &amp; next
           </button>
+
         </div>
+
       </div>
     </div>
   `;
 
-  document.body.appendChild(overlay);
-
-  $("peCancel").onclick =
-    closeEditor;
-
-  $("rotL").onclick =
-    () => rotateEditor(-90);
-
-  $("rotR").onclick =
-    () => rotateEditor(90);
-
-  $("peResetCrop").onclick =
-    resetCrop;
-
-  $("peReset").onclick =
-    resetEditor;
-
-  $("peApply").onclick =
-    () => applyEditor(false);
-
-  $("peApplyNext").onclick =
-    () => applyEditor(true);
-
-  $("filterRow").addEventListener(
-    "click",
-    (event) => {
-      const btn =
-        event.target.closest(
-          "[data-filter]"
-        );
-
-      if (!btn || !state.editor) {
-        return;
-      }
-
-      state.editor.edit.filter =
-        btn.dataset.filter ||
-        "original";
-
-      syncEditorControls();
-
-      scheduleEditorRedraw();
-    }
+  document.body.appendChild(
+    overlay
   );
 
-  [
-    ["magicIntensity", "magicIntensity"],
-    ["brightnessSlider", "brightness"],
-    ["contrastSlider", "contrast"],
-  ].forEach(([id, key]) => {
-    $(id).addEventListener(
-      "input",
-      () => {
-        if (!state.editor) {
+  $("peCancel")
+    .onclick =
+      closeEditor;
+
+  $("rotL")
+    .onclick =
+      () =>
+        rotateEditor(
+          -90
+        );
+
+  $("rotR")
+    .onclick =
+      () =>
+        rotateEditor(
+          90
+        );
+
+  $("peResetCrop")
+    .onclick =
+      resetCrop;
+
+  $("peReset")
+    .onclick =
+      resetEditor;
+
+  $("peApply")
+    .onclick =
+      () =>
+        applyEditor(
+          false
+        );
+
+  $("peApplyNext")
+    .onclick =
+      () =>
+        applyEditor(
+          true
+        );
+
+  $("filterRow")
+    .addEventListener(
+      "click",
+      (event) => {
+        const btn =
+          event.target
+            .closest(
+              "[data-filter]"
+            );
+
+        if (
+          !btn ||
+          !state.editor
+        ) {
           return;
         }
 
-        state.editor.edit[key] =
-          Number($(id).value);
+        state.editor
+          .edit
+          .filter =
+            btn.dataset
+              .filter ||
+            "original";
 
-        syncEditorControls(false);
+        syncEditorControls();
 
         scheduleEditorRedraw();
       }
     );
-  });
 
   setupCropGestures();
 
@@ -1258,7 +2129,9 @@ function installEditor() {
     () => {
       if (
         state.editor &&
-        !$("pageEditorOverlay").hidden
+        !$(
+          "pageEditorOverlay"
+        ).hidden
       ) {
         positionCropBox();
       }
@@ -1278,12 +2151,15 @@ function scheduleEditorRedraw() {
     );
 }
 
-async function openEditor(pageId) {
+async function openEditor(
+  pageId
+) {
   installEditor();
 
   const page =
     state.pages.find(
-      (p) => p.id === pageId
+      (p) =>
+        p.id === pageId
     );
 
   if (!page) {
@@ -1292,32 +2168,46 @@ async function openEditor(pageId) {
 
   state.editor = {
     pageId,
-    edit: JSON.parse(
-      JSON.stringify(
-        page.edit ||
-        defaultEdit()
-      )
-    ),
+
+    edit:
+      JSON.parse(
+        JSON.stringify(
+          page.edit ||
+          defaultEdit()
+        )
+      ),
   };
 
   const index =
-    state.pages.findIndex(
-      (p) => p.id === pageId
-    );
+    state.pages
+      .findIndex(
+        (p) =>
+          p.id ===
+          pageId
+      );
 
-  $("peTitle").textContent =
-    `Edit page ${index + 1}`;
+  $("peTitle")
+    .textContent =
+      `Edit page ${
+        index + 1
+      }`;
 
-  $("peApplyNext").style.display =
-    index < state.pages.length - 1
-      ? "inline-flex"
-      : "none";
+  $("peApplyNext")
+    .style.display =
+      index <
+      state.pages.length -
+        1
+        ? "inline-flex"
+        : "none";
 
-  $("pageEditorOverlay").hidden =
-    false;
+  $("pageEditorOverlay")
+    .hidden =
+      false;
 
-  document.body.style.overflow =
-    "hidden";
+  document.body
+    .style
+    .overflow =
+      "hidden";
 
   syncEditorControls();
 
@@ -1329,19 +2219,23 @@ function closeEditor() {
     state.editorRedrawTimer
   );
 
-  state.editor = null;
+  state.editor =
+    null;
 
-  $("pageEditorOverlay").hidden =
-    true;
+  $("pageEditorOverlay")
+    .hidden =
+      true;
 
-  document.body.style.overflow =
-    "";
+  document.body
+    .style
+    .overflow =
+      "";
 }
 
-function syncEditorControls(
-  updateInputs = true
-) {
-  if (!state.editor) {
+function syncEditorControls() {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -1352,72 +2246,46 @@ function syncEditorControls(
     .querySelectorAll(
       ".pe-filter"
     )
-    .forEach((btn) => {
-      btn.classList.toggle(
-        "active",
-        btn.dataset.filter ===
-          edit.filter
-      );
-    });
-
-  $("magicSliderRow").style.display =
-    edit.filter === "magic"
-      ? "grid"
-      : "none";
-
-  if (updateInputs) {
-    $("magicIntensity").value =
-      String(
-        edit.magicIntensity ?? 88
-      );
-
-    $("brightnessSlider").value =
-      String(
-        edit.brightness ?? 0
-      );
-
-    $("contrastSlider").value =
-      String(
-        edit.contrast ?? 18
-      );
-  }
-
-  $("magicIntensityOut").textContent =
-    `${Math.round(
-      edit.magicIntensity ?? 88
-    )}%`;
-
-  $("brightnessOut").textContent =
-    `${
-      Number(edit.brightness || 0) > 0
-        ? "+"
-        : ""
-    }${edit.brightness || 0}`;
-
-  $("contrastOut").textContent =
-    `${
-      Number(edit.contrast || 0) > 0
-        ? "+"
-        : ""
-    }${edit.contrast || 0}`;
+    .forEach(
+      (btn) => {
+        btn.classList
+          .toggle(
+            "active",
+            btn.dataset
+              .filter ===
+              edit.filter
+          );
+      }
+    );
 }
 
-function rotateEditor(delta) {
-  if (!state.editor) {
+function rotateEditor(
+  delta
+) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
-  state.editor.edit.rotation =
-    (
-      Number(
-        state.editor.edit.rotation ||
-        0
-      ) +
-      delta +
-      360
-    ) % 360;
+  state.editor
+    .edit
+    .rotation =
+      (
+        Number(
+          state.editor
+            .edit
+            .rotation ||
+          0
+        ) +
+        delta +
+        360
+      ) %
+      360;
 
-  resetCrop(false);
+  resetCrop(
+    false
+  );
 
   redrawEditor();
 }
@@ -1425,24 +2293,39 @@ function rotateEditor(delta) {
 function resetCrop(
   redraw = true
 ) {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
-  state.editor.edit.crop = {
-    x: 0.02,
-    y: 0.02,
-    w: 0.96,
-    h: 0.96,
-  };
+  state.editor
+    .edit
+    .crop = {
+      x:
+        0.02,
 
-  if (redraw) {
+      y:
+        0.02,
+
+      w:
+        0.96,
+
+      h:
+        0.96,
+    };
+
+  if (
+    redraw
+  ) {
     positionCropBox();
   }
 }
 
 function resetEditor() {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -1455,7 +2338,9 @@ function resetEditor() {
 }
 
 async function redrawEditor() {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -1463,7 +2348,8 @@ async function redrawEditor() {
     state.pages.find(
       (p) =>
         p.id ===
-        state.editor.pageId
+        state.editor
+          .pageId
     );
 
   if (!page) {
@@ -1472,7 +2358,9 @@ async function redrawEditor() {
 
   const temp = {
     ...page,
-    edit: state.editor.edit,
+
+    edit:
+      state.editor.edit,
   };
 
   const rendered =
@@ -1484,7 +2372,8 @@ async function redrawEditor() {
 
   if (
     !state.editor ||
-    state.editor.pageId !== page.id
+    state.editor.pageId !==
+      page.id
   ) {
     return;
   }
@@ -1501,7 +2390,10 @@ async function redrawEditor() {
   canvas
     .getContext(
       "2d",
-      { alpha: false }
+      {
+        alpha:
+          false,
+      }
     )
     .drawImage(
       rendered,
@@ -1515,7 +2407,9 @@ async function redrawEditor() {
 }
 
 function positionCropBox() {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
@@ -1528,7 +2422,9 @@ function positionCropBox() {
       .getBoundingClientRect();
 
   const c =
-    state.editor.edit.crop;
+    state.editor
+      .edit
+      .crop;
 
   const box =
     $("cropBox");
@@ -1566,12 +2462,15 @@ function setupCropGestures() {
   const box =
     $("cropBox");
 
-  let drag = null;
+  let drag =
+    null;
 
   box.addEventListener(
     "pointerdown",
     (event) => {
-      if (!state.editor) {
+      if (
+        !state.editor
+      ) {
         return;
       }
 
@@ -1582,14 +2481,16 @@ function setupCropGestures() {
           .getBoundingClientRect();
 
       drag = {
-        id: event.pointerId,
+        id:
+          event.pointerId,
 
         handle:
           event.target
             .closest(
               "[data-handle]"
             )
-            ?.dataset.handle ||
+            ?.dataset
+            .handle ||
           "move",
 
         startX:
@@ -1599,7 +2500,9 @@ function setupCropGestures() {
           event.clientY,
 
         crop: {
-          ...state.editor.edit.crop,
+          ...state.editor
+            .edit
+            .crop,
         },
 
         canvasW:
@@ -1663,28 +2566,34 @@ function setupCropGestures() {
       } = s;
 
       if (
-        drag.handle === "move"
+        drag.handle ===
+        "move"
       ) {
-        x = Math.max(
-          0,
-          Math.min(
-            1 - w,
-            s.x + dx
-          )
-        );
+        x =
+          Math.max(
+            0,
+            Math.min(
+              1 - w,
+              s.x + dx
+            )
+          );
 
-        y = Math.max(
-          0,
-          Math.min(
-            1 - h,
-            s.y + dy
-          )
-        );
+        y =
+          Math.max(
+            0,
+            Math.min(
+              1 - h,
+              s.y + dy
+            )
+          );
+
       } else {
+
         if (
-          drag.handle.includes(
-            "w"
-          )
+          drag.handle
+            .includes(
+              "w"
+            )
         ) {
           const nx =
             Math.max(
@@ -1693,7 +2602,9 @@ function setupCropGestures() {
                 s.x +
                 s.w -
                 min,
-                s.x + dx
+
+                s.x +
+                dx
               )
             );
 
@@ -1702,28 +2613,34 @@ function setupCropGestures() {
             s.w -
             nx;
 
-          x = nx;
+          x =
+            nx;
         }
 
         if (
-          drag.handle.includes(
-            "e"
-          )
+          drag.handle
+            .includes(
+              "e"
+            )
         ) {
           w =
             Math.max(
               min,
               Math.min(
-                1 - s.x,
-                s.w + dx
+                1 -
+                s.x,
+
+                s.w +
+                dx
               )
             );
         }
 
         if (
-          drag.handle.includes(
-            "n"
-          )
+          drag.handle
+            .includes(
+              "n"
+            )
         ) {
           const ny =
             Math.max(
@@ -1732,7 +2649,9 @@ function setupCropGestures() {
                 s.y +
                 s.h -
                 min,
-                s.y + dy
+
+                s.y +
+                dy
               )
             );
 
@@ -1741,31 +2660,38 @@ function setupCropGestures() {
             s.h -
             ny;
 
-          y = ny;
+          y =
+            ny;
         }
 
         if (
-          drag.handle.includes(
-            "s"
-          )
+          drag.handle
+            .includes(
+              "s"
+            )
         ) {
           h =
             Math.max(
               min,
               Math.min(
-                1 - s.y,
-                s.h + dy
+                1 -
+                s.y,
+
+                s.h +
+                dy
               )
             );
         }
       }
 
-      state.editor.edit.crop = {
-        x,
-        y,
-        w,
-        h,
-      };
+      state.editor
+        .edit
+        .crop = {
+          x,
+          y,
+          w,
+          h,
+        };
 
       positionCropBox();
     }
@@ -1778,7 +2704,8 @@ function setupCropGestures() {
         event.pointerId ===
           drag.id
       ) {
-        drag = null;
+        drag =
+          null;
       }
     };
 
@@ -1814,41 +2741,53 @@ async function refreshThumbnail(
   );
 
   page.thumbUrl =
-    URL.createObjectURL(blob);
+    URL.createObjectURL(
+      blob
+    );
 }
 
 async function applyEditor(
   openNext
 ) {
-  if (!state.editor) {
+  if (
+    !state.editor
+  ) {
     return;
   }
 
   const index =
-    state.pages.findIndex(
-      (p) =>
-        p.id ===
-        state.editor.pageId
-    );
+    state.pages
+      .findIndex(
+        (p) =>
+          p.id ===
+          state.editor
+            .pageId
+      );
 
-  if (index < 0) {
+  if (
+    index < 0
+  ) {
     return;
   }
 
   const page =
-    state.pages[index];
+    state.pages[
+      index
+    ];
 
   page.edit =
     JSON.parse(
       JSON.stringify(
-        state.editor.edit
+        state.editor
+          .edit
       )
     );
 
   const nextId =
     openNext &&
     index <
-      state.pages.length - 1
+      state.pages.length -
+        1
       ? state.pages[
           index + 1
         ].id
@@ -1858,14 +2797,24 @@ async function applyEditor(
 
   renderPages();
 
-  // Small thumbnail only.
-  // Heavy 1600px processing happens
-  // only during Generate PDF.
-  refreshThumbnail(page)
-    .then(renderPages)
-    .catch(console.warn);
+  /*
+   * Small thumbnail only.
+   * Heavy high-resolution work
+   * waits until Generate PDF.
+   */
+  refreshThumbnail(
+    page
+  )
+    .then(
+      renderPages
+    )
+    .catch(
+      console.warn
+    );
 
-  if (nextId) {
+  if (
+    nextId
+  ) {
     await nextPaint();
 
     await openEditor(
@@ -1875,106 +2824,144 @@ async function applyEditor(
 }
 
 /* ============================================================
-   THUMBNAILS / PAGE ACTIONS
+   THUMBNAILS
    ============================================================ */
 
 function renderPages() {
-  $("pageCount").textContent =
-    `${state.pages.length} ${
-      state.pages.length === 1
-        ? "page"
-        : "pages"
-    }`;
+  $("pageCount")
+    .textContent =
+      `${
+        state.pages
+          .length
+      } ${
+        state.pages
+          .length ===
+        1
+          ? "page"
+          : "pages"
+      }`;
 
-  $("generateBtn").disabled =
-    state.busy ||
-    !state.pages.length;
+  $("generateBtn")
+    .disabled =
+      state.busy ||
+      !state.pages
+        .length;
 
-  $("thumbStrip").innerHTML =
-    state.pages
-      .map(
-        (page, index) => `
-          <div
-            class="thumb"
-            data-id="${page.id}"
-          >
-            <img
-              src="${page.thumbUrl}"
-              alt="Page ${index + 1}"
-            >
-
-            <div class="page-no">
-              ${index + 1}
-            </div>
-
-            <div class="thumb-actions">
-              <button
-                type="button"
-                data-act="edit"
-                aria-label="Edit"
-              >
-                ✎
-              </button>
-
-              <button
-                type="button"
-                data-act="retake"
-                aria-label="Retake"
-              >
-                ↻
-              </button>
-
-              <button
-                type="button"
-                data-act="delete"
-                aria-label="Delete"
-              >
-                ✕
-              </button>
-            </div>
-
+  $("thumbStrip")
+    .innerHTML =
+      state.pages
+        .map(
+          (
+            page,
+            index
+          ) => `
             <div
-              class="drag"
-              aria-label="Drag to reorder"
+              class="thumb"
+              data-id="${page.id}"
             >
-              ☰
+
+              <img
+                src="${page.thumbUrl}"
+                alt="Page ${index + 1}"
+              >
+
+              <div
+                class="page-no"
+              >
+                ${index + 1}
+              </div>
+
+              <div
+                class="thumb-actions"
+              >
+
+                <button
+                  type="button"
+                  data-act="edit"
+                  aria-label="Edit"
+                >
+                  ✎
+                </button>
+
+                <button
+                  type="button"
+                  data-act="retake"
+                  aria-label="Retake"
+                >
+                  ↻
+                </button>
+
+                <button
+                  type="button"
+                  data-act="delete"
+                  aria-label="Delete"
+                >
+                  ✕
+                </button>
+
+              </div>
+
+              <div
+                class="drag"
+                aria-label="Drag to reorder"
+              >
+                ☰
+              </div>
+
             </div>
-          </div>
-        `
-      )
-      .join("") +
-    `
-      <button
-        type="button"
-        id="addMoreBtn"
-        class="add-more"
-      >
-        ＋
-        <span>Add page</span>
-      </button>
-    `;
+          `
+        )
+        .join("") +
 
-  $("addMoreBtn").onclick =
-    showSource;
+      `
+        <button
+          type="button"
+          id="addMoreBtn"
+          class="add-more"
+        >
+          ＋
+          <span>
+            Add page
+          </span>
+        </button>
+      `;
 
-  state.sortable?.destroy();
+  $("addMoreBtn")
+    .onclick =
+      showSource;
+
+  state.sortable
+    ?.destroy();
 
   state.sortable =
     new Sortable(
       $("thumbStrip"),
       {
-        animation: 150,
-        draggable: ".thumb",
-        handle: ".drag",
-        ghostClass: "ghost",
-        chosenClass: "chosen",
+        animation:
+          150,
 
-        onEnd(event) {
+        draggable:
+          ".thumb",
+
+        handle:
+          ".drag",
+
+        ghostClass:
+          "ghost",
+
+        chosenClass:
+          "chosen",
+
+        onEnd(
+          event
+        ) {
           const from =
-            event.oldDraggableIndex;
+            event
+              .oldDraggableIndex;
 
           const to =
-            event.newDraggableIndex;
+            event
+              .newDraggableIndex;
 
           if (
             from == null ||
@@ -1984,17 +2971,21 @@ function renderPages() {
             return;
           }
 
-          const [moved] =
-            state.pages.splice(
-              from,
-              1
-            );
+          const [
+            moved,
+          ] =
+            state.pages
+              .splice(
+                from,
+                1
+              );
 
-          state.pages.splice(
-            to,
-            0,
-            moved
-          );
+          state.pages
+            .splice(
+              to,
+              0,
+              moved
+            );
 
           renderPages();
         },
@@ -2002,26 +2993,47 @@ function renderPages() {
     );
 }
 
-async function retake(id) {
+async function retake(
+  id
+) {
   const index =
-    state.pages.findIndex(
-      (p) => p.id === id
-    );
+    state.pages
+      .findIndex(
+        (p) =>
+          p.id === id
+      );
 
-  if (index < 0) {
+  if (
+    index < 0
+  ) {
     return;
   }
 
   const result =
-    await Camera.takePhoto({
-      quality: 90,
-      targetWidth: 1800,
-      targetHeight: 1800,
-      correctOrientation: true,
-      saveToGallery: false,
-      includeMetadata: true,
-      editable: "no",
-    });
+    await Camera.takePhoto(
+      {
+        quality:
+          90,
+
+        targetWidth:
+          2600,
+
+        targetHeight:
+          2600,
+
+        correctOrientation:
+          true,
+
+        saveToGallery:
+          false,
+
+        includeMetadata:
+          true,
+
+        editable:
+          "no",
+      }
+    );
 
   const blob =
     await mediaResultToBlob(
@@ -2029,7 +3041,9 @@ async function retake(id) {
     );
 
   const page =
-    state.pages[index];
+    state.pages[
+      index
+    ];
 
   URL.revokeObjectURL(
     page.thumbUrl
@@ -2039,39 +3053,49 @@ async function retake(id) {
     blob;
 
   page.thumbUrl =
-    URL.createObjectURL(blob);
+    URL.createObjectURL(
+      blob
+    );
 
   page.edit =
     defaultEdit();
 
   renderPages();
 
-  await openEditor(id);
+  await openEditor(
+    id
+  );
 }
 
 function resetComposer() {
-  state.pages.forEach(
-    (page) =>
-      URL.revokeObjectURL(
-        page.thumbUrl
-      )
-  );
+  state.pages
+    .forEach(
+      (page) =>
+        URL.revokeObjectURL(
+          page.thumbUrl
+        )
+    );
 
-  state.pages = [];
+  state.pages =
+    [];
 
-  $("progressWrap").hidden =
-    true;
+  $("progressWrap")
+    .hidden =
+      true;
 
-  $("progressBar").style.width =
-    "0%";
+  $("progressBar")
+    .style.width =
+      "0%";
 
   setError("");
 
-  $("createPanel").hidden =
-    false;
+  $("createPanel")
+    .hidden =
+      false;
 
-  $("successPanel").hidden =
-    true;
+  $("successPanel")
+    .hidden =
+      true;
 
   renderPages();
 }
@@ -2081,7 +3105,9 @@ function resetComposer() {
    ============================================================ */
 
 async function generatePdf() {
-  if (state.busy) {
+  if (
+    state.busy
+  ) {
     return;
   }
 
@@ -2092,15 +3118,19 @@ async function generatePdf() {
       subject,
       type,
       year,
-    } = validateForm();
+    } =
+      validateForm();
 
-    state.busy = true;
-
-    $("generateBtn").disabled =
+    state.busy =
       true;
 
+    $("generateBtn")
+      .disabled =
+        true;
+
     const pdf =
-      await PDFDocument.create();
+      await PDFDocument
+        .create();
 
     const filename =
       filenameFor(
@@ -2134,14 +3164,19 @@ async function generatePdf() {
 
     for (
       let i = 0;
-      i < state.pages.length;
+      i <
+      state.pages.length;
       i++
     ) {
       setProgress(
         5 +
-          (i /
-            state.pages.length) *
-            66,
+        (
+          i /
+          state.pages
+            .length
+        ) *
+        66,
+
         `Processing page ${
           i + 1
         } of ${
@@ -2164,10 +3199,12 @@ async function generatePdf() {
 
       const image =
         await pdf.embedJpg(
-          await jpg.arrayBuffer()
+          await jpg
+            .arrayBuffer()
         );
 
-      const pageW = 595;
+      const pageW =
+        595;
 
       const pageH =
         pageW *
@@ -2183,10 +3220,17 @@ async function generatePdf() {
       pdfPage.drawImage(
         image,
         {
-          x: 0,
-          y: 0,
-          width: pageW,
-          height: pageH,
+          x:
+            0,
+
+          y:
+            0,
+
+          width:
+            pageW,
+
+          height:
+            pageH,
         }
       );
 
@@ -2200,7 +3244,8 @@ async function generatePdf() {
 
     const bytes =
       await pdf.save({
-        useObjectStreams: true,
+        useObjectStreams:
+          true,
       });
 
     const blob =
@@ -2221,13 +3266,19 @@ async function generatePdf() {
       type,
       year,
       filename,
+
       uploadedBy:
         "LOCAL TEST USER",
+
       uploadedAt:
         new Date()
           .toISOString(),
-      size: blob.size,
-      pdf: blob,
+
+      size:
+        blob.size,
+
+      pdf:
+        blob,
     };
 
     setProgress(
@@ -2235,73 +3286,98 @@ async function generatePdf() {
       "Saving to local test library…"
     );
 
-    await dbPut(record);
+    await dbPut(
+      record
+    );
 
-    state.latestId = id;
+    state.latestId =
+      id;
 
     setProgress(
       100,
       "Saved locally"
     );
 
-    $("createPanel").hidden =
-      true;
+    $("createPanel")
+      .hidden =
+        true;
 
-    $("successPanel").hidden =
-      false;
+    $("successPanel")
+      .hidden =
+        false;
 
-    $("successText").textContent =
-      `${filename} · ${
-        bytesLabel(blob.size)
-      } · ${
-        state.pages.length
-      } pages`;
+    $("successText")
+      .textContent =
+        `${filename} · ${
+          bytesLabel(
+            blob.size
+          )
+        } · ${
+          state.pages.length
+        } pages`;
 
     await renderLibrary();
+
   } catch (err) {
-    console.error(err);
+    console.error(
+      err
+    );
 
     setError(
       err?.message ||
       "Could not generate PDF."
     );
-  } finally {
-    state.busy = false;
 
-    $("generateBtn").disabled =
-      !state.pages.length;
+  } finally {
+    state.busy =
+      false;
+
+    $("generateBtn")
+      .disabled =
+        !state.pages.length;
   }
 }
 
 /* ============================================================
-   NATIVE PDF VIEW / DOWNLOAD
+   PDF VIEW / DOWNLOAD
    ============================================================ */
 
-function blobToBase64(blob) {
+function blobToBase64(
+  blob
+) {
   return new Promise(
-    (resolve, reject) => {
+    (
+      resolve,
+      reject
+    ) => {
       const reader =
         new FileReader();
 
-      reader.onloadend = () => {
-        const value =
-          String(
-            reader.result || ""
+      reader.onloadend =
+        () => {
+          const value =
+            String(
+              reader.result ||
+              ""
+            );
+
+          resolve(
+            value.includes(
+              ","
+            )
+              ? value
+                  .split(",")[1]
+              : value
           );
+        };
 
-        resolve(
-          value.includes(",")
-            ? value.split(",")[1]
-            : value
-        );
-      };
-
-      reader.onerror = () =>
-        reject(
-          new Error(
-            "Could not prepare the PDF."
-          )
-        );
+      reader.onerror =
+        () =>
+          reject(
+            new Error(
+              "Could not prepare the PDF."
+            )
+          );
 
       reader.readAsDataURL(
         blob
@@ -2314,32 +3390,39 @@ async function savePdfTemporarily(
   record
 ) {
   const result =
-    await Filesystem.writeFile({
-      path:
-        `test-pdfs/${record.filename}`,
+    await Filesystem
+      .writeFile({
+        path:
+          `test-pdfs/${record.filename}`,
 
-      data:
-        await blobToBase64(
-          record.pdf
-        ),
+        data:
+          await blobToBase64(
+            record.pdf
+          ),
 
-      directory:
-        Directory.Cache,
+        directory:
+          Directory.Cache,
 
-      recursive: true,
-    });
+        recursive:
+          true,
+      });
 
   return result.uri;
 }
 
-/* ===== END OF BLOCK 1/2 ===== */
-
-async function viewRecord(id) {
+async function viewRecord(
+  id
+) {
   try {
-    const record = await dbGet(id);
+    const record =
+      await dbGet(id);
 
-    if (!record) {
-      throw new Error("PDF not found.");
+    if (
+      !record
+    ) {
+      throw new Error(
+        "PDF not found."
+      );
     }
 
     const uri =
@@ -2349,11 +3432,16 @@ async function viewRecord(id) {
 
     try {
       await FileViewer
-        .openDocumentFromLocalPath({
-          path: uri,
-        });
+        .openDocumentFromLocalPath(
+          {
+            path:
+              uri,
+          }
+        );
 
-    } catch (viewerError) {
+    } catch (
+      viewerError
+    ) {
       console.warn(
         "FileViewer fallback:",
         viewerError
@@ -2382,32 +3470,37 @@ async function viewRecord(id) {
   }
 }
 
-async function downloadRecord(id) {
+async function downloadRecord(
+  id
+) {
   try {
     const record =
       await dbGet(id);
 
-    if (!record) {
+    if (
+      !record
+    ) {
       throw new Error(
         "PDF not found."
       );
     }
 
-    await Filesystem.writeFile({
-      path:
-        record.filename,
+    await Filesystem
+      .writeFile({
+        path:
+          record.filename,
 
-      data:
-        await blobToBase64(
-          record.pdf
-        ),
+        data:
+          await blobToBase64(
+            record.pdf
+          ),
 
-      directory:
-        Directory.Documents,
+        directory:
+          Directory.Documents,
 
-      recursive:
-        true,
-    });
+        recursive:
+          true,
+      });
 
     alert(
       `PDF saved successfully.\n\n${record.filename}`
@@ -2418,7 +3511,9 @@ async function downloadRecord(id) {
       const record =
         await dbGet(id);
 
-      if (!record) {
+      if (
+        !record
+      ) {
         throw new Error(
           "PDF not found."
         );
@@ -2455,7 +3550,7 @@ async function downloadRecord(id) {
 }
 
 /* ============================================================
-   MOCK LIBRARY
+   LOCAL TEST LIBRARY UI
    ============================================================ */
 
 async function renderLibrary() {
@@ -2463,7 +3558,10 @@ async function renderLibrary() {
     (
       await dbGetAll()
     ).sort(
-      (a, b) =>
+      (
+        a,
+        b
+      ) =>
         new Date(
           b.uploadedAt
         ) -
@@ -2472,202 +3570,271 @@ async function renderLibrary() {
         )
     );
 
-  if (!rows.length) {
-    $("libraryGrid").innerHTML =
-      `
-        <div
-          class="empty-library"
-        >
-          No test PDFs yet.
-        </div>
-      `;
+  if (
+    !rows.length
+  ) {
+    $("libraryGrid")
+      .innerHTML =
+        `
+          <div
+            class="empty-library"
+          >
+            No test PDFs yet.
+          </div>
+        `;
 
     return;
   }
 
-  $("libraryGrid").innerHTML =
-    rows
-      .map(
-        (record) => `
-          <article
-            class="card"
-            data-id="${record.id}"
-          >
-
-            <div class="subject">
-              ${record.subject}
-            </div>
-
-            <h3>
-              ${record.filename}
-            </h3>
-
-            <div class="meta">
-              ${record.type}
-              ·
-              ${record.year}
-              ·
-              ${bytesLabel(
-                record.size
-              )}
-            </div>
-
-            <div class="meta">
-              Uploaded by
-              ${record.uploadedBy}
-            </div>
-
-            <div
-              class="card-actions"
+  $("libraryGrid")
+    .innerHTML =
+      rows
+        .map(
+          (
+            record
+          ) => `
+            <article
+              class="card"
+              data-id="${record.id}"
             >
-              <button
-                type="button"
-                data-act="view"
-              >
-                View PDF
-              </button>
 
-              <button
-                type="button"
-                data-act="download"
+              <div
+                class="subject"
               >
-                Download PDF
-              </button>
+                ${record.subject}
+              </div>
 
-              <button
-                type="button"
-                data-act="delete"
+              <h3>
+                ${record.filename}
+              </h3>
+
+              <div
+                class="meta"
               >
-                Delete
-              </button>
-            </div>
+                ${record.type}
+                ·
+                ${record.year}
+                ·
+                ${bytesLabel(
+                  record.size
+                )}
+              </div>
 
-          </article>
-        `
-      )
-      .join("");
+              <div
+                class="meta"
+              >
+                Uploaded by
+                ${record.uploadedBy}
+              </div>
+
+              <div
+                class="card-actions"
+              >
+
+                <button
+                  type="button"
+                  data-act="view"
+                >
+                  View PDF
+                </button>
+
+                <button
+                  type="button"
+                  data-act="download"
+                >
+                  Download PDF
+                </button>
+
+                <button
+                  type="button"
+                  data-act="delete"
+                >
+                  Delete
+                </button>
+
+              </div>
+
+            </article>
+          `
+        )
+        .join("");
 }
 
 /* ============================================================
-   EVENTS
+   SOURCE SHEET
    ============================================================ */
 
 function showSource() {
-  $("sourceSheet").hidden =
-    false;
+  $("sourceSheet")
+    .hidden =
+      false;
 }
 
 function hideSource() {
-  $("sourceSheet").hidden =
-    true;
+  $("sourceSheet")
+    .hidden =
+      true;
 }
 
+/* ============================================================
+   INITIALIZE
+   ============================================================ */
+
 ensureSubjectSelector();
+
 installEditor();
 
-$("addPhotosBtn").onclick =
-  showSource;
+/* ============================================================
+   ADD PHOTOS
+   ============================================================ */
 
-$("firstAddBtn").onclick =
-  showSource;
+$("addPhotosBtn")
+  .onclick =
+    showSource;
 
-$("cancelSourceBtn").onclick =
-  hideSource;
+$("firstAddBtn")
+  .onclick =
+    showSource;
 
-$("cameraBtn").onclick =
-  async () => {
-    hideSource();
+$("cancelSourceBtn")
+  .onclick =
+    hideSource;
 
-    try {
-      await capturePhoto();
+/* ============================================================
+   CAMERA
+   ============================================================ */
 
-    } catch (err) {
-      if (
-        !String(
-          err?.message || ""
-        )
-          .toLowerCase()
-          .includes("cancel")
-      ) {
-        setError(
-          err?.message ||
-          "Camera failed."
-        );
+$("cameraBtn")
+  .onclick =
+    async () => {
+      hideSource();
+
+      try {
+        await capturePhoto();
+
+      } catch (err) {
+        if (
+          !String(
+            err?.message ||
+            ""
+          )
+            .toLowerCase()
+            .includes(
+              "cancel"
+            )
+        ) {
+          setError(
+            err?.message ||
+            "Camera failed."
+          );
+        }
       }
-    }
-  };
+    };
 
-$("galleryBtn").onclick =
-  async () => {
-    hideSource();
+/* ============================================================
+   GALLERY
+   ============================================================ */
 
-    try {
-      await chooseMultiplePhotos();
+$("galleryBtn")
+  .onclick =
+    async () => {
+      hideSource();
 
-    } catch (err) {
-      if (
-        !String(
-          err?.message || ""
-        )
-          .toLowerCase()
-          .includes("cancel")
-      ) {
-        setError(
-          err?.message ||
-          "Gallery selection failed."
-        );
+      try {
+        await chooseMultiplePhotos();
+
+      } catch (err) {
+        if (
+          !String(
+            err?.message ||
+            ""
+          )
+            .toLowerCase()
+            .includes(
+              "cancel"
+            )
+        ) {
+          setError(
+            err?.message ||
+            "Gallery selection failed."
+          );
+        }
       }
-    }
-  };
+    };
+
+/* ============================================================
+   THUMBNAIL ACTIONS
+   ============================================================ */
 
 $("thumbStrip")
   .addEventListener(
     "click",
     async (event) => {
       const thumb =
-        event.target.closest(
-          ".thumb"
-        );
+        event.target
+          .closest(
+            ".thumb"
+          );
 
-      if (!thumb) {
+      if (
+        !thumb
+      ) {
         return;
       }
 
       const id =
         thumb.dataset.id;
 
+      /*
+       * EDIT
+       */
+
       if (
-        event.target.closest(
-          '[data-act="edit"]'
-        )
+        event.target
+          .closest(
+            '[data-act="edit"]'
+          )
       ) {
-        await openEditor(id);
+        await openEditor(
+          id
+        );
+
         return;
       }
 
+      /*
+       * DELETE
+       */
+
       if (
-        event.target.closest(
-          '[data-act="delete"]'
-        )
+        event.target
+          .closest(
+            '[data-act="delete"]'
+          )
       ) {
         const index =
-          state.pages.findIndex(
-            (page) =>
-              page.id === id
-          );
+          state.pages
+            .findIndex(
+              (page) =>
+                page.id ===
+                id
+            );
 
         if (
-          index >= 0
+          index >=
+          0
         ) {
           URL.revokeObjectURL(
-            state.pages[index]
-              .thumbUrl
+            state.pages[
+              index
+            ].thumbUrl
           );
 
-          state.pages.splice(
-            index,
-            1
-          );
+          state.pages
+            .splice(
+              index,
+              1
+            );
 
           renderPages();
         }
@@ -2675,21 +3842,31 @@ $("thumbStrip")
         return;
       }
 
+      /*
+       * RETAKE
+       */
+
       if (
-        event.target.closest(
-          '[data-act="retake"]'
-        )
+        event.target
+          .closest(
+            '[data-act="retake"]'
+          )
       ) {
         try {
-          await retake(id);
+          await retake(
+            id
+          );
 
         } catch (err) {
           if (
             !String(
-              err?.message || ""
+              err?.message ||
+              ""
             )
               .toLowerCase()
-              .includes("cancel")
+              .includes(
+                "cancel"
+              )
           ) {
             setError(
               err?.message ||
@@ -2701,90 +3878,152 @@ $("thumbStrip")
     }
   );
 
-$("generateBtn").onclick =
-  generatePdf;
+/* ============================================================
+   GENERATE
+   ============================================================ */
 
-$("addAnotherBtn").onclick =
-  resetComposer;
+$("generateBtn")
+  .onclick =
+    generatePdf;
 
-$("viewLibraryBtn").onclick =
-  () =>
-    $("libraryPanel")
-      .scrollIntoView({
-        behavior:
-          "smooth",
+/* ============================================================
+   ADD ANOTHER
+   ============================================================ */
 
-        block:
-          "start",
-      });
+$("addAnotherBtn")
+  .onclick =
+    resetComposer;
 
-$("downloadLatestBtn").onclick =
-  () =>
-    state.latestId &&
-    downloadRecord(
-      state.latestId
-    );
+/* ============================================================
+   VIEW LIBRARY
+   ============================================================ */
+
+$("viewLibraryBtn")
+  .onclick =
+    () =>
+      $("libraryPanel")
+        .scrollIntoView(
+          {
+            behavior:
+              "smooth",
+
+            block:
+              "start",
+          }
+        );
+
+/* ============================================================
+   DOWNLOAD LATEST
+   ============================================================ */
+
+$("downloadLatestBtn")
+  .onclick =
+    () =>
+      state.latestId &&
+      downloadRecord(
+        state.latestId
+      );
+
+/* ============================================================
+   LIBRARY ACTIONS
+   ============================================================ */
 
 $("libraryGrid")
   .addEventListener(
     "click",
     async (event) => {
       const card =
-        event.target.closest(
-          ".card"
-        );
+        event.target
+          .closest(
+            ".card"
+          );
 
-      if (!card) {
+      if (
+        !card
+      ) {
         return;
       }
 
       const id =
         card.dataset.id;
 
+      /*
+       * VIEW
+       */
+
       if (
-        event.target.closest(
-          '[data-act="view"]'
-        )
+        event.target
+          .closest(
+            '[data-act="view"]'
+          )
       ) {
-        await viewRecord(id);
+        await viewRecord(
+          id
+        );
+
         return;
       }
 
+      /*
+       * DOWNLOAD
+       */
+
       if (
-        event.target.closest(
-          '[data-act="download"]'
-        )
+        event.target
+          .closest(
+            '[data-act="download"]'
+          )
       ) {
-        await downloadRecord(id);
+        await downloadRecord(
+          id
+        );
+
         return;
       }
 
+      /*
+       * DELETE
+       */
+
       if (
-        event.target.closest(
-          '[data-act="delete"]'
-        )
+        event.target
+          .closest(
+            '[data-act="delete"]'
+          )
       ) {
-        await dbDelete(id);
+        await dbDelete(
+          id
+        );
 
         await renderLibrary();
       }
     }
   );
 
-$("clearLibraryBtn").onclick =
-  async () => {
-    if (
-      !confirm(
-        "Delete every PDF from this local TEST library?"
-      )
-    ) {
-      return;
-    }
+/* ============================================================
+   CLEAR TEST LIBRARY
+   ============================================================ */
 
-    await dbClear();
+$("clearLibraryBtn")
+  .onclick =
+    async () => {
+      if (
+        !confirm(
+          "Delete every PDF from this local TEST library?"
+        )
+      ) {
+        return;
+      }
 
-    await renderLibrary();
-  };
+      await dbClear();
+
+      await renderLibrary();
+    };
+
+/* ============================================================
+   INITIAL LOAD
+   ============================================================ */
 
 renderPages();
+
 renderLibrary();

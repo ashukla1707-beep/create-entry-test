@@ -1963,7 +1963,376 @@ function renderPages() {
     new Sortable(
       $("thumbStrip"),
       {
-        animation: 
+        animation: 150,
+        draggable: ".thumb",
+        handle: ".drag",
+        ghostClass: "ghost",
+        chosenClass: "chosen",
+
+        onEnd(event) {
+          const from =
+            event.oldDraggableIndex;
+
+          const to =
+            event.newDraggableIndex;
+
+          if (
+            from == null ||
+            to == null ||
+            from === to
+          ) {
+            return;
+          }
+
+          const [moved] =
+            state.pages.splice(
+              from,
+              1
+            );
+
+          state.pages.splice(
+            to,
+            0,
+            moved
+          );
+
+          renderPages();
+        },
+      }
+    );
+}
+
+async function retake(id) {
+  const index =
+    state.pages.findIndex(
+      (p) => p.id === id
+    );
+
+  if (index < 0) {
+    return;
+  }
+
+  const result =
+    await Camera.takePhoto({
+      quality: 90,
+      targetWidth: 1800,
+      targetHeight: 1800,
+      correctOrientation: true,
+      saveToGallery: false,
+      includeMetadata: true,
+      editable: "no",
+    });
+
+  const blob =
+    await mediaResultToBlob(
+      result
+    );
+
+  const page =
+    state.pages[index];
+
+  URL.revokeObjectURL(
+    page.thumbUrl
+  );
+
+  page.originalBlob =
+    blob;
+
+  page.thumbUrl =
+    URL.createObjectURL(blob);
+
+  page.edit =
+    defaultEdit();
+
+  renderPages();
+
+  await openEditor(id);
+}
+
+function resetComposer() {
+  state.pages.forEach(
+    (page) =>
+      URL.revokeObjectURL(
+        page.thumbUrl
+      )
+  );
+
+  state.pages = [];
+
+  $("progressWrap").hidden =
+    true;
+
+  $("progressBar").style.width =
+    "0%";
+
+  setError("");
+
+  $("createPanel").hidden =
+    false;
+
+  $("successPanel").hidden =
+    true;
+
+  renderPages();
+}
+
+/* ============================================================
+   PDF GENERATION
+   ============================================================ */
+
+async function generatePdf() {
+  if (state.busy) {
+    return;
+  }
+
+  try {
+    setError("");
+
+    const {
+      subject,
+      type,
+      year,
+    } = validateForm();
+
+    state.busy = true;
+
+    $("generateBtn").disabled =
+      true;
+
+    const pdf =
+      await PDFDocument.create();
+
+    const filename =
+      filenameFor(
+        subject,
+        type,
+        year
+      );
+
+    pdf.setTitle(
+      filename.replace(
+        /\.pdf$/i,
+        ""
+      ),
+      {
+        showInWindowTitleBar:
+          true,
+      }
+    );
+
+    pdf.setCreator(
+      "Stat Archive Create Entry Test"
+    );
+
+    pdf.setProducer(
+      "Stat Archive Create Entry Test"
+    );
+
+    pdf.setCreationDate(
+      new Date()
+    );
+
+    for (
+      let i = 0;
+      i < state.pages.length;
+      i++
+    ) {
+      setProgress(
+        5 +
+          (i /
+            state.pages.length) *
+            66,
+        `Processing page ${
+          i + 1
+        } of ${
+          state.pages.length
+        }…`
+      );
+
+      const canvas =
+        await renderEditedCanvas(
+          state.pages[i],
+          FINAL_MAX_EDGE,
+          true
+        );
+
+      const jpg =
+        await canvasToJpeg(
+          canvas,
+          0.72
+        );
+
+      const image =
+        await pdf.embedJpg(
+          await jpg.arrayBuffer()
+        );
+
+      const pageW = 595;
+
+      const pageH =
+        pageW *
+        image.height /
+        image.width;
+
+      const pdfPage =
+        pdf.addPage([
+          pageW,
+          pageH,
+        ]);
+
+      pdfPage.drawImage(
+        image,
+        {
+          x: 0,
+          y: 0,
+          width: pageW,
+          height: pageH,
+        }
+      );
+
+      await nextPaint();
+    }
+
+    setProgress(
+      76,
+      "Finalizing PDF…"
+    );
+
+    const bytes =
+      await pdf.save({
+        useObjectStreams: true,
+      });
+
+    const blob =
+      new Blob(
+        [bytes],
+        {
+          type:
+            "application/pdf",
+        }
+      );
+
+    const id =
+      newId();
+
+    const record = {
+      id,
+      subject,
+      type,
+      year,
+      filename,
+      uploadedBy:
+        "LOCAL TEST USER",
+      uploadedAt:
+        new Date()
+          .toISOString(),
+      size: blob.size,
+      pdf: blob,
+    };
+
+    setProgress(
+      92,
+      "Saving to local test library…"
+    );
+
+    await dbPut(record);
+
+    state.latestId = id;
+
+    setProgress(
+      100,
+      "Saved locally"
+    );
+
+    $("createPanel").hidden =
+      true;
+
+    $("successPanel").hidden =
+      false;
+
+    $("successText").textContent =
+      `${filename} · ${
+        bytesLabel(blob.size)
+      } · ${
+        state.pages.length
+      } pages`;
+
+    await renderLibrary();
+  } catch (err) {
+    console.error(err);
+
+    setError(
+      err?.message ||
+      "Could not generate PDF."
+    );
+  } finally {
+    state.busy = false;
+
+    $("generateBtn").disabled =
+      !state.pages.length;
+  }
+}
+
+/* ============================================================
+   NATIVE PDF VIEW / DOWNLOAD
+   ============================================================ */
+
+function blobToBase64(blob) {
+  return new Promise(
+    (resolve, reject) => {
+      const reader =
+        new FileReader();
+
+      reader.onloadend = () => {
+        const value =
+          String(
+            reader.result || ""
+          );
+
+        resolve(
+          value.includes(",")
+            ? value.split(",")[1]
+            : value
+        );
+      };
+
+      reader.onerror = () =>
+        reject(
+          new Error(
+            "Could not prepare the PDF."
+          )
+        );
+
+      reader.readAsDataURL(
+        blob
+      );
+    }
+  );
+}
+
+async function savePdfTemporarily(
+  record
+) {
+  const result =
+    await Filesystem.writeFile({
+      path:
+        `test-pdfs/${record.filename}`,
+
+      data:
+        await blobToBase64(
+          record.pdf
+        ),
+
+      directory:
+        Directory.Cache,
+
+      recursive: true,
+    });
+
+  return result.uri;
+}
+
+/* ===== END OF BLOCK 1/2 ===== */
 
 async function viewRecord(id) {
   try {
@@ -2419,4 +2788,3 @@ $("clearLibraryBtn").onclick =
 
 renderPages();
 renderLibrary();
-        

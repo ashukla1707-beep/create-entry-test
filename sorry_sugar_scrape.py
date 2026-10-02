@@ -93,17 +93,24 @@ def extract(page, code, product, url):
 
 def click_next(page):
     root = page.locator("#judgeme_product_reviews")
-    before = root.locator(".jdgm-review-card").count()
 
-    # First trigger any lazy/infinite loading by scrolling to the end of the widget.
+    def sig():
+        cards=root.locator(".jdgm-review-card")
+        n=cards.count()
+        first=text_of(cards.first)[:250] if n else ""
+        last=text_of(cards.last)[:250] if n else ""
+        return (n, first, last)
+
+    before=sig()
+
+    # First trigger any lazy/infinite loading.
     try:
         cards=root.locator(".jdgm-review-card")
         if cards.count():
             cards.last.scroll_into_view_if_needed()
         root.evaluate("(el) => el.scrollIntoView({block:'end'})")
-        page.wait_for_timeout(1400)
-        after=root.locator(".jdgm-review-card").count()
-        if after > before:
+        page.wait_for_timeout(1200)
+        if sig() != before:
             return True
     except Exception:
         pass
@@ -116,7 +123,6 @@ def click_next(page):
             try:
                 if not el.is_visible():
                     continue
-                # Ignore controls belonging to the write-review dialog/media carousel.
                 if el.locator("xpath=ancestor::*[contains(@class,'jdgm-write-review-modal')]").count():
                     continue
                 if el.locator("xpath=ancestor::*[contains(@class,'jm-media-grid')]").count():
@@ -127,17 +133,18 @@ def click_next(page):
                 cls=(attr(el,"class") or "").lower()
                 signal=" ".join([txt,aria,testid,cls])
                 if re.search(r"load.?more|show.?more|view.?more|more.?reviews|next.?page|pagination.?next|paginate.?next", signal):
+                    old=sig()
                     el.scroll_into_view_if_needed()
                     el.click(timeout=5000)
-                    page.wait_for_timeout(1400)
-                    return True
+                    page.wait_for_timeout(1200)
+                    if sig() != old:
+                        return True
             except Exception:
                 continue
     except Exception:
         pass
 
-    # Numbered pagination fallback: choose the next visible numeric page within
-    # an element whose own/ancestor class suggests pagination.
+    # Numbered pagination fallback.
     try:
         nums=root.locator("button, a")
         numeric=[]
@@ -162,9 +169,11 @@ def click_next(page):
             nxt=[x for x in numeric if x[0]>current]
             if nxt:
                 nxt.sort(key=lambda z:z[0])
+                old=sig()
                 nxt[0][1].click(timeout=5000)
-                page.wait_for_timeout(1400)
-                return True
+                page.wait_for_timeout(1200)
+                if sig() != old:
+                    return True
     except Exception:
         pass
     return False
@@ -215,7 +224,7 @@ with sync_playwright() as p:
                 (OUT/"trial_debug.txt").write_text("\n".join(dbg),encoding="utf-8")
             exp=expected_count(page)
             seen={}
-            for step in range(1,80):
+            for step in range(1,50):
                 batch=extract(page,code,product,url)
                 for r in batch:
                     seen.setdefault(r["fingerprint"],r)

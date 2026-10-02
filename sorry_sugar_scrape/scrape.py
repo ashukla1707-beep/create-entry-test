@@ -61,7 +61,9 @@ def from_dict(r, code, product, url):
         reviewer=reviewer or rv.get("name") or rv.get("display_name")
     elif isinstance(rv,str):
         reviewer=reviewer or rv
-    body=r.get("body") or r.get("review_body") or r.get("content") or r.get("text")
+    body=r.get("body") or r.get("review_body") or r.get("content") or r.get("text") or r.get("body_html")
+    if body and "<" in str(body):
+        body=BeautifulSoup(str(body),"html.parser").get_text(" ",strip=True)
     title=r.get("title") or r.get("review_title")
     date=r.get("created_at") or r.get("date") or r.get("submitted_at") or r.get("published_at")
     rid=r.get("id") or r.get("uuid") or r.get("review_id")
@@ -109,13 +111,19 @@ for code,product,pid,url in PRODUCTS:
     seen={}
     pages=0
     status_notes=[]
+    expected=None
     for page in range(1,60):
         params={
             "product_id":pid,"page":page,"sort_by":"created_at","sort_dir":"desc",
             "skip_other_languages":"true","widget_theme":"cards",
             "shop_domain":STORE,"platform":"shopify"
         }
-        resp=session.get(ENDPOINT,params=params,timeout=30)
+        resp=None
+        for attempt in range(6):
+            resp=session.get(ENDPOINT,params=params,timeout=30)
+            if resp.status_code != 429:
+                break
+            time.sleep(5*(attempt+1))
         pages=page
         status_notes.append({"page":page,"status":resp.status_code,"ctype":resp.headers.get("content-type"),"bytes":len(resp.content)})
         if page==1:
@@ -124,6 +132,8 @@ for code,product,pid,url in PRODUCTS:
         rows=[]
         try:
             data=resp.json()
+            if page==1 and isinstance(data,dict):
+                expected=data.get("number_of_reviews")
             dict_reviews=extract_dict_reviews(data)
             rows=[from_dict(r,code,product,url) for r in dict_reviews]
             # Many Judge.me widget payloads put the cards in an HTML string.
@@ -145,17 +155,18 @@ for code,product,pid,url in PRODUCTS:
             rows=parse_html(resp.text,code,product,url)
         before=len(seen)
         for r in rows: seen.setdefault(r["fingerprint"],r)
+        if expected is not None and len(seen) >= int(expected):
+            break
         if not rows or len(seen)==before:
-            # page 1 can occasionally be metadata-only; allow page 2 once
             if page > 1: break
-        time.sleep(.25)
+        time.sleep(2.0)
     rs=list(seen.values())
     for r in rs:
         r["shopify_product_id"]=pid
     all_rows.extend(rs)
     logs.append({
         "product_code":code,"product":product,"shopify_product_id":pid,"url":url,
-        "pages_requested":pages,"scraped_reviews":len(rs),"page_statuses":status_notes
+        "pages_requested":pages,"expected_reviews":expected,"scraped_reviews":len(rs),"match":(len(rs)==int(expected) if expected is not None else None),"page_statuses":status_notes
     })
 
 for i,r in enumerate(all_rows,1): r["raw_id"]=f"RAW{i:04d}"

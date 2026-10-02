@@ -48,9 +48,9 @@ Fat
 FREE TUMBLER!! OFFER ENDS IN:
 14 h
 :
-43 m
+38 m
 :
-29 s
+31 s
 ADD TO CART
 Description
 
@@ -230,15 +230,15 @@ NETWORK_URLS:
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/loader.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_v3_base.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_v3_main.css
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/manifest.json?v=1790932586381
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/manifest.json?v=1790932884229
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_base.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_common.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_main.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_write_review_modal.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_common.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_main.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_common.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_v3_form.css
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidget-D_uq5EZL.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/layout-DoosNJCm.css
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidget-D_uq5EZL.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Stack-DHDZjISx.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/LoadingOverlay-CmkTdyRm.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_main.js
@@ -247,22 +247,22 @@ https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/review_widget.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetManager-D-7bc_DD.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/preload-helper-D9Z9MdNV.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Stack-CL5ToyG4.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/common-Cb3kwxzO.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/LoadingOverlay-BBccDixU.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/_plugin-vue_export-helper-DVpryo2A.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/review_widget-C9I4CDCq.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidget-BquQ1hdX.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useVoting-EKsYimth.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useImpressionTracking-JbKUvFgV.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/tabs-DKtwMc_M.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Stack-CL5ToyG4.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/language-B7lxRGFY.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/review_api-DPAAk4HL.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/tabs-DKtwMc_M.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/createObserverHost-DzGDekFF.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/api_client-DLoTlhmV.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/common-Cb3kwxzO.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useImpressionTracking-JbKUvFgV.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useEventTracking-C4EVBXOD.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Cluster-CiawKNFa.css
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/_plugin-vue_export-helper-DVpryo2A.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/review_widget-C9I4CDCq.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/api_client-DLoTlhmV.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Center-DuedLykc.css
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Cluster-CiawKNFa.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Text-CQZ7f97l.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Button-Bfno6Nex.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Icon-Dm_usQ00.css
@@ -276,54 +276,54 @@ https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetMinimalHeader-Bz1T9ich.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewContent-DsM2TOnH.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Frame-B8MXG7Dz.css
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewItem-BPBDRgPh.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JCarousel-Cvng_bst.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetBody-kceNGbxw.css
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewItem-BPBDRgPh.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetMinimalHeader-CGk2KSOM.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Cluster-muiEfgfK.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/VerifiedBadge-CDW8Dbqo.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Center-BKi2RK2-.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Text-BVD9SuWM.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/reviewWidgetHeaderProps-CGPeOdWP.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Button-D-eToEEo.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Text-BVD9SuWM.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Center-BKi2RK2-.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Icon-BLZnjn1z.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/chevron-down-BmSWdpvu.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/close-BiAoyp_N.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/StarRating-CdIQQSKq.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JmInput-BAv5ueNH.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/siwsIdentity-e6MNLSad.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JmModal-oLRaru7B.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/VerifiedBadge-CDW8Dbqo.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Box-CD4bPjUw.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JmInput-BAv5ueNH.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/close-BiAoyp_N.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/SiwsChooser-86KQFllS.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useReviewSiteLinks-ChP6bpsO.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Box-CD4bPjUw.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Icon-BLZnjn1z.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/thumb-down-B04AO-pI.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/sparkle-B2KA_MBL.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useViewport-BFtC56f5.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useClampText-C4kq419T.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewContent-BQZqFzEf.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/thumb-down-B04AO-pI.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/clampDetection-D4Lzqj12.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewItem-CTQq4AQp.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Frame-ByZpAj55.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/sparkle-B2KA_MBL.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetBody-Be2tDnHU.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/dates-AQKB4YAQ.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/clampDetection-D4Lzqj12.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JCarousel-Wk3FLuXK.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/arrow-right-carousel-BsJllt0I.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetBody-Be2tDnHU.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewItem-CTQq4AQp.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxCarousel-JFH3vNVM.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightbox-CDm52qls.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxContent-CXehstry.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/MediaPreview-bU8xRhtP.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/MediaPreview-CkfDT7xI.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxCarousel-DpD2xrvN.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/imgix-caJ99Rxu.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxContent-59c2Pxnb.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxCarousel-DpD2xrvN.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightbox-CQm2qD43.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxContent-59c2Pxnb.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewCardList-gxzri6ds.css
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewCardList-DO80Hjlo.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useMasonryLayout-D-O8nsyC.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewCardList-DO80Hjlo.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useLightbox-ltLYjAh7.js
-https://review-images.judgeme.com/sorry-sugar/1785327992__img_3630__original.jpeg?quality=80&width=160
 https://review-images.judgeme.com/sorry-sugar/1785328372__image__original.jpg?quality=80&width=160
-https://tracking.aws.judge.me/widgets/track_bulk_events?_events_count=2
+https://review-images.judgeme.com/sorry-sugar/1785327992__img_3630__original.jpeg?quality=80&width=160
+https://tracking.aws.judge.me/widgets/track_bulk_events?_events_count=1
 
 DOM_REVIEW_INVENTORY:
 LINK | rel=stylesheet href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/layout-DoosNJCm.css | 
@@ -503,20 +503,20 @@ DIV | id=shopify-block-AQ2V0djZ6bXovcEp3K__judge_me_reviews_preview_badge_mqEAEY
 DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-template=manual-installation data-widget-name=preview_badge data-impressions-tracked=true | 4.7 (183 reviews)
 DIV | style=display:none class=jdgm-prev-badge data-average-rating=4.66 data-number-of-reviews=183 data-number-of-questions=0 | 4.7 (183 reviews)
 SPAN | class=jdgm-prev-badge__stars data-score=4.66 tabindex=0 aria-label=See all reviews role=button | 
-DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-widget-name=preview_badge data-impressions-tracked=true | 
+DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-widget-name=preview_badge data-impressions-tracked=true data-views-tracked=true | 
 DIV | style=display:none class=jdgm-prev-badge data-average-rating=4.90 data-number-of-reviews=42 data-number-of-questions=0 | 
 SPAN | class=jdgm-prev-badge__stars data-score=4.90 tabindex=0 aria-label=See all reviews role=button | 
-DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-widget-name=preview_badge data-impressions-tracked=true | 
+DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-widget-name=preview_badge data-impressions-tracked=true data-views-tracked=true | 
 DIV | style=display:none class=jdgm-prev-badge data-average-rating=4.88 data-number-of-reviews=66 data-number-of-questions=0 | 
 SPAN | class=jdgm-prev-badge__stars data-score=4.88 tabindex=0 aria-label=See all reviews role=button | 
-DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-widget-name=preview_badge data-impressions-tracked=true | 
+DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-widget-name=preview_badge data-impressions-tracked=true data-views-tracked=true | 
 DIV | style=display:none class=jdgm-prev-badge data-average-rating=4.29 data-number-of-reviews=48 data-number-of-questions=0 | 
 SPAN | class=jdgm-prev-badge__stars data-score=4.29 tabindex=0 aria-label=See all reviews role=button | 
-DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-widget-name=preview_badge data-impressions-tracked=true | 
+DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-widget-name=preview_badge data-impressions-tracked=true data-views-tracked=true | 
 DIV | style=display:none class=jdgm-prev-badge data-average-rating=4.81 data-number-of-reviews=48 data-number-of-questions=0 | 
 SPAN | class=jdgm-prev-badge__stars data-score=4.81 tabindex=0 aria-label=See all reviews role=button | 
 DIV | id=shopify-block-AbWtmR0MxTnh5c1F4Q__judge_me_reviews_review_widget_rhVUhe class=shopify-block shopify-app-block jdgm-horizon-widget | Customer Reviews 4.7 183 reviews WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful Thumbnail Navigation Select to learn more: Quality Taste Aroma      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea s
-DIV | id=judgeme_product_reviews class=jdgm-widget jdgm-review-widget jdgm--done-setup-widget jdgm-widget-revamp data-product-title=The Breakup Trial Kit data-id=15014327550317 data-product-id=15014327550317 data-widget=review data-shop-reviews=false data-shop-reviews-count=74 data-cart-eligible-template=false data-shop-average-rating=4.72 data-shop-review-count=1008 data-empty-state=empty_widget data-entry-point=review_widget.js data-entry-key=review-widget/main.js data-block-id=AbWtmR0MxTnh5c1F4Q__judge_me_reviews_review_widget_rhVUhe data-customer-logged-in=false style=max-width: 1200px; margin: 0 auto; data-v-app= data-widget-name=review_widget data-impressions-tracked=true data-views-tracked=true | Customer Reviews 4.7 183 reviews WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful Thumbnail Navigation Select to learn more: Quality Taste Aroma      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea s
+DIV | id=judgeme_product_reviews class=jdgm-widget jdgm-review-widget jdgm--done-setup-widget jdgm-widget-revamp data-product-title=The Breakup Trial Kit data-id=15014327550317 data-product-id=15014327550317 data-widget=review data-shop-reviews=false data-shop-reviews-count=74 data-cart-eligible-template=false data-shop-average-rating=4.72 data-shop-review-count=1008 data-empty-state=empty_widget data-entry-point=review_widget.js data-entry-key=review-widget/main.js data-block-id=AbWtmR0MxTnh5c1F4Q__judge_me_reviews_review_widget_rhVUhe data-customer-logged-in=false style=max-width: 1200px; margin: 0 auto; data-v-app= data-widget-name=review_widget data-impressions-tracked=true | Customer Reviews 4.7 183 reviews WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful Thumbnail Navigation Select to learn more: Quality Taste Aroma      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea s
 DIV | data-v-417c96d2= data-v-d92151cd= class=jm-stack jm-stack--space-300 jm-review-widget jm-review-widget--minimal-header data-image-url=https://cdn.shopify.com/s/files/1/1003/4115/4157/files/Artboard_266.jpg?v=1788163752 data-widget-container=review-widget style=--jm-review-widget-star-and-histogram-color: #E533A0; --jm-review-widget-button-color: #E533A0; --jm-review-widget-button-text-color: #FFFFFF; --jm-review-widget-text-color: #000000; --jm-review-widget-lighter-text-color: #7B7B7B; --jm-widget-primary-color: #108474; --jm-widget-border-radius: var(--jm-corner-soft); --jm-widget-border-radius-simplified: var(--jm-corner-extra-round); --jm-review-widget-bar-chart-height: 2px; --jm-review-widget-form-border-radius: var(--jm-corner-square); --jm-review-widget-form-background-color: #ffffff; --jm-review-widget-form-button-color: #108474; --jm-review-widget-form-button-text-color: #ffffff; --jm-review-widget-form-field-background-color: #fafafa; --jm-review-widget-form-modal-overlay-color: #000000; --jm-review-widget-form-text-color: #333333; --52156a25: var(--jm-space-300); | Customer Reviews 4.7 183 reviews WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful Thumbnail Navigation Select to learn more: Quality Taste Aroma      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea s
 DIV | data-v-d92151cd= class=jm-review-widget__header-and-body | Customer Reviews 4.7 183 reviews WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful Thumbnail Navigation Select to learn more: Quality Taste Aroma      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea s
 DIV | data-v-417c96d2= data-v-6e61ccc0= class=jm-stack jm-stack--space-600 jm-review-widget__header jm-review-widget-minimal-header style=--52156a25: var(--jm-space-600); | Customer Reviews 4.7 183 reviews WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful Thumbnail Navigation
@@ -541,7 +541,7 @@ SPAN | data-v-fb25c6cd= data-v-8ff89c07= class=jm-with-icon jm-custom-answer-fil
 SPAN | data-v-6d928e9f= data-v-8ff89c07= class=jm-text jm-custom-answer-filter__text style=--text-size: var(--jm-body-xs-size); --text-weight: var(--jm-body-xs-weight-medium); | Filters
 DIV | data-v-8ff89c07= class=jm-sort-filter jm-sort-filter--compact | Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful
 SPAN | data-v-fb25c6cd= data-v-8ff89c07= class=jm-sort-filter__icon jm-sort-filter__icon--sort style=--jm-icon-size: 1em; | 
-SELECT | data-v-8ff89c07= id=jdgm-sort-rs9ybj class=jdgm-sort-dropdown jm-sort-filter__select value=created_at | Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful
+SELECT | data-v-8ff89c07= id=jdgm-sort-24klx7 class=jdgm-sort-dropdown jm-sort-filter__select value=created_at | Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful
 SPAN | data-v-fb25c6cd= data-v-8ff89c07= class=jm-sort-filter__icon jm-sort-filter__icon--chevron style=--jm-icon-size: 1em; | 
 DIV | data-v-09f33d63= data-v-6e61ccc0= class=jm-media-preview | Thumbnail Navigation
 DIV | data-v-9e1dbe4b= data-v-09f33d63= class=jm-media-grid jm-media-grid jm-media-grid--has-arrows style=--thumbnail-size: 100px; --thumbnail-spacing: 8px; --max-visible: 5; --thumbnail-border-radius: var(--jm-widget-border-radius); --thumbnail-active-border-color: #fff; --grid-navigation-arrow: flex; --grid-max-width: none; | Thumbnail Navigation

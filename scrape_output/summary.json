@@ -1,66 +1,66 @@
 {
-  "unique_reviews": 0,
-  "raw_appearances": 0,
+  "unique_reviews": 430,
+  "raw_appearances": 430,
   "log": [
     {
       "product_code": "TK",
       "product": "The Breakup Trial Kit",
       "url": "https://sosorrysugar.com/products/the-breakup-trial-kit",
       "displayed_review_count": null,
-      "scraped_unique_reviews_on_page": 0,
+      "scraped_unique_reviews_on_page": 183,
       "count_matches_display": "",
       "error": "",
-      "scrape_timestamp_utc": "2026-10-02T09:16:24.259701+00:00"
+      "scrape_timestamp_utc": "2026-10-02T09:21:22.125377+00:00"
     },
     {
       "product_code": "SSC",
       "product": "Sea Salt Caramel",
       "url": "https://sosorrysugar.com/products/sea-salt-caramel",
       "displayed_review_count": null,
-      "scraped_unique_reviews_on_page": 0,
+      "scraped_unique_reviews_on_page": 66,
       "count_matches_display": "",
       "error": "",
-      "scrape_timestamp_utc": "2026-10-02T09:16:24.259701+00:00"
+      "scrape_timestamp_utc": "2026-10-02T09:21:22.125377+00:00"
     },
     {
       "product_code": "FVC",
       "product": "French Vanilla Cloud",
       "url": "https://sosorrysugar.com/products/french-vanilla-cloud",
       "displayed_review_count": null,
-      "scraped_unique_reviews_on_page": 0,
+      "scraped_unique_reviews_on_page": 48,
       "count_matches_display": "",
       "error": "",
-      "scrape_timestamp_utc": "2026-10-02T09:16:24.259701+00:00"
+      "scrape_timestamp_utc": "2026-10-02T09:21:22.125377+00:00"
     },
     {
       "product_code": "SCM",
       "product": "Silk Chocolate Mocha",
       "url": "https://sosorrysugar.com/products/silk-chocolate-mocha",
       "displayed_review_count": null,
-      "scraped_unique_reviews_on_page": 0,
+      "scraped_unique_reviews_on_page": 43,
       "count_matches_display": "",
       "error": "",
-      "scrape_timestamp_utc": "2026-10-02T09:16:24.259701+00:00"
+      "scrape_timestamp_utc": "2026-10-02T09:21:22.125377+00:00"
     },
     {
       "product_code": "HAL",
       "product": "Hazel Almond Latte",
       "url": "https://sosorrysugar.com/products/hazel-almond-latte",
       "displayed_review_count": null,
-      "scraped_unique_reviews_on_page": 0,
+      "scraped_unique_reviews_on_page": 42,
       "count_matches_display": "",
       "error": "",
-      "scrape_timestamp_utc": "2026-10-02T09:16:24.259701+00:00"
+      "scrape_timestamp_utc": "2026-10-02T09:21:22.125377+00:00"
     },
     {
       "product_code": "BGT",
       "product": "Butter Gooey Toffee",
       "url": "https://sosorrysugar.com/products/butter-gooey-toffee",
       "displayed_review_count": null,
-      "scraped_unique_reviews_on_page": 0,
+      "scraped_unique_reviews_on_page": 48,
       "count_matches_display": "",
       "error": "",
-      "scrape_timestamp_utc": "2026-10-02T09:16:24.259701+00:00"
+      "scrape_timestamp_utc": "2026-10-02T09:21:22.125377+00:00"
     }
   ]
 }

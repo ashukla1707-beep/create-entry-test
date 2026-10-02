@@ -33,17 +33,17 @@ def expected_count(page):
     root = page.locator("#judgeme_product_reviews")
     try:
         t = text_of(root.locator(".jm-average-rating-display"))
-        m = re.search(r"(\\d[\\d,]*)\\s+reviews?", t, re.I)
+        m = re.search(r"(\d[\d,]*)\s+reviews?", t, re.I)
         if m:
             return int(m.group(1).replace(",", ""))
     except Exception:
         pass
     try:
         t = text_of(root)
-        m = re.search(r"Customer Reviews.*?(\\d[\\d,]*)\\s+reviews?", t, re.I | re.S)
+        m = re.search(r"Customer Reviews.*?(\d[\d,]*)\s+reviews?", t, re.I | re.S)
         if m:
             return int(m.group(1).replace(",", ""))
-        if re.search(r"\\bNo reviews\\b|Be the first one to review", t, re.I):
+        if re.search(r"\bNo reviews\b|Be the first one to review", t, re.I):
             return 0
     except Exception:
         pass
@@ -53,15 +53,15 @@ def rating_of(card):
     loc = card.locator(".jdgm-rev__rating,[data-score],[aria-label*='star' i],[title*='star' i]")
     for a in ("data-score","aria-label","title"):
         v = attr(loc,a)
-        m = re.search(r"([1-5](?:\\.\\d+)?)",v)
+        m = re.search(r"([1-5](?:\.\d+)?)",v)
         if m: return int(round(float(m.group(1))))
-    m = re.search(r"([1-5](?:\\.\\d+)?)", text_of(loc))
+    m = re.search(r"([1-5](?:\.\d+)?)", text_of(loc))
     return int(round(float(m.group(1)))) if m else None
 
 def extract(page, code, product, url):
     cards = page.locator("#judgeme_product_reviews .jdgm-review-card")
     rows=[]
-    date_re = re.compile(r"^(?:\\d{1,2}[/-]){2}\\d{4}$")
+    date_re = re.compile(r"^(?:\d{1,2}[/-]){2}\d{4}$")
     for i in range(cards.count()):
         c=cards.nth(i)
         sid=attr(c,"data-review-id") or attr(c,"data-id")

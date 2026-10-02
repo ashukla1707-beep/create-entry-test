@@ -4,8 +4,10 @@
     "product": "The Breakup Trial Kit",
     "shopify_product_id": 15014327550317,
     "url": "https://sosorrysugar.com/products/the-breakup-trial-kit",
-    "pages_requested": 10,
-    "scraped_reviews": 135,
+    "pages_requested": 13,
+    "expected_reviews": 183,
+    "scraped_reviews": 183,
+    "match": true,
     "page_statuses": [
       {
         "page": 1,
@@ -63,9 +65,27 @@
       },
       {
         "page": 10,
-        "status": 429,
-        "ctype": "application/json",
-        "bytes": 29
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 24832
+      },
+      {
+        "page": 11,
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 24839
+      },
+      {
+        "page": 12,
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 24827
+      },
+      {
+        "page": 13,
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 7204
       }
     ]
   },
@@ -74,14 +94,40 @@
     "product": "Sea Salt Caramel",
     "shopify_product_id": 15014327484781,
     "url": "https://sosorrysugar.com/products/sea-salt-caramel",
-    "pages_requested": 1,
-    "scraped_reviews": 0,
+    "pages_requested": 5,
+    "expected_reviews": 66,
+    "scraped_reviews": 66,
+    "match": true,
     "page_statuses": [
       {
         "page": 1,
-        "status": 429,
-        "ctype": "application/json",
-        "bytes": 29
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 24432
+      },
+      {
+        "page": 2,
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 23736
+      },
+      {
+        "page": 3,
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 23930
+      },
+      {
+        "page": 4,
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 23772
+      },
+      {
+        "page": 5,
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 10692
       }
     ]
   },
@@ -90,8 +136,10 @@
     "product": "French Vanilla Cloud",
     "shopify_product_id": 15014327386477,
     "url": "https://sosorrysugar.com/products/french-vanilla-cloud",
-    "pages_requested": 5,
+    "pages_requested": 4,
+    "expected_reviews": 48,
     "scraped_reviews": 48,
+    "match": true,
     "page_statuses": [
       {
         "page": 1,
@@ -116,12 +164,6 @@
         "status": 200,
         "ctype": "application/json; charset=utf-8",
         "bytes": 5310
-      },
-      {
-        "page": 5,
-        "status": 200,
-        "ctype": "application/json; charset=utf-8",
-        "bytes": 957
       }
     ]
   },
@@ -130,8 +172,10 @@
     "product": "Silk Chocolate Mocha",
     "shopify_product_id": 15014327517549,
     "url": "https://sosorrysugar.com/products/silk-chocolate-mocha",
-    "pages_requested": 4,
+    "pages_requested": 3,
+    "expected_reviews": 43,
     "scraped_reviews": 43,
+    "match": true,
     "page_statuses": [
       {
         "page": 1,
@@ -150,12 +194,6 @@
         "status": 200,
         "ctype": "application/json; charset=utf-8",
         "bytes": 19701
-      },
-      {
-        "page": 4,
-        "status": 429,
-        "ctype": "application/json",
-        "bytes": 29
       }
     ]
   },
@@ -164,14 +202,28 @@
     "product": "Hazel Almond Latte",
     "shopify_product_id": 15014327419245,
     "url": "https://sosorrysugar.com/products/hazel-almond-latte",
-    "pages_requested": 1,
-    "scraped_reviews": 0,
+    "pages_requested": 3,
+    "expected_reviews": 42,
+    "scraped_reviews": 42,
+    "match": true,
     "page_statuses": [
       {
         "page": 1,
-        "status": 429,
-        "ctype": "application/json",
-        "bytes": 29
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 22657
+      },
+      {
+        "page": 2,
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 22834
+      },
+      {
+        "page": 3,
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 18333
       }
     ]
   },
@@ -180,14 +232,34 @@
     "product": "Butter Gooey Toffee",
     "shopify_product_id": 15014327353709,
     "url": "https://sosorrysugar.com/products/butter-gooey-toffee",
-    "pages_requested": 1,
-    "scraped_reviews": 0,
+    "pages_requested": 4,
+    "expected_reviews": 48,
+    "scraped_reviews": 48,
+    "match": true,
     "page_statuses": [
       {
         "page": 1,
-        "status": 429,
-        "ctype": "application/json",
-        "bytes": 29
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 22660
+      },
+      {
+        "page": 2,
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 22934
+      },
+      {
+        "page": 3,
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 22599
+      },
+      {
+        "page": 4,
+        "status": 200,
+        "ctype": "application/json; charset=utf-8",
+        "bytes": 5316
       }
     ]
   }

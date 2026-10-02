@@ -139,6 +139,8 @@ with sync_playwright() as p:
     browser=p.chromium.launch(headless=True)
     ctx=browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36",locale="en-IN")
     page=ctx.new_page()
+    network_urls=[]
+    page.on("response", lambda r: network_urls.append(r.url) if ("judge" in r.url.lower() or "jdgm" in r.url.lower() or "review" in r.url.lower()) else None)
     page.set_default_timeout(45000)
     for code,product,url in PRODUCTS:
         print("SCRAPING",product,flush=True)
@@ -146,8 +148,17 @@ with sync_playwright() as p:
         exp=None
         product_rows=[]
         try:
+            network_urls.clear()
             page.goto(url+"#judgeme_product_reviews",wait_until="domcontentloaded",timeout=45000)
-            page.wait_for_timeout(3500)
+            page.wait_for_timeout(5000)
+            if code == "TK":
+                dbg = []
+                dbg.append("FINAL_URL: "+page.url)
+                dbg.append("TITLE: "+page.title())
+                try: dbg.append("BODY_START:\n"+page.locator("body").inner_text(timeout=5000)[:8000])
+                except Exception as e: dbg.append("BODY_ERROR: "+repr(e))
+                dbg.append("\nNETWORK_URLS:\n"+"\n".join(network_urls[:300]))
+                (OUT/"trial_debug.txt").write_text("\n".join(dbg),encoding="utf-8")
             exp=expected_count(page)
             seen={}
             for step in range(1,80):

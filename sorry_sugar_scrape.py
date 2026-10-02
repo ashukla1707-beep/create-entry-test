@@ -158,6 +158,23 @@ with sync_playwright() as p:
                 try: dbg.append("BODY_START:\n"+page.locator("body").inner_text(timeout=5000)[:8000])
                 except Exception as e: dbg.append("BODY_ERROR: "+repr(e))
                 dbg.append("\nNETWORK_URLS:\n"+"\n".join(network_urls[:300]))
+                try:
+                    inventory = page.evaluate("""() => {
+                      const out=[];
+                      for (const el of document.querySelectorAll('*')) {
+                        const attrs=[...el.attributes].map(a=>a.name+'='+a.value).join(' ');
+                        const cls=(el.getAttribute('class')||'');
+                        const test=(attrs+' '+cls).toLowerCase();
+                        if (test.includes('review') || test.includes('judge') || test.includes('jm-')) {
+                          out.push(el.tagName+' | '+attrs+' | '+(el.innerText||'').trim().replace(/\\s+/g,' ').slice(0,300));
+                          if (out.length>=500) break;
+                        }
+                      }
+                      return out;
+                    }""")
+                    dbg.append("\nDOM_REVIEW_INVENTORY:\n"+"\n".join(inventory))
+                except Exception as e:
+                    dbg.append("\nDOM_INVENTORY_ERROR: "+repr(e))
                 (OUT/"trial_debug.txt").write_text("\n".join(dbg),encoding="utf-8")
             exp=expected_count(page)
             seen={}

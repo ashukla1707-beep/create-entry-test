@@ -48,9 +48,9 @@ Fat
 FREE TUMBLER!! OFFER ENDS IN:
 14 h
 :
-46 m
+43 m
 :
-25 s
+29 s
 ADD TO CART
 Description
 
@@ -230,41 +230,40 @@ NETWORK_URLS:
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/loader.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_v3_base.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_v3_main.css
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/manifest.json?v=1790932409989
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_common.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/manifest.json?v=1790932586381
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_base.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_write_review_modal.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_common.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_main.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_write_review_modal.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_common.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_v3_form.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidget-D_uq5EZL.css
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/LoadingOverlay-CmkTdyRm.css
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Stack-DHDZjISx.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/layout-DoosNJCm.css
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Stack-DHDZjISx.css
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/LoadingOverlay-CmkTdyRm.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_main.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_write_review_modal.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/widget_form.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/review_widget.js
-https://sosorrysugar.com/services/login_with_shop/buyer/callback?analytics_trace_id=07b570cc-c65e-41c6-8449-76a456522987&target_origin=https%3A%2F%2Fsosorrysugar.com&token=R2JGMmpDNFFJdGxTWlRYeGxwVHJDQjF6eXFjOFYycTh3a2NYbThlME4xTUM0TmpHcnp5R3pJYmh1Z2R5bWhNeS91Y2hFdVM2NUJmb1J3bS9lZjdGOFo0QVhOMmk0NGx2WTgxTEgyUlBEOURDQzgwY0E5L1dwU1Q2RzZ0SGpQbkVYN3RlVTA5bnNzdGdpaFdVY2NldVBMMldrYXN2YldBM3FXalpycDgreWY0QmMxQjdNWkNzemp1WDVjVHFKeXNSTkQ5M3lTc0M0Mm5DMDd2LzltbDhQcVY2RnVBTTFYT0J0T3hpMVhHWjdGM1dRY1BGbEJYSC9xRUR6M05aYXJFMVI0ejN3QlVvRDcrTk0zRjBKb3ZRVXFPODlsanZJOXZZZ1c5Sk1nRHdzdGR0T240aGJ6dkZnNUxyUnJIejd0eCtRRXdxZFo1T05PUEt3L1ZpdVFhNkRBeEp6ZmxYdXo4dzZTcmtQOW9qM0dlancrY0hMMDhra0txcUwyeVdSZEhBS1hac3FNOWZBUUFNZjlwNS8xdDFha1VPdTh5bW84U1ZtTDhkTTJzeElpdVJQejNaRlpnVWVoNjRyT291a1hRcTBSRkNNTzRZWm5ORDdKVWQ5aFlhUG1aemxNeHVLcFd1eWVMcXgrUmVNTjFqelo2WVM4WDFWYU42R2E5emoxNjRpYWJpZFd5MXBqOUVtSDcvYVBpNnovVndTYTRPU0NkbnBXdXZHeUcvR3YyUi9IT2h6Rk9jRmdMVGwxaFc1YTR3WkxWZDFOZmY0NmwyM2t2K0hFWnUvTHNlRTJHd2tySU4vMExraWRWc1hUK2FoVSs2ME54ZkRWdENVUGxCbmdnS1IybDBsU1A5MXZTYkN2amdTdDVMcml6cXY2R3R5c2xGQkJRVWwrZEVZZDBnajNmYkNSNFY3eWdFenJHQm8rdDlranA5YlFGTnB4VE1NV3pkNS9SRDFGbElRZlJaS3NUc0RXWWlwZyt3K3NYSDA0Z1pQU3lXaUh2cWczWk5lSFAxdFVDMTBVekdqclAveGJxcmQrM1BPdEd6ZVM5Ykl0NXNiWklDc1FhMzFXbVdFa3VGQ09iUFZIZHJwR0RNeG1SR3Z0Vmx2WTBsNmJFQXprV3o5VG9ZWHVnSkFpZ2NDeXFHY2Q1bnpDc3BuWDVjRythNks0dW41RVVaOUZTd1IrSEhacXBiVWliR0tqL2syaHZhVGVSM2RkSWNhUGlmVzVDWWYxYUVrR0VVMGpGa0pJSUt1bVI3bHQ1bXYwMVpEajVGZ09aVisvYStnWFlKdGIremlsWU52SjRrMmhZT0cyUEdnM3BTNTMvNHVBRVZYR0ZZTFpwSGdUSEFkall4OHVFWktGRUw4YzhHUTE0SFRiZTFFRVBBQlNKbWoyN1IvTjdZZGtJS2s5UTNwbUk9LS1CKy9EQjJ6VXBLZzdnZm9LVzJuVTRnPT0%3D--58cc794c2a96f3cdb4ab2c1742bb3ffee8ba8b71
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetManager-D-7bc_DD.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidget-BquQ1hdX.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/preload-helper-D9Z9MdNV.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/language-B7lxRGFY.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useVoting-EKsYimth.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/tabs-DKtwMc_M.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/review_widget-C9I4CDCq.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useEventTracking-C4EVBXOD.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Stack-CL5ToyG4.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/common-Cb3kwxzO.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/LoadingOverlay-BBccDixU.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/_plugin-vue_export-helper-DVpryo2A.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/review_widget-C9I4CDCq.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidget-BquQ1hdX.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useVoting-EKsYimth.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useImpressionTracking-JbKUvFgV.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/tabs-DKtwMc_M.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/language-B7lxRGFY.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/review_api-DPAAk4HL.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/createObserverHost-DzGDekFF.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/api_client-DLoTlhmV.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/common-Cb3kwxzO.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Stack-CL5ToyG4.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/_plugin-vue_export-helper-DVpryo2A.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useEventTracking-C4EVBXOD.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Cluster-CiawKNFa.css
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Text-CQZ7f97l.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Center-DuedLykc.css
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Text-CQZ7f97l.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Button-Bfno6Nex.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Icon-Dm_usQ00.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/StarRating-Cto48rfu.css
@@ -274,54 +273,556 @@ https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JmInput-C8M2T55B.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Box-DtEw4VQg.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/reviewWidgetHeaderProps-BH45mQZH.css
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetMinimalHeader-Bz1T9ich.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewContent-DsM2TOnH.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Frame-B8MXG7Dz.css
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetMinimalHeader-Bz1T9ich.css
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetBody-kceNGbxw.css
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JCarousel-Cvng_bst.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewItem-BPBDRgPh.css
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JCarousel-Cvng_bst.css
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetBody-kceNGbxw.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetMinimalHeader-CGk2KSOM.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Center-BKi2RK2-.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/reviewWidgetHeaderProps-CGPeOdWP.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Text-BVD9SuWM.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Cluster-muiEfgfK.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Icon-BLZnjn1z.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/reviewWidgetHeaderProps-CGPeOdWP.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Button-D-eToEEo.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Text-BVD9SuWM.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Center-BKi2RK2-.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/chevron-down-BmSWdpvu.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/SiwsChooser-86KQFllS.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/VerifiedBadge-CDW8Dbqo.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/StarRating-CdIQQSKq.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useReviewSiteLinks-ChP6bpsO.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JmModal-oLRaru7B.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/close-BiAoyp_N.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/siwsIdentity-e6MNLSad.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Box-CD4bPjUw.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/StarRating-CdIQQSKq.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JmInput-BAv5ueNH.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/thumb-down-B04AO-pI.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetBody-Be2tDnHU.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/sparkle-B2KA_MBL.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewContent-BQZqFzEf.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useClampText-C4kq419T.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewItem-CTQq4AQp.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/siwsIdentity-e6MNLSad.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JmModal-oLRaru7B.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/VerifiedBadge-CDW8Dbqo.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/SiwsChooser-86KQFllS.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useReviewSiteLinks-ChP6bpsO.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Box-CD4bPjUw.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Icon-BLZnjn1z.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useViewport-BFtC56f5.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Frame-ByZpAj55.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useClampText-C4kq419T.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewContent-BQZqFzEf.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/thumb-down-B04AO-pI.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/clampDetection-D4Lzqj12.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Frame-ByZpAj55.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/sparkle-B2KA_MBL.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/dates-AQKB4YAQ.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JCarousel-Wk3FLuXK.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/arrow-right-carousel-BsJllt0I.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetBody-Be2tDnHU.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewItem-CTQq4AQp.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxCarousel-JFH3vNVM.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightbox-CDm52qls.css
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/MediaPreview-bU8xRhtP.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxContent-CXehstry.css
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/MediaPreview-bU8xRhtP.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/MediaPreview-CkfDT7xI.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxCarousel-DpD2xrvN.js
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/imgix-caJ99Rxu.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxContent-59c2Pxnb.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightbox-CQm2qD43.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/imgix-caJ99Rxu.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewCardList-gxzri6ds.css
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewCardList-DO80Hjlo.js
-https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useLightbox-ltLYjAh7.js
 https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useMasonryLayout-D-O8nsyC.js
-https://review-images.judgeme.com/sorry-sugar/1785328372__image__original.jpg?quality=80&width=160
+https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useLightbox-ltLYjAh7.js
 https://review-images.judgeme.com/sorry-sugar/1785327992__img_3630__original.jpeg?quality=80&width=160
+https://review-images.judgeme.com/sorry-sugar/1785328372__image__original.jpg?quality=80&width=160
 https://tracking.aws.judge.me/widgets/track_bulk_events?_events_count=2
+
+DOM_REVIEW_INVENTORY:
+LINK | rel=stylesheet href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/layout-DoosNJCm.css | 
+LINK | rel=stylesheet href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidget-D_uq5EZL.css | 
+LINK | rel=stylesheet href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Stack-DHDZjISx.css | 
+LINK | rel=stylesheet href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/LoadingOverlay-CmkTdyRm.css | 
+SCRIPT | type=module src=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/review_widget.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetMinimalHeader-CGk2KSOM.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/preload-helper-D9Z9MdNV.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Stack-CL5ToyG4.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/_plugin-vue_export-helper-DVpryo2A.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Cluster-muiEfgfK.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Cluster-CiawKNFa.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/reviewWidgetHeaderProps-CGPeOdWP.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Center-BKi2RK2-.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Center-DuedLykc.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Text-BVD9SuWM.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Text-CQZ7f97l.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Button-D-eToEEo.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Button-Bfno6Nex.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Icon-BLZnjn1z.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Icon-Dm_usQ00.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/chevron-down-BmSWdpvu.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/StarRating-CdIQQSKq.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/StarRating-Cto48rfu.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/VerifiedBadge-CDW8Dbqo.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/VerifiedBadge-eNLj4JNJ.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useReviewSiteLinks-ChP6bpsO.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/SiwsChooser-86KQFllS.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JmModal-oLRaru7B.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/review_widget-C9I4CDCq.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JmModal-CkjWUkR6.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/close-BiAoyp_N.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/language-B7lxRGFY.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/SiwsChooser-CcBCjvMY.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JmInput-BAv5ueNH.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JmInput-C8M2T55B.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/common-Cb3kwxzO.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/siwsIdentity-e6MNLSad.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/tabs-DKtwMc_M.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Box-CD4bPjUw.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Box-DtEw4VQg.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/thumb-down-B04AO-pI.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/sparkle-B2KA_MBL.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useViewport-BFtC56f5.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useEventTracking-C4EVBXOD.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/reviewWidgetHeaderProps-BH45mQZH.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/LoadingOverlay-BBccDixU.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useVoting-EKsYimth.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useImpressionTracking-JbKUvFgV.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/createObserverHost-DzGDekFF.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetMinimalHeader-Bz1T9ich.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetBody-Be2tDnHU.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewItem-CTQq4AQp.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewContent-BQZqFzEf.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useClampText-C4kq419T.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/clampDetection-D4Lzqj12.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewContent-DsM2TOnH.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Frame-ByZpAj55.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/Frame-B8MXG7Dz.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/api_client-DLoTlhmV.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/dates-AQKB4YAQ.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewItem-BPBDRgPh.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JCarousel-Wk3FLuXK.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JCarousel-Cvng_bst.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/arrow-right-carousel-BsJllt0I.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewWidgetBody-kceNGbxw.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/MediaPreview-CkfDT7xI.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxCarousel-DpD2xrvN.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/imgix-caJ99Rxu.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxCarousel-JFH3vNVM.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightbox-CQm2qD43.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightbox-CDm52qls.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxContent-59c2Pxnb.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/JLightboxContent-CXehstry.css | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/MediaPreview-bU8xRhtP.css | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewCardList-DO80Hjlo.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useMasonryLayout-D-O8nsyC.js | 
+LINK | rel=modulepreload as=script crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/useLightbox-ltLYjAh7.js | 
+LINK | rel=stylesheet crossorigin= href=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/ReviewCardList-gxzri6ds.css | 
+DIV | class=jdgm-review-widget-modal jdgm-write-review-modal data-current-page=1 role=dialog aria-modal=true aria-label=Write a review style=display: none; | How would you rate this product? We would love it if you would share a bit about your experience. The Breakup Trial Kit The Breakup Trial Kit Review content (Required) We'll only contact you about your review if necessary. By submitting your review, you agree to our terms and conditions and privacy 
+DIV | class=jdgm-write-review-modal__overlay | 
+DIV | class=jdgm-write-review-modal__container | How would you rate this product? We would love it if you would share a bit about your experience. The Breakup Trial Kit The Breakup Trial Kit Review content (Required) We'll only contact you about your review if necessary. By submitting your review, you agree to our terms and conditions and privacy 
+DIV | class=jdgm-write-review-modal__content | How would you rate this product? We would love it if you would share a bit about your experience. The Breakup Trial Kit The Breakup Trial Kit Review content (Required) We'll only contact you about your review if necessary. By submitting your review, you agree to our terms and conditions and privacy 
+BUTTON | class=jdgm-write-review-modal__close-btn aria-label=Close review form | 
+DIV | class=jdgm-write-review-modal__status role=status aria-live=polite aria-atomic=true | 
+DIV | class=jdgm-write-review-modal__sections role=region aria-label=Review form pages | How would you rate this product? We would love it if you would share a bit about your experience. The Breakup Trial Kit The Breakup Trial Kit Review content (Required) We'll only contact you about your review if necessary. By submitting your review, you agree to our terms and conditions and privacy 
+DIV | class=jdgm-write-review-modal__section jdgm-write-review-modal__section--review-form-intro | How would you rate this product? We would love it if you would share a bit about your experience. The Breakup Trial Kit
+DIV | class=jdgm-write-review-modal__page jdgm-write-review-modal__page--review-form-intro data-page=1 | How would you rate this product? We would love it if you would share a bit about your experience. The Breakup Trial Kit
+DIV | class=jdgm-write-review-modal__page-header | How would you rate this product? We would love it if you would share a bit about your experience.
+DIV | class=jdgm-write-review-modal__title role=heading aria-level=3 | How would you rate this product?
+DIV | class=jdgm-write-review-modal__intro | We would love it if you would share a bit about your experience.
+DIV | class=jdgm-write-review-modal__form | The Breakup Trial Kit
+DIV | class=jdgm-write-review-modal__product-title role=heading aria-level=3 | The Breakup Trial Kit
+DIV | class=jdgm-write-review-modal__stars role=group aria-label=Rating style=cursor: pointer; | 
+DIV | class=jdgm-write-review-modal__section jdgm-write-review-modal__section--slider | The Breakup Trial Kit Review content (Required) We'll only contact you about your review if necessary. By submitting your review, you agree to our terms and conditions and privacy policy. About you Please tell us more about you. Email address (Required) We respect your privacy. Display name (Require
+DIV | class=jdgm-write-review-modal__slider-container | The Breakup Trial Kit Review content (Required) We'll only contact you about your review if necessary. By submitting your review, you agree to our terms and conditions and privacy policy. About you Please tell us more about you. Email address (Required) We respect your privacy. Display name (Require
+DIV | class=jdgm-write-review-modal__page jdgm-write-review-modal__page--review-details data-page=2 | The Breakup Trial Kit Review content (Required) We'll only contact you about your review if necessary. By submitting your review, you agree to our terms and conditions and privacy policy.
+DIV | class=jdgm-write-review-modal__page-header | The Breakup Trial Kit
+DIV | class=jdgm-write-review-modal__product-title role=heading aria-level=3 | The Breakup Trial Kit
+DIV | class=jdgm-write-review-modal__field-group jdgm-write-review-modal__field-group--stars | 
+DIV | class=jdgm-write-review-modal__stars role=group aria-label=Rating aria-describedby=jdgm-review-stars-error style=cursor: pointer; | 
+DIV | id=jdgm-review-stars-error class=jdgm-write-review-modal__field-error role=alert aria-live=polite style=display: none; | 
+DIV | class=jdgm-write-review-modal__form | Review content (Required) We'll only contact you about your review if necessary. By submitting your review, you agree to our terms and conditions and privacy policy.
+DIV | class=jdgm-write-review-modal__form-group jdgm-write-review-modal__form-group--review-content | Review content (Required)
+DIV | class=jdgm-write-review-modal__field-group jdgm-write-review-modal__field-group--review-body | Review content (Required)
+LABEL | for=jdgm-review-body-input class=jdgm-write-review-modal__field-label | Review content (Required)
+TEXTAREA | id=jdgm-review-body-input name=review_body class=jdgm-write-review-modal__field-input placeholder=Start writing here... aria-describedby=jdgm-review-body-error aria-required=true required= | 
+DIV | id=jdgm-review-body-error class=jdgm-write-review-modal__field-error role=alert aria-live=polite style=display: none; | 
+DIV | class=jdgm-write-review-modal__gdpr-statement role=region aria-label=Privacy and Terms | We'll only contact you about your review if necessary. By submitting your review, you agree to our terms and conditions and privacy policy.
+A | href=https://judge.me/terms target=_blank rel=nofollow noopener | terms and conditions
+A | href=https://judge.me/privacy target=_blank rel=nofollow noopener | privacy policy
+DIV | class=jdgm-write-review-modal__page jdgm-write-review-modal__page--about-you data-page=3 | About you Please tell us more about you. Email address (Required) We respect your privacy. Display name (Required) This won't be visible to other customers. Post review as anonymous
+DIV | class=jdgm-write-review-modal__page-header | About you Please tell us more about you.
+DIV | class=jdgm-write-review-modal__title role=heading aria-level=3 | About you
+DIV | class=jdgm-write-review-modal__intro | Please tell us more about you.
+DIV | class=jdgm-write-review-modal__form | Email address (Required) We respect your privacy. Display name (Required) This won't be visible to other customers. Post review as anonymous
+DIV | class=jdgm-write-review-modal__form-group | Email address (Required) We respect your privacy. Display name (Required) This won't be visible to other customers. Post review as anonymous
+DIV | class=jdgm-write-review-modal__field-group | Email address (Required) We respect your privacy.
+LABEL | for=jdgm-email-input class=jdgm-write-review-modal__field-label | Email address (Required)
+INPUT | type=email id=jdgm-email-input name=reviewer_email class=jdgm-write-review-modal__field-input placeholder=Your email address aria-describedby=jdgm-email-error jdgm-email-help aria-required=true required= autocomplete=email | 
+DIV | id=jdgm-email-error class=jdgm-write-review-modal__field-error aria-live=polite style=display: none; | 
+DIV | id=jdgm-email-help class=jdgm-write-review-modal__field-help | We respect your privacy.
+DIV | class=jdgm-write-review-modal__field-group | Display name (Required) This won't be visible to other customers.
+LABEL | for=jdgm-name-input class=jdgm-write-review-modal__field-label | Display name (Required)
+INPUT | type=text id=jdgm-name-input name=reviewer_name class=jdgm-write-review-modal__field-input placeholder=Display name aria-describedby=jdgm-name-error jdgm-name-help aria-required=true required= autocomplete=name data-manually-edited=false value= | 
+DIV | id=jdgm-name-error class=jdgm-write-review-modal__field-error aria-live=polite style=display: none; | 
+DIV | id=jdgm-name-help class=jdgm-write-review-modal__field-help jdgm-write-review-modal__anonymous-help style=display: none; | This won't be visible to other customers.
+INPUT | type=hidden id=jdgm-reviewer-name-format name=reviewer_name_format value= | 
+DIV | class=jdgm-write-review-modal__field-group | Post review as anonymous
+LABEL | class=jdgm-write-review-modal__checkbox-label | Post review as anonymous
+INPUT | type=checkbox id=jdgm-anonymous-checkbox class=jdgm-write-review-modal__checkbox-input aria-describedby=jdgm-name-help | 
+SPAN | class=jdgm-write-review-modal__checkbox-custom | 
+SPAN | class=jdgm-write-review-modal__checkbox-text | Post review as anonymous
+DIV | class=jdgm-write-review-modal__page jdgm-write-review-modal__page--share-media data-page=4 | Share a picture or video Upload a photo or video to support your review. Click to upload or drag and drop YouTube URL
+DIV | class=jdgm-write-review-modal__page-header | Share a picture or video Upload a photo or video to support your review.
+DIV | class=jdgm-write-review-modal__title role=heading aria-level=3 | Share a picture or video
+DIV | class=jdgm-write-review-modal__intro | Upload a photo or video to support your review.
+DIV | class=jdgm-write-review-modal__form jdgm-write-review-modal__form--share-media | Click to upload or drag and drop YouTube URL
+DIV | class=jdgm-write-review-modal__form-group jdgm-write-review-modal__form-group--share-media style=max-height: 343.012px; | Click to upload or drag and drop YouTube URL
+DIV | class=jdgm-write-review-modal__field-group jdgm-write-review-modal__field-group--media-upload | Click to upload or drag and drop
+DIV | class=jdgm-write-review-modal__media-upload | Click to upload or drag and drop
+DIV | class=jdgm-write-review-modal__media-upload-icon aria-hidden=true | 
+DIV | class=jdgm-write-review-modal__media-upload-prompt | Click to upload or drag and drop
+DIV | id=jdgm-file-error class=jdgm-write-review-modal__field-error role=alert aria-live=polite style=display: none; aria-hidden=true | 
+INPUT | type=file name=media class=jdgm-write-review-modal__media-input multiple= accept=image/jpeg,image/jpg,image/png,image/gif,image/webp,video/mp4,video/mov,video/webm,video/x-m4v,video/* aria-label=Share a picture or video aria-describedby=jdgm-file-error | 
+DIV | class=jdgm-write-review-modal__media-previews-container | 
+DIV | class=jdgm-write-review-modal__field-group | YouTube URL
+LABEL | class=jdgm-write-review-modal__field-label for=yt_url | YouTube URL
+INPUT | id=yt_url class=jdgm-write-review-modal__field-input name=yt_url type=text placeholder=Paste your Youtube URL here aria-label=Paste your Youtube URL here aria-describedby=jdgm-yt_url-error | 
+DIV | id=jdgm-yt_url-error class=jdgm-write-review-modal__field-error role=alert aria-live=polite style=display: none; | 
+DIV | class=jdgm-write-review-modal__navigation role=navigation aria-label=Review form navigation | Back Next
+BUTTON | class=jdgm-write-review-modal__nav-btn jdgm-write-review-modal__nav-btn-back aria-label=Previous step style=display: none; | Back
+BUTTON | class=jdgm-write-review-modal__nav-btn jdgm-write-review-modal__nav-btn-next aria-label=Next step | Next
+DIV | class=jdgm-write-review-modal__section jdgm-write-review-modal__section--page--thank-you | Thanks for your review! We are processing it and it will appear on the store soon. Please confirm your email by clicking the link we just sent you. This helps us keep reviews authentic. Close
+DIV | class=jdgm-write-review-modal__page jdgm-write-review-modal__page--thank-you data-page=5 | Thanks for your review! We are processing it and it will appear on the store soon. Please confirm your email by clicking the link we just sent you. This helps us keep reviews authentic. Close
+DIV | class=jdgm-write-review-modal__form jdgm-write-review-modal__form--thank-you | Thanks for your review! We are processing it and it will appear on the store soon. Please confirm your email by clicking the link we just sent you. This helps us keep reviews authentic.
+DIV | class=jdgm-write-review-modal__title role=heading aria-level=3 | Thanks for your review!
+DIV | class=jdgm-write-review-modal__intro | We are processing it and it will appear on the store soon.
+DIV | class=jdgm-write-review-modal__text | Please confirm your email by clicking the link we just sent you. This helps us keep reviews authentic.
+DIV | class=jdgm-write-review-modal__thank-you-nav role=navigation aria-label=Review form navigation | Close
+BUTTON | type=button class=jdgm-write-review-modal__nav-btn jdgm-write-review-modal__nav-btn-close aria-label=Close review form | Close
+LINK | rel=dns-prefetch href=https://cdn.judge.me | 
+LINK | rel=dns-prefetch href=https://cdn1.judge.me | 
+LINK | rel=dns-prefetch href=https://api.judge.me | 
+SCRIPT | src=https://cdn.shopify.com/extensions/01a0f14c-14c3-7c54-8630-ec498be121ab/judgeme-770/assets/loader.js type=text/javascript defer=defer | 
+LI | id=product-55152353247597-1 class=product-media-container constrain-height media-fit-contain product-media-container--image product-media-container--zoomable style= --media-preview-ratio: 1.0; ref=media[] on:click=/close | 
+LI | id=product-54216432386413-2 class=product-media-container constrain-height media-fit-contain product-media-container--image product-media-container--zoomable style= --media-preview-ratio: 1.0; ref=media[] on:click=/close | 
+LI | id=product-54136113660269-3 class=product-media-container constrain-height media-fit-contain product-media-container--image product-media-container--zoomable style= --media-preview-ratio: 1.0; ref=media[] on:click=/close | 
+LI | id=product-54221404504429-4 class=product-media-container constrain-height media-fit-contain product-media-container--image product-media-container--zoomable style= --media-preview-ratio: 1.0; ref=media[] on:click=/close | 
+LI | id=product-54905829491053-5 class=product-media-container constrain-height media-fit-contain product-media-container--image product-media-container--zoomable style= --media-preview-ratio: 1.0; ref=media[] on:click=/close | 
+LI | id=product-55256438178157-6 class=product-media-container constrain-height media-fit-contain product-media-container--image product-media-container--zoomable style= --media-preview-ratio: 1.0006854009595614; ref=media[] on:click=/close | 
+LI | id=product-54221403292013-7 class=product-media-container constrain-height media-fit-contain product-media-container--image product-media-container--zoomable style= --media-preview-ratio: 0.9990697674418605; ref=media[] on:click=/close | 
+LI | id=product-54216433074541-8 class=product-media-container constrain-height media-fit-contain product-media-container--image product-media-container--zoomable style= --media-preview-ratio: 1.0; ref=media[] on:click=/close | 
+LI | id=product-54221374816621-9 class=product-media-container constrain-height media-fit-contain product-media-container--image product-media-container--zoomable style= --media-preview-ratio: 1.0; ref=media[] on:click=/close | 
+DIV | id=shopify-block-AQ2V0djZ6bXovcEp3K__judge_me_reviews_preview_badge_mqEAEY class=shopify-block shopify-app-block jdgm-horizon-widget | 4.7 (183 reviews)
+DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-template=manual-installation data-widget-name=preview_badge data-impressions-tracked=true | 4.7 (183 reviews)
+DIV | style=display:none class=jdgm-prev-badge data-average-rating=4.66 data-number-of-reviews=183 data-number-of-questions=0 | 4.7 (183 reviews)
+SPAN | class=jdgm-prev-badge__stars data-score=4.66 tabindex=0 aria-label=See all reviews role=button | 
+DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-widget-name=preview_badge data-impressions-tracked=true | 
+DIV | style=display:none class=jdgm-prev-badge data-average-rating=4.90 data-number-of-reviews=42 data-number-of-questions=0 | 
+SPAN | class=jdgm-prev-badge__stars data-score=4.90 tabindex=0 aria-label=See all reviews role=button | 
+DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-widget-name=preview_badge data-impressions-tracked=true | 
+DIV | style=display:none class=jdgm-prev-badge data-average-rating=4.88 data-number-of-reviews=66 data-number-of-questions=0 | 
+SPAN | class=jdgm-prev-badge__stars data-score=4.88 tabindex=0 aria-label=See all reviews role=button | 
+DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-widget-name=preview_badge data-impressions-tracked=true | 
+DIV | style=display:none class=jdgm-prev-badge data-average-rating=4.29 data-number-of-reviews=48 data-number-of-questions=0 | 
+SPAN | class=jdgm-prev-badge__stars data-score=4.29 tabindex=0 aria-label=See all reviews role=button | 
+DIV | class=jdgm-widget jdgm-preview-badge jdgm-preview-badge--with-link jdgm--done-setup data-id=15014327550317 data-widget-name=preview_badge data-impressions-tracked=true | 
+DIV | style=display:none class=jdgm-prev-badge data-average-rating=4.81 data-number-of-reviews=48 data-number-of-questions=0 | 
+SPAN | class=jdgm-prev-badge__stars data-score=4.81 tabindex=0 aria-label=See all reviews role=button | 
+DIV | id=shopify-block-AbWtmR0MxTnh5c1F4Q__judge_me_reviews_review_widget_rhVUhe class=shopify-block shopify-app-block jdgm-horizon-widget | Customer Reviews 4.7 183 reviews WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful Thumbnail Navigation Select to learn more: Quality Taste Aroma      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea s
+DIV | id=judgeme_product_reviews class=jdgm-widget jdgm-review-widget jdgm--done-setup-widget jdgm-widget-revamp data-product-title=The Breakup Trial Kit data-id=15014327550317 data-product-id=15014327550317 data-widget=review data-shop-reviews=false data-shop-reviews-count=74 data-cart-eligible-template=false data-shop-average-rating=4.72 data-shop-review-count=1008 data-empty-state=empty_widget data-entry-point=review_widget.js data-entry-key=review-widget/main.js data-block-id=AbWtmR0MxTnh5c1F4Q__judge_me_reviews_review_widget_rhVUhe data-customer-logged-in=false style=max-width: 1200px; margin: 0 auto; data-v-app= data-widget-name=review_widget data-impressions-tracked=true data-views-tracked=true | Customer Reviews 4.7 183 reviews WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful Thumbnail Navigation Select to learn more: Quality Taste Aroma      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea s
+DIV | data-v-417c96d2= data-v-d92151cd= class=jm-stack jm-stack--space-300 jm-review-widget jm-review-widget--minimal-header data-image-url=https://cdn.shopify.com/s/files/1/1003/4115/4157/files/Artboard_266.jpg?v=1788163752 data-widget-container=review-widget style=--jm-review-widget-star-and-histogram-color: #E533A0; --jm-review-widget-button-color: #E533A0; --jm-review-widget-button-text-color: #FFFFFF; --jm-review-widget-text-color: #000000; --jm-review-widget-lighter-text-color: #7B7B7B; --jm-widget-primary-color: #108474; --jm-widget-border-radius: var(--jm-corner-soft); --jm-widget-border-radius-simplified: var(--jm-corner-extra-round); --jm-review-widget-bar-chart-height: 2px; --jm-review-widget-form-border-radius: var(--jm-corner-square); --jm-review-widget-form-background-color: #ffffff; --jm-review-widget-form-button-color: #108474; --jm-review-widget-form-button-text-color: #ffffff; --jm-review-widget-form-field-background-color: #fafafa; --jm-review-widget-form-modal-overlay-color: #000000; --jm-review-widget-form-text-color: #333333; --52156a25: var(--jm-space-300); | Customer Reviews 4.7 183 reviews WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful Thumbnail Navigation Select to learn more: Quality Taste Aroma      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea s
+DIV | data-v-d92151cd= class=jm-review-widget__header-and-body | Customer Reviews 4.7 183 reviews WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful Thumbnail Navigation Select to learn more: Quality Taste Aroma      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea s
+DIV | data-v-417c96d2= data-v-6e61ccc0= class=jm-stack jm-stack--space-600 jm-review-widget__header jm-review-widget-minimal-header style=--52156a25: var(--jm-space-600); | Customer Reviews 4.7 183 reviews WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful Thumbnail Navigation
+DIV | data-v-04f37a24= data-v-6e61ccc0= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-end; --cluster-space: var(--jm-space-1000); --cluster-wrap: wrap; | Customer Reviews 4.7 183 reviews WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful
+DIV | data-v-417c96d2= data-v-6e61ccc0= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | Customer Reviews 4.7 183 reviews
+P | data-v-6d928e9f= data-v-6e61ccc0= class=jm-text jm-review-widget-minimal-header__title role=heading aria-level=2 style=--text-size: var(--jm-heading-sm-size); --text-weight: var(--jm-heading-sm-weight-default); | Customer Reviews
+DIV | data-v-04f37a24= data-v-6e61ccc0= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-600); --cluster-wrap: wrap; | 4.7 183 reviews
+DIV | data-v-7edeabbf= data-v-6e61ccc0= class=jm-average-rating-display jm-average-rating-display--minimal-header | 4.7 183 reviews
+DIV | data-v-04f37a24= data-v-7edeabbf= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-200); --cluster-wrap: wrap; | 4.7 183 reviews
+P | data-v-6d928e9f= data-v-7edeabbf= class=jm-text style=--text-size: var(--jm-heading-sm-size); --text-weight: var(--jm-heading-sm-weight-bold); | 4.7
+P | data-v-6d928e9f= data-v-7edeabbf= class=jm-text style=--text-size: var(--jm-body-xs-size); --text-weight: var(--jm-body-xs-weight-default); | 183 reviews
+DIV | data-v-417c96d2= data-v-6e61ccc0= class=jm-stack jm-stack--space-400 jm-review-widget-minimal-header__filter-container style=--52156a25: var(--jm-space-400); | WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful
+DIV | data-v-04f37a24= data-v-6e61ccc0= class=jm-cluster jm-review-widget-minimal-header__button-and-filters style=--cluster-justify: flex-end; --cluster-align: center; --cluster-space: var(--jm-space-200); --cluster-wrap: wrap; | WRITE A REVIEW Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful
+DIV | data-v-04f37a24= data-v-1f1d8788= data-v-6e61ccc0= class=jm-cluster jm-action-buttons jm-review-widget-minimal-header__action-buttons style=--cluster-justify: flex-end; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; | WRITE A REVIEW
+DIV | data-v-417c96d2= data-v-1f1d8788= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | WRITE A REVIEW
+BUTTON | data-v-9640c170= data-v-1f1d8788= type=button class=jm-button jm-button--primary jm-action-buttons__button data-testid=write-review-button style=--jm-btn-padding-inline: var(--action-button-padding-inline); --jm-btn-padding-block: var(--action-button-padding-block); | WRITE A REVIEW
+DIV | data-v-417c96d2= data-v-8ff89c07= data-v-6e61ccc0= class=jm-stack jm-stack--space-400 jm-review-widget-minimal-header__filters style=--52156a25: var(--jm-space-400); | Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful
+DIV | data-v-04f37a24= data-v-8ff89c07= class=jm-cluster jm-filters jm-filters--compact style=--cluster-justify: flex-end; --cluster-align: stretch; --cluster-space: var(--jm-space-200); --cluster-wrap: wrap; | Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful
+DIV | data-v-04f37a24= data-v-8ff89c07= class=jm-cluster jm-filters__buttons style=--cluster-justify: flex-start; --cluster-align: stretch; --cluster-space: var(--jm-space-200); --cluster-wrap: wrap; | Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful
+BUTTON | data-v-9640c170= data-v-8ff89c07= type=button class=jm-button jm-button--secondary jm-custom-answer-filter jm-custom-answer-filter--compact aria-label=Filters aria-expanded=false style=--jm-btn-padding-inline: var(--jm-filter-padding-inline); --jm-btn-padding-block: var(--jm-filter-padding-block); | 
+SPAN | data-v-fb25c6cd= data-v-8ff89c07= class=jm-with-icon jm-custom-answer-filter__icon style=--jm-icon-space: var(--jm-space-200); --jm-icon-justify: center; --jm-icon-align: center; --jm-icon-size: 1em; | 
+SPAN | data-v-6d928e9f= data-v-8ff89c07= class=jm-text jm-custom-answer-filter__text style=--text-size: var(--jm-body-xs-size); --text-weight: var(--jm-body-xs-weight-medium); | Filters
+DIV | data-v-8ff89c07= class=jm-sort-filter jm-sort-filter--compact | Sort reviews by Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful
+SPAN | data-v-fb25c6cd= data-v-8ff89c07= class=jm-sort-filter__icon jm-sort-filter__icon--sort style=--jm-icon-size: 1em; | 
+SELECT | data-v-8ff89c07= id=jdgm-sort-rs9ybj class=jdgm-sort-dropdown jm-sort-filter__select value=created_at | Most Recent Highest Rating Lowest Rating Only Pictures Pictures First Videos First Most Helpful
+SPAN | data-v-fb25c6cd= data-v-8ff89c07= class=jm-sort-filter__icon jm-sort-filter__icon--chevron style=--jm-icon-size: 1em; | 
+DIV | data-v-09f33d63= data-v-6e61ccc0= class=jm-media-preview | Thumbnail Navigation
+DIV | data-v-9e1dbe4b= data-v-09f33d63= class=jm-media-grid jm-media-grid jm-media-grid--has-arrows style=--thumbnail-size: 100px; --thumbnail-spacing: 8px; --max-visible: 5; --thumbnail-border-radius: var(--jm-widget-border-radius); --thumbnail-active-border-color: #fff; --grid-navigation-arrow: flex; --grid-max-width: none; | Thumbnail Navigation
+DIV | data-v-9e1dbe4b= class=jm-media-grid__container role=group aria-label=Thumbnails for 2 items style=--grid-flex-wrap: nowrap; --grid-overflow-x: auto; --grid-gap: 8px; --grid-size: 100px; --grid-maximum-items: 8; --grid-justify-content: flex-start; | 
+BUTTON | data-v-9e1dbe4b= class=jm-media-grid__item aria-label=Go to item 1 aria-pressed=true tabindex=0 | 
+SPAN | data-v-9e1dbe4b= class=jm-media-grid__image-container | 
+IMG | data-v-9e1dbe4b= src=https://review-images.judgeme.com/sorry-sugar/1785328372__image__original.jpg?quality=80&width=160 srcset=https://review-images.judgeme.com/sorry-sugar/1785328372__image__original.jpg?quality=80&width=160 100w, https://review-images.judgeme.com/sorry-sugar/1785328372__image__original.jpg?quality=80&width=240 200w sizes=100px alt=Thumbnail 1 class=jm-media-grid__image jm-media-grid__image--loaded loading=lazy | 
+BUTTON | data-v-9e1dbe4b= class=jm-media-grid__item aria-label=Go to item 2 aria-pressed=false tabindex=-1 | 
+SPAN | data-v-9e1dbe4b= class=jm-media-grid__image-container | 
+IMG | data-v-9e1dbe4b= src=https://review-images.judgeme.com/sorry-sugar/1785327992__img_3630__original.jpeg?quality=80&width=160 srcset=https://review-images.judgeme.com/sorry-sugar/1785327992__img_3630__original.jpeg?quality=80&width=160 100w, https://review-images.judgeme.com/sorry-sugar/1785327992__img_3630__original.jpeg?quality=80&width=240 200w sizes=100px alt=Thumbnail 2 class=jm-media-grid__image jm-media-grid__image--loaded loading=lazy | 
+DIV | id=custom-tabbers-container class=custom-review-tabs-wrapper style=display: block; | Select to learn more: Quality Taste Aroma
+DIV | class=custom-review-quote | "GOOD QUALITY and amazing taste, highly recommended!"
+DIV | class=custom-review-quote | "Super Coffee flavor and taste was just Amazing!"
+DIV | class=custom-review-quote | "Refreshing aroma is all you need to start your day."
+DIV | data-v-5978544e= data-v-d92151cd= class=jm-loading-overlay jm-review-widget__body |      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea salt caramel is his favourtite      Abhinav Sinha 08/25/2026 My mornings are incomplete without french vanilla      Riya Malhotra 08/18/2026 I loved the coffee bt my gf loved the tumbler      Komal Bansal 08/1
+SECTION | data-v-81bcf8b4= class=jdgm-masonry-grid aria-label=Customer reviews style=max-height: 550px; |      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea salt caramel is his favourtite      Abhinav Sinha 08/25/2026 My mornings are incomplete without french vanilla      Riya Malhotra 08/18/2026 I loved the coffee bt my gf loved the tumbler      Komal Bansal 08/1
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea salt caramel is his favourtite
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea salt caramel is his favourtite
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Nikhil Shah 08/25/2026 My brother hates coffee but apparently sea salt caramel is his favourtite
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     
+DIV | data-v-49503b0a= data-v-200cea89= class=jm-star-rating role=img aria-label=4 out of 5 stars style=--082a1a4d: var(--jm-review-widget-star-and-histogram-color); |     
+DIV | data-v-04f37a24= data-v-49503b0a= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; |     
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-50 style=--52156a25: var(--jm-space-50); | Nikhil Shah 08/25/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-100 style=--52156a25: var(--jm-space-100); | Nikhil Shah
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | Nikhil Shah
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__name style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-bold); | Nikhil Shah
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | 
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | 08/25/2026
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text style=--text-size: var(--jm-body-sm-size); --text-weight: var(--jm-body-sm-weight-default); color: var(--jm-review-widget-text-color); | 08/25/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | My brother hates coffee but apparently sea salt caramel is his favourtite
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | My brother hates coffee but apparently sea salt caramel is his favourtite
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-reply-item__content style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | My brother hates coffee but apparently sea salt caramel is his favourtite
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__body style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-default); color: var(--jm-review-widget-text-color); | My brother hates coffee but apparently sea salt caramel is his favourtite
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Abhinav Sinha 08/25/2026 My mornings are incomplete without french vanilla
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Abhinav Sinha 08/25/2026 My mornings are incomplete without french vanilla
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Abhinav Sinha 08/25/2026 My mornings are incomplete without french vanilla
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     
+DIV | data-v-49503b0a= data-v-200cea89= class=jm-star-rating role=img aria-label=4 out of 5 stars style=--082a1a4d: var(--jm-review-widget-star-and-histogram-color); |     
+DIV | data-v-04f37a24= data-v-49503b0a= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; |     
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-50 style=--52156a25: var(--jm-space-50); | Abhinav Sinha 08/25/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-100 style=--52156a25: var(--jm-space-100); | Abhinav Sinha
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | Abhinav Sinha
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__name style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-bold); | Abhinav Sinha
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | 
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | 08/25/2026
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text style=--text-size: var(--jm-body-sm-size); --text-weight: var(--jm-body-sm-weight-default); color: var(--jm-review-widget-text-color); | 08/25/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | My mornings are incomplete without french vanilla
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | My mornings are incomplete without french vanilla
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-reply-item__content style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | My mornings are incomplete without french vanilla
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__body style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-default); color: var(--jm-review-widget-text-color); | My mornings are incomplete without french vanilla
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Riya Malhotra 08/18/2026 I loved the coffee bt my gf loved the tumbler
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Riya Malhotra 08/18/2026 I loved the coffee bt my gf loved the tumbler
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Riya Malhotra 08/18/2026 I loved the coffee bt my gf loved the tumbler
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     
+DIV | data-v-49503b0a= data-v-200cea89= class=jm-star-rating role=img aria-label=5 out of 5 stars style=--082a1a4d: var(--jm-review-widget-star-and-histogram-color); |     
+DIV | data-v-04f37a24= data-v-49503b0a= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; |     
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-50 style=--52156a25: var(--jm-space-50); | Riya Malhotra 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-100 style=--52156a25: var(--jm-space-100); | Riya Malhotra
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | Riya Malhotra
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__name style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-bold); | Riya Malhotra
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | 
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | 08/18/2026
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text style=--text-size: var(--jm-body-sm-size); --text-weight: var(--jm-body-sm-weight-default); color: var(--jm-review-widget-text-color); | 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | I loved the coffee bt my gf loved the tumbler
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | I loved the coffee bt my gf loved the tumbler
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-reply-item__content style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | I loved the coffee bt my gf loved the tumbler
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__body style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-default); color: var(--jm-review-widget-text-color); | I loved the coffee bt my gf loved the tumbler
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Komal Bansal 08/18/2026 My friend gifted this to me and I am soo glad that she did. Hazel almond is so damn good.
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Komal Bansal 08/18/2026 My friend gifted this to me and I am soo glad that she did. Hazel almond is so damn good.
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Komal Bansal 08/18/2026 My friend gifted this to me and I am soo glad that she did. Hazel almond is so damn good.
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     
+DIV | data-v-49503b0a= data-v-200cea89= class=jm-star-rating role=img aria-label=5 out of 5 stars style=--082a1a4d: var(--jm-review-widget-star-and-histogram-color); |     
+DIV | data-v-04f37a24= data-v-49503b0a= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; |     
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-50 style=--52156a25: var(--jm-space-50); | Komal Bansal 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-100 style=--52156a25: var(--jm-space-100); | Komal Bansal
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | Komal Bansal
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__name style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-bold); | Komal Bansal
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | 
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | 08/18/2026
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text style=--text-size: var(--jm-body-sm-size); --text-weight: var(--jm-body-sm-weight-default); color: var(--jm-review-widget-text-color); | 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | My friend gifted this to me and I am soo glad that she did. Hazel almond is so damn good.
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | My friend gifted this to me and I am soo glad that she did. Hazel almond is so damn good.
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-reply-item__content style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | My friend gifted this to me and I am soo glad that she did. Hazel almond is so damn good.
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__body style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-default); color: var(--jm-review-widget-text-color); | My friend gifted this to me and I am soo glad that she did. Hazel almond is so damn good.
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Abhishek Rao 08/18/2026 I have tried so many coffee premixes but this one takes the crown easily coz no added sugar!
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Abhishek Rao 08/18/2026 I have tried so many coffee premixes but this one takes the crown easily coz no added sugar!
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Abhishek Rao 08/18/2026 I have tried so many coffee premixes but this one takes the crown easily coz no added sugar!
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     
+DIV | data-v-49503b0a= data-v-200cea89= class=jm-star-rating role=img aria-label=5 out of 5 stars style=--082a1a4d: var(--jm-review-widget-star-and-histogram-color); |     
+DIV | data-v-04f37a24= data-v-49503b0a= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; |     
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-50 style=--52156a25: var(--jm-space-50); | Abhishek Rao 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-100 style=--52156a25: var(--jm-space-100); | Abhishek Rao
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | Abhishek Rao
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__name style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-bold); | Abhishek Rao
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | 
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | 08/18/2026
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text style=--text-size: var(--jm-body-sm-size); --text-weight: var(--jm-body-sm-weight-default); color: var(--jm-review-widget-text-color); | 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | I have tried so many coffee premixes but this one takes the crown easily coz no added sugar!
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | I have tried so many coffee premixes but this one takes the crown easily coz no added sugar!
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-reply-item__content style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | I have tried so many coffee premixes but this one takes the crown easily coz no added sugar!
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__body style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-default); color: var(--jm-review-widget-text-color); | I have tried so many coffee premixes but this one takes the crown easily coz no added sugar!
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Sanjay Bansal 08/18/2026 I loved the trial pack so much that I got it for all my sisters for rakhi
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Sanjay Bansal 08/18/2026 I loved the trial pack so much that I got it for all my sisters for rakhi
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Sanjay Bansal 08/18/2026 I loved the trial pack so much that I got it for all my sisters for rakhi
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     
+DIV | data-v-49503b0a= data-v-200cea89= class=jm-star-rating role=img aria-label=5 out of 5 stars style=--082a1a4d: var(--jm-review-widget-star-and-histogram-color); |     
+DIV | data-v-04f37a24= data-v-49503b0a= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; |     
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-50 style=--52156a25: var(--jm-space-50); | Sanjay Bansal 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-100 style=--52156a25: var(--jm-space-100); | Sanjay Bansal
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | Sanjay Bansal
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__name style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-bold); | Sanjay Bansal
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | 
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | 08/18/2026
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text style=--text-size: var(--jm-body-sm-size); --text-weight: var(--jm-body-sm-weight-default); color: var(--jm-review-widget-text-color); | 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | I loved the trial pack so much that I got it for all my sisters for rakhi
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | I loved the trial pack so much that I got it for all my sisters for rakhi
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-reply-item__content style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | I loved the trial pack so much that I got it for all my sisters for rakhi
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__body style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-default); color: var(--jm-review-widget-text-color); | I loved the trial pack so much that I got it for all my sisters for rakhi
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Rohit Tandon 08/18/2026 Mujhe nahi pata tha monk fruit coffee kaisi taste karegi...but after trying this I can say that this is the best coffee I've ever had
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Rohit Tandon 08/18/2026 Mujhe nahi pata tha monk fruit coffee kaisi taste karegi...but after trying this I can say that this is the best coffee I've ever had
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Rohit Tandon 08/18/2026 Mujhe nahi pata tha monk fruit coffee kaisi taste karegi...but after trying this I can say that this is the best coffee I've ever had
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     
+DIV | data-v-49503b0a= data-v-200cea89= class=jm-star-rating role=img aria-label=5 out of 5 stars style=--082a1a4d: var(--jm-review-widget-star-and-histogram-color); |     
+DIV | data-v-04f37a24= data-v-49503b0a= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; |     
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-50 style=--52156a25: var(--jm-space-50); | Rohit Tandon 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-100 style=--52156a25: var(--jm-space-100); | Rohit Tandon
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | Rohit Tandon
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__name style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-bold); | Rohit Tandon
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | 
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | 08/18/2026
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text style=--text-size: var(--jm-body-sm-size); --text-weight: var(--jm-body-sm-weight-default); color: var(--jm-review-widget-text-color); | 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | Mujhe nahi pata tha monk fruit coffee kaisi taste karegi...but after trying this I can say that this is the best coffee I've ever had
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | Mujhe nahi pata tha monk fruit coffee kaisi taste karegi...but after trying this I can say that this is the best coffee I've ever had
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-reply-item__content style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | Mujhe nahi pata tha monk fruit coffee kaisi taste karegi...but after trying this I can say that this is the best coffee I've ever had
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__body style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-default); color: var(--jm-review-widget-text-color); | Mujhe nahi pata tha monk fruit coffee kaisi taste karegi...but after trying this I can say that this is the best coffee I've ever had
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Kamal Arora 08/18/2026 I converted my sister from being a chai lover to being a french vanilla lover
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Kamal Arora 08/18/2026 I converted my sister from being a chai lover to being a french vanilla lover
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Kamal Arora 08/18/2026 I converted my sister from being a chai lover to being a french vanilla lover
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     
+DIV | data-v-49503b0a= data-v-200cea89= class=jm-star-rating role=img aria-label=5 out of 5 stars style=--082a1a4d: var(--jm-review-widget-star-and-histogram-color); |     
+DIV | data-v-04f37a24= data-v-49503b0a= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; |     
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-50 style=--52156a25: var(--jm-space-50); | Kamal Arora 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-100 style=--52156a25: var(--jm-space-100); | Kamal Arora
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | Kamal Arora
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__name style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-bold); | Kamal Arora
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | 
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | 08/18/2026
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text style=--text-size: var(--jm-body-sm-size); --text-weight: var(--jm-body-sm-weight-default); color: var(--jm-review-widget-text-color); | 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | I converted my sister from being a chai lover to being a french vanilla lover
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | I converted my sister from being a chai lover to being a french vanilla lover
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-reply-item__content style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | I converted my sister from being a chai lover to being a french vanilla lover
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__body style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-default); color: var(--jm-review-widget-text-color); | I converted my sister from being a chai lover to being a french vanilla lover
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Suraj Mehta 08/18/2026 Hot French vanilla tastes like a dream
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Suraj Mehta 08/18/2026 Hot French vanilla tastes like a dream
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Suraj Mehta 08/18/2026 Hot French vanilla tastes like a dream
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     
+DIV | data-v-49503b0a= data-v-200cea89= class=jm-star-rating role=img aria-label=5 out of 5 stars style=--082a1a4d: var(--jm-review-widget-star-and-histogram-color); |     
+DIV | data-v-04f37a24= data-v-49503b0a= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; |     
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-50 style=--52156a25: var(--jm-space-50); | Suraj Mehta 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-100 style=--52156a25: var(--jm-space-100); | Suraj Mehta
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | Suraj Mehta
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__name style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-bold); | Suraj Mehta
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | 
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | 08/18/2026
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text style=--text-size: var(--jm-body-sm-size); --text-weight: var(--jm-body-sm-weight-default); color: var(--jm-review-widget-text-color); | 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | Hot French vanilla tastes like a dream
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | Hot French vanilla tastes like a dream
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-reply-item__content style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | Hot French vanilla tastes like a dream
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__body style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-default); color: var(--jm-review-widget-text-color); | Hot French vanilla tastes like a dream
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Namita Shah 08/18/2026 Got this for my girlfriend and she loved french vanilla soo much...omw to upgrade to it's full size pack for her
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Namita Shah 08/18/2026 Got this for my girlfriend and she loved french vanilla soo much...omw to upgrade to it's full size pack for her
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Namita Shah 08/18/2026 Got this for my girlfriend and she loved french vanilla soo much...omw to upgrade to it's full size pack for her
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     
+DIV | data-v-49503b0a= data-v-200cea89= class=jm-star-rating role=img aria-label=5 out of 5 stars style=--082a1a4d: var(--jm-review-widget-star-and-histogram-color); |     
+DIV | data-v-04f37a24= data-v-49503b0a= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; |     
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-50 style=--52156a25: var(--jm-space-50); | Namita Shah 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-100 style=--52156a25: var(--jm-space-100); | Namita Shah
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | Namita Shah
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__name style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-bold); | Namita Shah
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | 
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | 08/18/2026
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text style=--text-size: var(--jm-body-sm-size); --text-weight: var(--jm-body-sm-weight-default); color: var(--jm-review-widget-text-color); | 08/18/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | Got this for my girlfriend and she loved french vanilla soo much...omw to upgrade to it's full size pack for her
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | Got this for my girlfriend and she loved french vanilla soo much...omw to upgrade to it's full size pack for her
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-reply-item__content style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | Got this for my girlfriend and she loved french vanilla soo much...omw to upgrade to it's full size pack for her
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__body style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-default); color: var(--jm-review-widget-text-color); | Got this for my girlfriend and she loved french vanilla soo much...omw to upgrade to it's full size pack for her
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Aditi Mehra 08/16/2026 Meri friend ko coffee bilkul nahi pasand but usko ap logo ki coffee bahot acchi lagi
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Aditi Mehra 08/16/2026 Meri friend ko coffee bilkul nahi pasand but usko ap logo ki coffee bahot acchi lagi
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Aditi Mehra 08/16/2026 Meri friend ko coffee bilkul nahi pasand but usko ap logo ki coffee bahot acchi lagi
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     
+DIV | data-v-49503b0a= data-v-200cea89= class=jm-star-rating role=img aria-label=5 out of 5 stars style=--082a1a4d: var(--jm-review-widget-star-and-histogram-color); |     
+DIV | data-v-04f37a24= data-v-49503b0a= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; |     
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-50 style=--52156a25: var(--jm-space-50); | Aditi Mehra 08/16/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-100 style=--52156a25: var(--jm-space-100); | Aditi Mehra
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | Aditi Mehra
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__name style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-bold); | Aditi Mehra
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | 
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | 08/16/2026
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text style=--text-size: var(--jm-body-sm-size); --text-weight: var(--jm-body-sm-weight-default); color: var(--jm-review-widget-text-color); | 08/16/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | Meri friend ko coffee bilkul nahi pasand but usko ap logo ki coffee bahot acchi lagi
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | Meri friend ko coffee bilkul nahi pasand but usko ap logo ki coffee bahot acchi lagi
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-reply-item__content style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | Meri friend ko coffee bilkul nahi pasand but usko ap logo ki coffee bahot acchi lagi
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__body style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-default); color: var(--jm-review-widget-text-color); | Meri friend ko coffee bilkul nahi pasand but usko ap logo ki coffee bahot acchi lagi
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Preeti Sinha 08/16/2026 Mujhe laga pancho coffees ka taste same hoga but I was clearly wrong
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Preeti Sinha 08/16/2026 Mujhe laga pancho coffees ka taste same hoga but I was clearly wrong
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Preeti Sinha 08/16/2026 Mujhe laga pancho coffees ka taste same hoga but I was clearly wrong
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     
+DIV | data-v-49503b0a= data-v-200cea89= class=jm-star-rating role=img aria-label=4 out of 5 stars style=--082a1a4d: var(--jm-review-widget-star-and-histogram-color); |     
+DIV | data-v-04f37a24= data-v-49503b0a= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; |     
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+SPAN | data-v-49503b0a= class=jm-star-rating__font-icon style=font-size: 1.5em; line-height: 1; position: relative; color: var(--jm-review-widget-star-and-histogram-color); | 
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-50 style=--52156a25: var(--jm-space-50); | Preeti Sinha 08/16/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-100 style=--52156a25: var(--jm-space-100); | Preeti Sinha
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | Preeti Sinha
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__name style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-bold); | Preeti Sinha
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: flex-start; --cluster-align: center; --cluster-space: var(--jm-space-100); --cluster-wrap: wrap; | 
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | 08/16/2026
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text style=--text-size: var(--jm-body-sm-size); --text-weight: var(--jm-body-sm-weight-default); color: var(--jm-review-widget-text-color); | 08/16/2026
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-200 style=--52156a25: var(--jm-space-200); | Mujhe laga pancho coffees ka taste same hoga but I was clearly wrong
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | Mujhe laga pancho coffees ka taste same hoga but I was clearly wrong
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-reply-item__content style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; | Mujhe laga pancho coffees ka taste same hoga but I was clearly wrong
+P | data-v-6d928e9f= data-v-200cea89= class=jm-text jdgm-review-card__body style=--text-size: var(--jm-body-md-size); --text-weight: var(--jm-body-md-weight-default); color: var(--jm-review-widget-text-color); | Mujhe laga pancho coffees ka taste same hoga but I was clearly wrong
+DIV | data-v-267c46da= data-v-200cea89= data-v-81bcf8b4= class=jm-box jm-box--inherit-color jdgm-review-card style=--jm-box-padding: var(--jm-space-0); --jm-box-border-width: 0; --5d6429c9: 282px; --2f59135b: 409px; --e9e0be5c: 5; |      Meena Bansal 08/16/2026 I have tried all the 5 flavours and silk chocolate is to die for
+DIV | data-v-267c46da= data-v-200cea89= class=jm-box jm-box--inherit-color jdgm-review-card__content style=--jm-box-padding: var(--jm-space-600); --jm-box-border-width: 0; |      Meena Bansal 08/16/2026 I have tried all the 5 flavours and silk chocolate is to die for
+DIV | data-v-417c96d2= data-v-200cea89= class=jm-stack jm-stack--space-400 style=--52156a25: var(--jm-space-400); |      Meena Bansal 08/16/2026 I have tried all the 5 flavours and silk chocolate is to die for
+DIV | data-v-04f37a24= data-v-200cea89= class=jm-cluster style=--cluster-justify: space-between; --cluster-align: flex-start; --cluster-space: var(--jm-space-400); --cluster-wrap: wrap; |     

@@ -21,10 +21,17 @@ jobs:
       - run: pip install playwright
       - run: python -m playwright install --with-deps chromium
       - run: python sorry_sugar_scrape.py
+      - name: Upload scrape artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sorry-sugar-reviews
+          path: scrape_output/
+          if-no-files-found: error
       - name: Commit scrape output
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add scrape_output/
           git commit -m "Add Sorry Sugar scraped reviews" || exit 0
+          git pull --rebase origin sorry-sugar-scrape-20261002 || true
           git push

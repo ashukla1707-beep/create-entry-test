@@ -1,0 +1,50 @@
+[
+  {
+    "product_code": "TK",
+    "product": "The Breakup Trial Kit",
+    "url": "https://sosorrysugar.com/products/the-breakup-trial-kit",
+    "displayed_review_count": 183,
+    "scraped_reviews": 0,
+    "match": false
+  },
+  {
+    "product_code": "SSC",
+    "product": "Sea Salt Caramel",
+    "url": "https://sosorrysugar.com/products/sea-salt-caramel",
+    "displayed_review_count": 66,
+    "scraped_reviews": 0,
+    "match": false
+  },
+  {
+    "product_code": "FVC",
+    "product": "French Vanilla Cloud",
+    "url": "https://sosorrysugar.com/products/french-vanilla-cloud",
+    "displayed_review_count": 48,
+    "scraped_reviews": 0,
+    "match": false
+  },
+  {
+    "product_code": "SCM",
+    "product": "Silk Chocolate Mocha",
+    "url": "https://sosorrysugar.com/products/silk-chocolate-mocha",
+    "displayed_review_count": 43,
+    "scraped_reviews": 0,
+    "match": false
+  },
+  {
+    "product_code": "HAL",
+    "product": "Hazel Almond Latte",
+    "url": "https://sosorrysugar.com/products/hazel-almond-latte",
+    "displayed_review_count": 42,
+    "scraped_reviews": 0,
+    "match": false
+  },
+  {
+    "product_code": "BGT",
+    "product": "Butter Gooey Toffee",
+    "url": "https://sosorrysugar.com/products/butter-gooey-toffee",
+    "displayed_review_count": 48,
+    "scraped_reviews": 0,
+    "match": false
+  }
+]

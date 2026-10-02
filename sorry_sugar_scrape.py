@@ -30,19 +30,21 @@ def attr(loc, name):
         return ""
 
 def expected_count(page):
-    selectors = [".jdgm-prev-badge__text",".jdgm-rev-widg__summary-text"]
-    for sel in selectors:
-        try:
-            t = text_of(page.locator(sel))
-            m = re.search(r"(\\d[\\d,]*)\\s+reviews?", t, re.I)
-            if m: return int(m.group(1).replace(",",""))
-        except Exception:
-            pass
+    root = page.locator("#judgeme_product_reviews")
     try:
-        t = page.locator("body").inner_text(timeout=5000)
+        t = text_of(root.locator(".jm-average-rating-display"))
         m = re.search(r"(\\d[\\d,]*)\\s+reviews?", t, re.I)
-        if m: return int(m.group(1).replace(",",""))
-        if re.search(r"\\bNo reviews\\b", t, re.I): return 0
+        if m:
+            return int(m.group(1).replace(",", ""))
+    except Exception:
+        pass
+    try:
+        t = text_of(root)
+        m = re.search(r"Customer Reviews.*?(\\d[\\d,]*)\\s+reviews?", t, re.I | re.S)
+        if m:
+            return int(m.group(1).replace(",", ""))
+        if re.search(r"\\bNo reviews\\b|Be the first one to review", t, re.I):
+            return 0
     except Exception:
         pass
     return None
@@ -57,19 +59,27 @@ def rating_of(card):
     return int(round(float(m.group(1)))) if m else None
 
 def extract(page, code, product, url):
-    cards = page.locator("#judgeme_product_reviews .jdgm-rev")
-    if cards.count() == 0:
-        cards = page.locator(".jdgm-review-widget .jdgm-rev")
+    cards = page.locator("#judgeme_product_reviews .jdgm-review-card")
     rows=[]
+    date_re = re.compile(r"^(?:\\d{1,2}[/-]){2}\\d{4}$")
     for i in range(cards.count()):
         c=cards.nth(i)
-        sid=attr(c,"data-review-id") or attr(c,"data-id") or attr(c,"id")
-        reviewer=text_of(c.locator(".jdgm-rev__author,.jdgm-rev__author-wrapper,[class*='author']"))
-        title=text_of(c.locator(".jdgm-rev__title,[class*='review-title']"))
-        body=text_of(c.locator(".jdgm-rev__body,[class*='review-body']"))
-        date=text_of(c.locator(".jdgm-rev__timestamp,time,[class*='timestamp'],[class*='date']"))
+        sid=attr(c,"data-review-id") or attr(c,"data-id")
+        reviewer=text_of(c.locator(".jdgm-review-card__name"))
+        body=text_of(c.locator(".jdgm-review-card__body"))
+        title=text_of(c.locator(".jdgm-review-card__title"))
         rating=rating_of(c)
-        verified = c.locator(".jdgm-rev__buyer-badge,[class*='verified'],[title*='verified' i]").count() > 0
+        date=""
+        try:
+            ps=c.locator("p.jm-text")
+            for j in range(ps.count()):
+                t=text_of(ps.nth(j))
+                if date_re.match(t):
+                    date=t
+                    break
+        except Exception:
+            pass
+        verified = c.locator("[class*='verified' i], [aria-label*='verified' i], [title*='verified' i]").count() > 0
         if not any([sid,reviewer,title,body,date,rating]): continue
         fpbase = ("judgeme:"+sid) if sid else "|".join([reviewer,date,str(rating or ""),body])
         fp=hashlib.sha256(fpbase.encode("utf-8","ignore")).hexdigest()
@@ -82,52 +92,79 @@ def extract(page, code, product, url):
     return rows
 
 def click_next(page):
-    selectors = [
-        "a.jdgm-paginate__next-page","button.jdgm-paginate__next-page",
-        "button:has-text('Load more')","a:has-text('Load more')",
-        "button:has-text('Show more')","a:has-text('Show more')",
-        "a[rel='next']","a[aria-label='Next']","button[aria-label='Next']"
-    ]
-    for sel in selectors:
-        try:
-            loc=page.locator("#judgeme_product_reviews "+sel)
-            if loc.count()==0: loc=page.locator(sel)
-            for i in range(loc.count()):
-                el=loc.nth(i)
-                if not el.is_visible(): continue
-                cls=(el.get_attribute("class") or "").lower()
-                if "disabled" in cls or (el.get_attribute("aria-disabled") or "").lower()=="true": continue
-                before=text_of(page.locator("#judgeme_product_reviews"))
-                el.scroll_into_view_if_needed()
-                el.click(timeout=5000)
-                page.wait_for_timeout(1200)
-                after=text_of(page.locator("#judgeme_product_reviews"))
-                if after != before: return True
-        except Exception:
-            pass
+    root = page.locator("#judgeme_product_reviews")
+    before = root.locator(".jdgm-review-card").count()
 
-    # Judge.me numbered pagination fallback: click the first non-current page
-    # whose page number is greater than the current one.
+    # First trigger any lazy/infinite loading by scrolling to the end of the widget.
     try:
-        pages=page.locator("#judgeme_product_reviews a.jdgm-paginate__page")
-        current=1
-        for i in range(pages.count()):
-            el=pages.nth(i)
-            cls=(el.get_attribute("class") or "")
-            t=text_of(el)
-            if "jdgm-curt" in cls and t.isdigit(): current=int(t)
-        candidates=[]
-        for i in range(pages.count()):
-            el=pages.nth(i); t=text_of(el)
-            if t.isdigit() and int(t)>current and el.is_visible():
-                candidates.append((int(t),el))
-        if candidates:
-            candidates.sort(key=lambda x:x[0])
-            before=text_of(page.locator("#judgeme_product_reviews"))
-            candidates[0][1].click(timeout=5000)
-            page.wait_for_timeout(1200)
-            after=text_of(page.locator("#judgeme_product_reviews"))
-            return after != before
+        cards=root.locator(".jdgm-review-card")
+        if cards.count():
+            cards.last.scroll_into_view_if_needed()
+        root.evaluate("(el) => el.scrollIntoView({block:'end'})")
+        page.wait_for_timeout(1400)
+        after=root.locator(".jdgm-review-card").count()
+        if after > before:
+            return True
+    except Exception:
+        pass
+
+    # Modern Judge.me can use load-more, pagination, or a next control.
+    try:
+        candidates=root.locator("button, a")
+        for i in range(candidates.count()):
+            el=candidates.nth(i)
+            try:
+                if not el.is_visible():
+                    continue
+                # Ignore controls belonging to the write-review dialog/media carousel.
+                if el.locator("xpath=ancestor::*[contains(@class,'jdgm-write-review-modal')]").count():
+                    continue
+                if el.locator("xpath=ancestor::*[contains(@class,'jm-media-grid')]").count():
+                    continue
+                txt=text_of(el).lower()
+                aria=(attr(el,"aria-label") or "").lower()
+                testid=(attr(el,"data-testid") or "").lower()
+                cls=(attr(el,"class") or "").lower()
+                signal=" ".join([txt,aria,testid,cls])
+                if re.search(r"load.?more|show.?more|view.?more|more.?reviews|next.?page|pagination.?next|paginate.?next", signal):
+                    el.scroll_into_view_if_needed()
+                    el.click(timeout=5000)
+                    page.wait_for_timeout(1400)
+                    return True
+            except Exception:
+                continue
+    except Exception:
+        pass
+
+    # Numbered pagination fallback: choose the next visible numeric page within
+    # an element whose own/ancestor class suggests pagination.
+    try:
+        nums=root.locator("button, a")
+        numeric=[]
+        for i in range(nums.count()):
+            el=nums.nth(i)
+            try:
+                if not el.is_visible(): continue
+                t=text_of(el)
+                if not t.isdigit(): continue
+                context=(attr(el,"class") or "")+" "+(attr(el.locator("xpath=.."),"class") or "")
+                if re.search(r"pag|page|nav", context, re.I):
+                    numeric.append((int(t),el))
+            except Exception:
+                pass
+        if numeric:
+            current=1
+            for n,el in numeric:
+                a=(attr(el,"aria-current") or "").lower()
+                cls=(attr(el,"class") or "").lower()
+                if a=="page" or "current" in cls or "active" in cls:
+                    current=n
+            nxt=[x for x in numeric if x[0]>current]
+            if nxt:
+                nxt.sort(key=lambda z:z[0])
+                nxt[0][1].click(timeout=5000)
+                page.wait_for_timeout(1400)
+                return True
     except Exception:
         pass
     return False
